@@ -1,0 +1,51 @@
+##################
+# ---- Jump ---- #
+##################
+
+# Each checkpoint, start, end points need to have a pressure plate to be used by the plugin
+# materials can be (case insensitive):
+# - gold
+# - iron
+# - stone
+# - wood
+materials:
+  start: gold
+  end: gold
+  checkpoint: iron
+
+# Protection settings
+plates:
+  # Weather or not to delete pressure plates when a point location is changed
+  auto delete: yes
+  # Disallow to break plates
+  protect: yes
+
+# Game settings
+game:
+  # Time wait until enable players to reset their chrono (millis)
+  reset time: 1000
+  # Max fall distance before teleport the player to its last checkpoint (-1 to disable)
+  max fall distance: 5
+  # Reset enchantments when a player begin a jump
+  reset enchants: true
+  # color of the bossbar (possible values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)
+  bossbar: green
+  # Allowed command while in jump, other commands performed by player will cause it to leave the jump
+  allowed commands:
+    # Jump plugin
+    - jump
+    - checkpoint
+    - cp
+    # Essentials example
+    - msg
+    - r
+
+editor:
+  # Put editor in creative mode to be able to break plates, use fly and add blocks
+  creative: true
+
+best scores:
+  per jump: 10
+  per player: 5
+
+

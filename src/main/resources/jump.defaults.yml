@@ -1,0 +1,6 @@
+name: #string
+spawn: #Location
+start: #Location
+end: #Location
+checkpoints: [] #Location
+best scores: [] #list of {player, score} (10 bests)
