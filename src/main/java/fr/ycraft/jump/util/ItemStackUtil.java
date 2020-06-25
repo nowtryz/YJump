@@ -9,4 +9,8 @@ public class ItemStackUtil {
         itemMeta.setDisplayName(name);
         item.setItemMeta(itemMeta);
     }
+
+    public static void clearEnchants(ItemStack item) {
+        item.getEnchantments().keySet().forEach(item::removeEnchantment);
+    }
 }

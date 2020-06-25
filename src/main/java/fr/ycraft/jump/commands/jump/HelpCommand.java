@@ -16,16 +16,19 @@ public class HelpCommand extends AbstractCommandImpl {
 
     @Override
     public boolean execute(JumpPlugin plugin, CommandSender sender, String[] args) {
-        Text.HELP_HEADER.send(sender);
-        Arrays.stream(CommandSpec.values())
-                .filter(command -> command.permission.isHeldBy(sender))
-                .forEach(command -> Text.HELP_COMMAND.send(sender, command.getUsage(), command.description));
-
+        HelpCommand.sendHelp(sender);
         return true;
     }
 
     @Override
     public List<String> tabComplete(JumpPlugin plugin, CommandSender sender, String[] args) {
         return null;
+    }
+
+    static void sendHelp(CommandSender target) {
+        Text.HELP_HEADER.send(target);
+        Arrays.stream(CommandSpec.values())
+                .filter(command -> command.permission.isHeldBy(target))
+                .forEach(command -> Text.HELP_COMMAND.send(target, command.getUsage(), command.description));
     }
 }

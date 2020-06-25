@@ -3,7 +3,6 @@ package fr.ycraft.jump.commands.jump;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
-import fr.ycraft.jump.commands.CommandImpl;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.PluginCommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public class JumpCommand extends PluginCommandExecutor {
     public JumpCommand(@NotNull JumpPlugin plugin) {
-        super(plugin, CommandSpec.JUMP,
+        super(plugin, CommandSpec.JUMP, any -> true, // allow any arguments to show help message
                 new CreateCommand(),
                 new EditCommand(),
                 new SaveCommand(),
@@ -22,6 +21,7 @@ public class JumpCommand extends PluginCommandExecutor {
                 new ListCommand(),
                 new SetSpawnCommand(),
                 new SetStartCommand(),
+                new SetItemCommand(),
                 new SetEndCommand(),
                 new ReloadCommand(),
                 new DeleteCommand(),
@@ -40,7 +40,8 @@ public class JumpCommand extends PluginCommandExecutor {
             } else if (plugin.getGameManager().isPlaying(player)) {
                 plugin.getGameManager().getGame(player).ifPresent(JumpGame::close);
             } else {
-                Text.UNKNOWN_COMMAND.send(sender);
+                Text.UNKNOWN_COMMAND.send(player);
+                HelpCommand.sendHelp(player);
             }
         } else {
             Text.UNKNOWN_COMMAND.send(sender);

@@ -12,6 +12,7 @@ import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -24,6 +25,18 @@ import java.util.Optional;
  * Main class of the Jump plugin, this class is loaded by Bukkit on startup
  */
 public final class JumpPlugin extends JavaPlugin {
+    /*
+     * Preloads classes used in reflection by YAML deserializer
+     */
+    static {
+        try {
+            JumpPlugin.class.getClassLoader().loadClass(Jump.class.getName());
+            JumpPlugin.class.getClassLoader().loadClass(PlayerScore.class.getName());
+        } catch (ClassNotFoundException e) {
+            Bukkit.getLogger().severe("[YJump] Unable to preload classes for Yaml deserialization");
+        }
+    }
+
     private JumpManager jumpManager;
     private EditorsManager editorsManager;
     private GameManager gameManager;
@@ -34,7 +47,6 @@ public final class JumpPlugin extends JavaPlugin {
     public void onEnable() {
         super.saveDefaultConfig();
         this.exportDefaultResource("fr-FR.yml");
-        this.loadClasses();
 
         this.config = Config.fromYAML(this.getConfig(), this.getLogger());
         this.jumpManager = new JumpManager(this);
@@ -54,18 +66,6 @@ public final class JumpPlugin extends JavaPlugin {
         this.registerCommands();
         this.replacePlates();
         this.getLogger().info(String.format("%s enabled!", this.getName()));
-    }
-
-    /**
-     * Preloads classes used in reflection by YAML deserializer
-     */
-    private void loadClasses() {
-        try {
-            this.getClassLoader().loadClass(Jump.class.getName());
-            this.getClassLoader().loadClass(PlayerScore.class.getName());
-        } catch (ClassNotFoundException e) {
-            this.getLogger().severe("Unable to preload classes for Yaml deserialization");
-        }
     }
 
     /**

@@ -3,6 +3,8 @@ package fr.ycraft.jump.manager;
 import com.google.common.base.Charsets;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -15,11 +17,12 @@ import java.util.stream.Collectors;
 
 public class JumpManager extends AbstractManager {
     private final File jumpsFolder;
+    private final Configuration defaults;
     private final Map<String, Jump> jumps;
 
     public JumpManager(JumpPlugin plugin) {
         super(plugin);
-        Map<String, Jump> jumps1 = new LinkedHashMap<>();;
+        Configuration defaults = null;
 
         this.jumpsFolder = new File(plugin.getDataFolder(), "jumps");
         if (!this.jumpsFolder.mkdirs()) {
@@ -27,25 +30,28 @@ public class JumpManager extends AbstractManager {
                 final InputStream defConfigStream = this.plugin.getResource("jump.defaults.yml");
                 final InputStreamReader reader = new InputStreamReader(defConfigStream, Charsets.UTF_8)
             ) {
-                // Validate.notNull(defConfigStream, "How the hell, the default jump file can be missing in the jar");
-                YamlConfiguration defaults = YamlConfiguration.loadConfiguration(reader);
+                Validate.notNull(defConfigStream, "How the hell, the default jump file can be missing in the jar");
+                defaults = YamlConfiguration.loadConfiguration(reader);
 
-                jumps1 = Arrays.stream(this.jumpsFolder.listFiles(this::filter))
-                    .map(YamlConfiguration::loadConfiguration)
-                    .peek(c -> c.setDefaults(defaults))
-                    .peek(c -> c.options().copyDefaults(true))
-                    .map(this::loadJump)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(Jump::getName, Function.identity()));
             } catch (IOException e) {
                 this.plugin.getLogger().severe("Unable to load default jump data");
             } catch (IllegalStateException e) {
-                this.plugin.getLogger().severe("Unable to load default jump data: " + e.getMessage());
+                this.plugin.getLogger().severe(() -> "Unable to load jump data: " + e.getMessage());
                 this.plugin.getLogger().severe("Did you manually edit jump files?");
             }
         }
 
-        this.jumps = jumps1;
+        this.defaults = defaults;
+        this.jumps = Arrays.stream(this.jumpsFolder.listFiles((dir, name) ->
+                (name.endsWith(".yml") || name.endsWith(".yaml"))
+                        && !new File(dir, name).isDirectory()))
+                .map(YamlConfiguration::loadConfiguration)
+                .peek(conf -> conf.setDefaults(this.defaults))
+                .peek(conf -> conf.options().copyDefaults(true))
+                .map(conf -> conf.get("jump"))
+                .filter(Jump.class::isInstance)
+                .map(Jump.class::cast)
+                .collect(Collectors.toMap(Jump::getName, Function.identity()));
     }
 
     // Getters
@@ -72,6 +78,8 @@ public class JumpManager extends AbstractManager {
             if ( !file.exists() && file.createNewFile()) this.plugin.getLogger().info(String.format("Created %s", file.getName()));
 
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
+            conf.setDefaults(this.defaults);
+            conf.options().copyDefaults(true);
             conf.set("jump", jump);
             conf.save(file);
         } catch (IOException exception) {
@@ -88,19 +96,5 @@ public class JumpManager extends AbstractManager {
 
     public void save() {
         this.jumps.values().forEach(this::persist);
-    }
-
-    // Inner logic
-
-    private Jump loadJump(YamlConfiguration conf) {
-        return Optional.ofNullable(conf.get("jump"))
-                .filter(Jump.class::isInstance)
-                .map(Jump.class::cast)
-                .orElse(null);
-    }
-
-    private boolean filter(File dir, String fileName) {
-        if (!fileName.endsWith(".yml") && !fileName.endsWith(".yaml")) return false;
-        return !new File(dir, fileName).isDirectory();
     }
 }

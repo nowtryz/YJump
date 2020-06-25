@@ -41,7 +41,7 @@ public class ListInventory extends AbstractInventory {
 
     private Pair<Jump, ItemStack> jumpToItem(Jump jump) {
         List<Long> scores = this.plugin.getPlayerManager().getScores(this.player, jump);
-        ItemStack itemStack = new ItemStack(MATERIAL);
+        ItemStack itemStack = jump.getItem().clone();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.setDisplayName(Text.JUMP_LIST_HEADER.get(jump.getName()));

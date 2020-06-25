@@ -16,11 +16,9 @@
 
 
 noperm: "§cVous n'avez pas la permission pour exéuter cette commande"
-
 back: "§l» §r§cRetour"
 usage: "§cUsage : %s"
 deleted: "§6Jump Editor §e» §f%s §7a été supprimé."
-distance: "§9Distance : %.2fm"
 reloaded: "§6Jump §e» §aLes configurations du plugin ont été rechargée."
 click: "§9Cliquez pour executer"
 already_exists: "§6Jump Editor §e» §cCe Jump existe déjà"
@@ -29,7 +27,6 @@ only_game_command: "§6Jump §e» §cVous devez être sur un jump pour executer 
 only_editor_action: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette action"
 only_editor_command: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "§cSeul un joueur peut exécuter cette commande"
-quit: "§6Jump Editor §e» §9Vous avez quitté l'éditeur"
 unknown_command: "§cCommande inconnue"
 help:
   header: "§e§m=  §r§e» §6§lYJump §m §r §6Aide §r§e«§m  ="
@@ -37,49 +34,37 @@ help:
     - "§a%s"
     - "  §7§o%s"
 cmd:
-  jump:
-    desc: "Commande par défaut"
-  jumps:
-    desc: "Affiche la liste des jumps dans un inventaire"
-  checkpoint:
-    desc: "Vous téléporte au dernier checkpoint"
-  addcheckpoint:
-    desc: "Ajoute un checkpoit au jump en cours d'éditon"
-    performed: "§6Jump Editor §e» §7§oUn checkpoint a été ajouté pour le jump §f%s§7§o."
-  create:
-    desc: "Crée un nouveau jump"
-    usage: "/jump create <nom du jump>"
-  delete:
-    desc: "Supprime un jump"
-    usage: "/jump delete <nom du jump>"
-  edit:
-    desc: "Entrer en mode édition pour le jump spécifié"
-    usage: "/jump edit <nom du jump>"
-  help:
-    desc: "Affiche la description de toutes le commandes"
-  leave:
-    desc: "Quitte le jump en cours"
-  list:
-    desc: "Affiche la liste des jumps"
-  reload:
-    desc: "Recharge les configurations et les fichiers"
-  save:
-    desc: "Sauvegarde le jump en cours d'édition et ferme le mode édition"
-  setend:
-    desc: "Définit le bloc d'arrivé du jump"
-    performed: "§6Jump Editor §e» §7§oLe block d'arrivé du jump §f%s§7§o a été mis à jour"
-  setspawn:
-    desc: "Définit le spawn du jump"
-    performed: "§6Jump Editor §e» §7§oLe spawn de §f%s§7§o a été mis à jour"
-  setstart:
-    desc: "Définit le bloc de départ du jump"
-    performed: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
+  usage:
+    delete: "/jump delete <nom du jump>"
+    edit: "/jump edit <nom du jump>"
+    create: "/jump create <nom du jump>"
+  description:
+    jump: "Commande par défaut"
+    jumps: "Affiche la liste des jumps dans un inventaire"
+    checkpoint: "Vous téléporte au dernier checkpoint"
+    addcheckpoint: "Ajoute un checkpoit au jump en cours d'éditon"
+    create: "Crée un nouveau jump"
+    delete: "Supprime un jump"
+    edit: "Entrer en mode édition pour le jump spécifié"
+    help: "Affiche la description de toutes le commandes"
+    leave: "Quitte le jump en cours"
+    list: "Affiche la liste des jumps"
+    reload: "Recharge les configurations et les fichiers"
+    save: "Sauvegarde le jump en cours d'édition et ferme le mode édition"
+    setend: "Définit le bloc d'arrivé du jump"
+    setspawn: "Définit le spawn du jump"
+    setstart: "Définit le bloc de départ du jump"
+    setitem: "Définit l'item en main comme 'logo' du jump"
 editor:
   # header: ===== Jump Editor =====
   title: "§aVous êtes en train d'éditer §e%s§a."
   nospawn: "§6Jump Editor §e» §cCe jump n'a pas encore de spawn"
   delete_checkpoint: "§6Jump Editor §e» §aCheckpoint supprimé"
   cannot_start_game: "§6Jump Editor §e» §cVous ne pouvez pas commencer de jump lorsque vous êtes dans un éditeur."
+  set_air_item: >
+    §6Jump Editor §e» §aTu m'as pris pour qui ? T'as cru j'étais Fuizzy ?
+    Je vais pas remplacer l'item du jump par de l'air !
+  quit: "§6Jump Editor §e» §9Vous avez quitté l'éditeur"
   # Attention : cette section est particulière car elle utilise les composants text de Minecraft
   # Plus d'infos : https://minecraft.gamepedia.com/Raw_JSON_text_format (les clefs ci-dessous ne supportent pas le JSON)
   enter:
@@ -97,6 +82,12 @@ editor:
     checkpoint:
       prefix: "§7Pour ajouter un checkpoint, faites "
       suffix: "§7. Pour en supprimer cassez simplement les plaques."
+  updated:
+    checkpoint: "§6Jump Editor §e» §7§oUn checkpoint a été ajouté pour le jump §f%s§7§o."
+    end: "§6Jump Editor §e» §7§oLe block d'arrivé du jump §f%s§7§o a été mis à jour"
+    item: "§6Jump Editor §e» §7§oLe logo du jump est désormais §f%s§7§o."
+    spawn: "§6Jump Editor §e» §7§oLe spawn de §f%s§7§o a été mis à jour"
+    start: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
 inventory:
   list:
     title: "Liste des Jumps"
@@ -108,20 +99,20 @@ inventory:
         - ""
         - "§7§m                                               "
         - ""
-        - "§f§l» §eDistance §7: §6§l%.2f§r§6m"
-        - "§f§l» §eMon meilleur temp §7: §6%02d'%02d''%03d"
+        - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
+        - " §f§l» §eMon meilleur temp §7: §6%02d'%02d''%03d"
         - ""
-        - "§aVous avez fait ce jump"
+        - " §aVous avez fait ce jump"
         - ""
         - "§7§m                                               "
       never_done:
         - ""
         - "§7§m                                               "
         - ""
-        - "§f§l» §eDistance §7: §6§l%.2f§r§6m"
+        - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
         - ""
         - ""
-        - "§cVous n'avez jamais fait ce jump"
+        - " §cVous n'avez jamais fait ce jump"
         - ""
         - "§7§m                                               "
   jump:
@@ -131,6 +122,7 @@ inventory:
     self: "§r§eVoir mes §6meilleurs scores"
   top:
     name: "§6§l%s » §r§eTOP 10"
+    empty: "Vide"
     # var 1 : nom du joueur
     # var 2 : position
     # var 3 : minutes

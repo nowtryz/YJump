@@ -18,6 +18,7 @@ public enum CommandSpec {
     LEAVE(JUMP, "leave", Perm.PLAY, Text.DESC_LEAVE, Text.LEAVE_USAGE),
     SET_SPAWN(JUMP, "setspawn", Perm.EDIT, Text.DESC_SET_SPAWN),
     SET_START(JUMP, "setstart", Perm.EDIT, Text.DESC_SET_START),
+    SET_ITEM(JUMP, "setitem", Perm.EDIT, Text.DESC_SET_ITEM),
     SET_END(JUMP, "setend", Perm.EDIT, Text.DESC_SET_END),
     RELOAD(JUMP, "reload", Perm.RELOAD, Text.DESC_RELOAD);
 

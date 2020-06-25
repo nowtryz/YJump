@@ -84,7 +84,7 @@ public class BestScoresInventory extends AbstractInventory {
 
         ItemStack emptySlot = new ItemStack(Material.SKULL_ITEM);
         ItemMeta itemMeta = emptySlot.getItemMeta();
-        itemMeta.setDisplayName("Empty slot"); // FIXME translate
+        itemMeta.setDisplayName(Text.EMPTY_SCORE.get());
         emptySlot.setItemMeta(itemMeta);
 
         LinkedList<PlayerScore> bestScores = new LinkedList<>(jump.getBestScores());

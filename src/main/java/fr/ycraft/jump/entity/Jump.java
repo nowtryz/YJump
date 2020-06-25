@@ -1,8 +1,7 @@
 package fr.ycraft.jump.entity;
 
+import fr.ycraft.jump.util.ItemStackUtil;
 import fr.ycraft.jump.util.LocationUtil;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -14,14 +13,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Jump implements ConfigurationSerializable {
-    protected static final String NAME = "name";
-    protected static final String SPAWN = "spawn";
-    protected static final String START = "start";
-    protected static final String END = "end";
-    protected static final String CHECKPOINTS = "checkpoints";
-    protected static final String BEST_SCORES = "best scores";
-    protected static final String PLAYER = "player";
-    protected static final String SCORE = "score";
+    protected static final String NAME = "name", SPAWN = "spawn", START = "start", END = "end";
+    protected static final String CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item";
+    protected static final Material defaultMaterial = Material.SLIME_BLOCK;
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
             Material.GOLD_PLATE,
             Material.IRON_PLATE,
@@ -33,6 +27,7 @@ public class Jump implements ConfigurationSerializable {
     private Location spawn, start, end;
     private final List<Location> checkpoints;
     private List<PlayerScore> bestScores;
+    private ItemStack item;
 
     public Jump(String name) {
         this.name = name;
@@ -41,15 +36,23 @@ public class Jump implements ConfigurationSerializable {
         this.end = null;
         this.checkpoints = new LinkedList<>();
         this.bestScores = new LinkedList<>();
+        this.item = new ItemStack(Jump.defaultMaterial);
     }
 
     public Jump(@NotNull String name, Location spawn, Location start, Location end, List<Location> checkpoints, @NotNull List<PlayerScore> bestScores) {
+        this(name, spawn, start, end, checkpoints, bestScores, new ItemStack(Material.SLIME_BLOCK));
+    }
+
+    public Jump(@NotNull String name, Location spawn, Location start, Location end, List<Location> checkpoints, @NotNull List<PlayerScore> bestScores, @NotNull ItemStack item) {
         this.name = name;
         this.spawn = spawn;
         this.start = start;
         this.end = end;
         this.checkpoints = checkpoints != null ? checkpoints : new LinkedList<>();
         this.bestScores = new LinkedList<>(bestScores);
+        this.item = item;
+
+        ItemStackUtil.clearEnchants(item);
     }
 
     @NotNull
@@ -77,6 +80,11 @@ public class Jump implements ConfigurationSerializable {
     @NotNull
     public List<PlayerScore> getBestScores() {
         return bestScores;
+    }
+
+    @NotNull
+    public ItemStack getItem() {
+        return item;
     }
 
     public void setName(@NotNull String name) {
@@ -116,6 +124,11 @@ public class Jump implements ConfigurationSerializable {
         }
     }
 
+    public void setItem(ItemStack item) {
+        this.item = item.clone();
+        ItemStackUtil.clearEnchants(this.item);
+    }
+
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
@@ -126,6 +139,7 @@ public class Jump implements ConfigurationSerializable {
         data.put(END, this.end);
         data.put(CHECKPOINTS, this.checkpoints);
         data.put(BEST_SCORES, this.bestScores);
+        data.put(ITEM, this.item);
 
         return data;
     }
@@ -163,7 +177,11 @@ public class Jump implements ConfigurationSerializable {
                         .filter(PlayerScore.class::isInstance)
                         .map(PlayerScore.class::cast)
                         .filter(s -> s.getMillis() != 0)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                Optional.ofNullable(args.get(ITEM))
+                        .filter(ItemStack.class::isInstance)
+                        .map(ItemStack.class::cast)
+                        .orElseGet(() -> new ItemStack(Jump.defaultMaterial))
         )).orElse(null);
     }
 }

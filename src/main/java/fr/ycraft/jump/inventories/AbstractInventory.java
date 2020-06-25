@@ -67,7 +67,8 @@ public abstract class AbstractInventory implements Listener {
         Optional.ofNullable(event.getCurrentItem())
                 .filter(itemStack -> !itemStack.getType().equals(Material.AIR))
                 .map(this.clickableItems::get)
-                .ifPresent(c -> c.accept(event));
+                // Schedule task to enable inventory actions as proposed in InventoryClickEvent documentation
+                .ifPresent(c -> Bukkit.getScheduler().runTask(this.plugin, () -> c.accept(event)));
     }
 
     public void close() {
