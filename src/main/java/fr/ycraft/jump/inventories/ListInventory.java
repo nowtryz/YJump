@@ -17,9 +17,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 public class ListInventory extends AbstractInventory {
-    private final static Material MATERIAL = Material.SLIME_BLOCK;
-
-    private final Map<ItemStack, Jump> items = new LinkedHashMap<>();
 
     public ListInventory(JumpPlugin plugin, Player player) {
         super(plugin, player);
@@ -68,8 +65,6 @@ public class ListInventory extends AbstractInventory {
         }
 
         itemStack.setItemMeta(itemMeta);
-
-        this.items.put(itemStack, jump);
         return new ImmutablePair<>(jump, itemStack);
     }
 

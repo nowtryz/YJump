@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -106,10 +107,6 @@ public enum Text {
     USAGE("usage", ChatColor.RED + "Usage: %s");
 
 
-    /**
-     * YAML file containing all translation
-     */
-    private static FileConfiguration lang;
     private static final String DEFAULT_LANG = "fr-FR"; // may be change in config later
 
     /**
@@ -117,17 +114,18 @@ public enum Text {
      * @param plugin the Bukkit plugin to get resources from
      */
     static void init(JumpPlugin plugin) {
-        try {
-            String fileName = DEFAULT_LANG + ".yml";
-            InputStream resource = plugin.getResource(fileName);
+        String fileName = DEFAULT_LANG + ".yml";
+
+        try (InputStream resource = plugin.getResource(fileName)) {
             File file = new File(plugin.getDataFolder(), fileName);
             Validate.notNull(resource, String.format("Unable to find language file for '%s'", DEFAULT_LANG));
-            Text.lang = YamlConfiguration.loadConfiguration(file);
-            Text.lang.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
-            resource.close();
+            FileConfiguration lang = YamlConfiguration.loadConfiguration(file);
+            lang.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
+            Arrays.stream(Text.values()).forEach(text -> text.init(lang));
         } catch (Exception exception) {
             throw new RuntimeException("Unable to correctly load the language file", exception);
         }
+
     }
 
     /**
@@ -138,6 +136,10 @@ public enum Text {
      * The default message to use if no translation is available in the file
      */
     private final String defaultMessage;
+    /**
+     * The translated message extracted from the translation file
+     */
+    private String translatedMessage = null;
 
     /**
      * Create a new text message with information to retrieve the translation from the file
@@ -157,18 +159,22 @@ public enum Text {
         this(null, defaultMessage);
     }
 
+    private void init(FileConfiguration lang) {
+        if (this.key == null) this.translatedMessage = this.defaultMessage;
+        else if (lang.isList(this.key)) this.translatedMessage = Optional.ofNullable(lang.getStringList(this.key))
+                    .map(strings -> String.join("\n", strings))
+                    .orElse(this.defaultMessage);
+        else this.translatedMessage = Optional.ofNullable(lang.getString(this.key))
+                    .orElse(this.defaultMessage);
+    }
+
     /**
      * Translate this message and return the translated version
      * @return the translated message
      */
     public String get() {
-        if (this.key == null) return this.defaultMessage;
-        if (Text.lang.isList(this.key)) {
-            return Optional.ofNullable(Text.lang.getStringList(this.key))
-                    .map(strings -> String.join("\n", strings))
-                    .orElse(this.defaultMessage);
-        }
-        return Optional.ofNullable(Text.lang.getString(this.key)).orElse(this.defaultMessage);
+        Validate.notNull(this.translatedMessage, "Translations are not initialised");
+        return this.translatedMessage;
     }
 
     public String get(Object... args) {

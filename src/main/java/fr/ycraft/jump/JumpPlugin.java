@@ -139,23 +139,9 @@ public final class JumpPlugin extends JavaPlugin {
         else if (file.isDirectory() && file.delete()) saveResource(fileName, false);
     }
 
-    public Config getConfigProvider() {
-        return config;
-    }
-
-    public EditorsManager getEditorsManager() {
-        return editorsManager;
-    }
-
-    public JumpManager getJumpManager() {
-        return jumpManager;
-    }
-
-    public GameManager getGameManager() {
-        return gameManager;
-    }
-
-    public PlayerManager getPlayerManager() {
-        return playerManager;
-    }
+    public Config getConfigProvider() { return config; }
+    public EditorsManager getEditorsManager() { return editorsManager; }
+    public JumpManager getJumpManager() { return jumpManager; }
+    public GameManager getGameManager() { return gameManager; }
+    public PlayerManager getPlayerManager() { return playerManager; }
 }

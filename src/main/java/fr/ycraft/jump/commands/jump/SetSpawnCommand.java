@@ -16,12 +16,6 @@ public class SetSpawnCommand extends AbstractCommandImpl implements EditorComman
     }
 
     @Override
-    public boolean isAsync() {
-        // Block change -> not async
-        return false;
-    }
-
-    @Override
     public boolean execute(@NotNull JumpPlugin plugin, @NotNull JumpEditor editor, @NotNull Player player, String[] args) {
         editor.setSpawn(player.getLocation());
         return true;

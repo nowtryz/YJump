@@ -22,8 +22,28 @@ commands:
     usage: /<command> <nom du jump>
   jump edit:
     description: Editer un jump
-    permission: jump.admin.create
+    permission: jump.admin.edit
     usage: /<command> <nom du jump>
+  jump setspawn:
+    description: Modifier le spawn
+    permission: jump.admin.edit
+    usage: /<command>
+  jump setstart:
+    description: Modifier le point de départ
+    permission: jump.admin.edit
+    usage: /<command>
+  jump setend:
+    description: Modifier le point d'arrivée
+    permission: jump.admin.edit
+    usage: /<command>
+  jump addcheckpoint:
+    description: Ajoute un checkpoint
+    permission: jump.admin.edit
+    usage: /<command>
+  jump setitem:
+    description: Change l'item représentant ce jump
+    permission: jump.admin.edit
+    usage: /<command>
   jump save:
     description: Sortir du mode éditeur d'un jump
     prmission: jump.admin.save

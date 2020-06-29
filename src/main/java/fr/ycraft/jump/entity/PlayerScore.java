@@ -17,8 +17,7 @@ public class PlayerScore implements ConfigurationSerializable {
     private final TimeScore score;
 
     public PlayerScore(@NotNull OfflinePlayer player, long millis) {
-        this.player = player;
-        this.score = new TimeScore(millis);
+        this(player, new TimeScore(millis));
     }
 
     public PlayerScore(OfflinePlayer player, TimeScore score) {

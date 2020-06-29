@@ -17,6 +17,7 @@ public class AddCheckPointCommand extends AbstractCommandImpl implements EditorC
 
     @Override
     public boolean isAsync() {
+        // Block change -> not async
         return false;
     }
 

@@ -10,8 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class
-SaveCommand extends AbstractCommandImpl implements EditorCommand {
+public class SaveCommand extends AbstractCommandImpl implements EditorCommand {
     public SaveCommand() {
         super(CommandSpec.SAVE);
     }
