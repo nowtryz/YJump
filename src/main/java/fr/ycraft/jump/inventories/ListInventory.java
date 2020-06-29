@@ -4,17 +4,19 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.TimeScore;
+import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class ListInventory extends AbstractInventory {
 
@@ -43,6 +45,11 @@ public class ListInventory extends AbstractInventory {
 
         itemMeta.setDisplayName(Text.JUMP_LIST_HEADER.get(jump.getName()));
 
+        String description = jump.getDescription()
+                .map(desc -> WordUtils.wrap(desc, 35, StringUtils.LF, false))
+                .map(desc -> StringUtils.LF + desc + StringUtils.LF)
+                .orElse(StringUtils.EMPTY);
+
         Double distance = jump.getStart()
                 .filter(l -> player.getWorld().equals(l.getWorld()))
                 .map(this.player.getLocation()::distance)
@@ -50,16 +57,16 @@ public class ListInventory extends AbstractInventory {
                 .orElse(0d);
 
         if (scores.isEmpty()) {
-            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(distance).split("\n")));
-        }
-        else {
+            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(distance).split(StringUtils.LF)));
+        } else {
             TimeScore score = new TimeScore(scores.get(0));
             itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_DONE_LORE.get(
+                description,
                 distance,
                 score.getMinutes(),
                 score.getSeconds(),
                 score.getMillis()
-            ).split("\n")));
+            ).split(StringUtils.LF)));
             itemMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }

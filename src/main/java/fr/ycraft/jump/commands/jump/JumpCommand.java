@@ -19,6 +19,7 @@ public class JumpCommand extends PluginCommandExecutor {
                 new SaveCommand(),
                 new LeaveCommand(),
                 new ListCommand(),
+                new SetDescriptionCommand(),
                 new SetSpawnCommand(),
                 new SetStartCommand(),
                 new SetItemCommand(),

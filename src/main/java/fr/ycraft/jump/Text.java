@@ -1,6 +1,7 @@
 package fr.ycraft.jump;
 
 import com.google.common.base.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -29,6 +30,7 @@ public enum Text {
     CREATE_USAGE("cmd.usage.create", "/jump create <name>"),
     DELETED("deleted", "%s deleted"),
     DELETE_USAGE("cmd.usage.delete", "/jump delete <name>"),
+    DESCRIPTION_UPDATED("editor.updated.description", "Description updated"),
     DESC_ADD_CHECKPOINT("cmd.description.addcheckpoint", "Adds a checkpoint to the jump currentmy edited"),
     DESC_CHECKPOINT("cmd.description.checkpoint", "Teleport to last checkpoint"),
     DESC_CREATE("cmd.description.create", "Create a new jump"),
@@ -41,6 +43,7 @@ public enum Text {
     DESC_LIST("cmd.description.list", "Lists all available jumps"),
     DESC_RELOAD("cmd.description.reload", "Reload jump configurations and files"),
     DESC_SAVE("cmd.description.save", "Saves jump and stops the edit mode"),
+    DESC_SET_DESCRIPTION("cmd.description.setdesc", "Change the jump description"),
     DESC_SET_END("cmd.description.setend", "Sets the end location of the currently edited jump"),
     DESC_SET_ITEM("cmd.description.setitem", "Sets the item you're holding as the 'logo' of the currently edited jump"),
     DESC_SET_SPAWN("cmd.description.setspawn", "Sets the spawn of the jump currently edited jump"),
@@ -50,6 +53,7 @@ public enum Text {
     EDITOR_ONLY_COMMAND("only_editor_command", "You must be in an editor to perform this command"),
     EDITOR_TITLE("editor.title", "You're currently editing %s"),
     EDIT_USAGE("cmd.usage.edit", "/jump edit <name>"),
+    EMPTY_SCORE("inventory.top.empty", "Empty slot"),
     END_UPDATED("editor.updated.end", "End position updated for %d"),
     ENTER_EDITOR_CHECKPOINT_PREFIX("editor.enter.checkpoint.prefix", "To add a checkpoint do "),
     ENTER_EDITOR_CHECKPOINT_SUFFIX("editor.enter.checkpoint.suffix", ". to remove one, just break it"),
@@ -63,6 +67,8 @@ public enum Text {
     HEADER_EDITOR("editor.header", "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="),
     HELP_COMMAND("help.command", "%s\n  %s"),
     HELP_HEADER("help.header", "Jump help:"),
+    ITEM_AIR("editor.set_air_item", "Seriously?"),
+    ITEM_UPDATED("editor.updated.item", "Item updated to %s"),
     JUMP_ALREADY_EXISTS("already_exists", "This jump already exist"),
     JUMP_END("game.end.message", "You finished the jump %s in %d՚%d՚՚%ds"),
     JUMP_END_SUBTITLE("game.end.subtitle", "ended in %d՚%d՚՚%d"),
@@ -95,11 +101,9 @@ public enum Text {
     SCOREBOARD_DISPLAYNAME("game.scoreboard.displayname", "Jump %s"),
     SCOREBOARD_TIMER_HEADER("game.scoreboard.timer.header", "Time:"),
     SCOREBOARD_TIMER_VALUE("game.scoreboard.timer.value", "  %02d'%02d''%02d"),
+    SET_DESCRIPTION_USAGE("cmd.usage.setdesc", "/jump setdesc <description>"),
     SPAWN_UPDATED("editor.updated.spawn", "Spawn updated for %s"),
     START_UPDATED("editor.updated.start", "Start position updated for %s"),
-    ITEM_UPDATED("editor.updated.item", "Item updated to %s"),
-    ITEM_AIR("editor.set_air_item", "Seriously?"),
-    EMPTY_SCORE("inventory.top.empty", "Empty slot"),
     TOP_INVENTORY_TITLE("inventory.top.name", "TOP 10"),
     TOP_SCORE_LORE("inventory.top.score.lore", "%1$s\n%3$02d'%4$02d''%5$03d"),
     TOP_SCORE_TITLE("inventory.top.score.name", "TOP %2$d"),
@@ -162,8 +166,8 @@ public enum Text {
     private void init(FileConfiguration lang) {
         if (this.key == null) this.translatedMessage = this.defaultMessage;
         else if (lang.isList(this.key)) this.translatedMessage = Optional.ofNullable(lang.getStringList(this.key))
-                    .map(strings -> String.join("\n", strings))
-                    .orElse(this.defaultMessage);
+                .map(strings -> String.join(StringUtils.LF, strings))
+                .orElse(this.defaultMessage);
         else this.translatedMessage = Optional.ofNullable(lang.getString(this.key))
                     .orElse(this.defaultMessage);
     }

@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class Jump implements ConfigurationSerializable {
     protected static final String NAME = "name", SPAWN = "spawn", START = "start", END = "end";
     protected static final String CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item";
+    protected static final String DESCRIPTION = "description";
     protected static final Material defaultMaterial = Material.SLIME_BLOCK;
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
             Material.GOLD_PLATE,
@@ -23,7 +25,7 @@ public class Jump implements ConfigurationSerializable {
             Material.WOOD_PLATE
     ));
 
-    private String name;
+    private String name, description;
     private Location spawn, start, end;
     private final List<Location> checkpoints;
     private List<PlayerScore> bestScores;
@@ -31,6 +33,7 @@ public class Jump implements ConfigurationSerializable {
 
     public Jump(String name) {
         this.name = name;
+        this.description = null;
         this.spawn = null;
         this.start = null;
         this.end = null;
@@ -39,12 +42,17 @@ public class Jump implements ConfigurationSerializable {
         this.item = new ItemStack(Jump.defaultMaterial);
     }
 
-    public Jump(@NotNull String name, Location spawn, Location start, Location end, List<Location> checkpoints, @NotNull List<PlayerScore> bestScores) {
-        this(name, spawn, start, end, checkpoints, bestScores, new ItemStack(Material.SLIME_BLOCK));
-    }
-
-    public Jump(@NotNull String name, Location spawn, Location start, Location end, List<Location> checkpoints, @NotNull List<PlayerScore> bestScores, @NotNull ItemStack item) {
+    public Jump(
+            @NotNull String name,
+            @Nullable String description,
+            @Nullable Location spawn,
+            @Nullable Location start,
+            @Nullable Location end,
+            @Nullable List<Location> checkpoints,
+            @NotNull List<PlayerScore> bestScores,
+            @NotNull ItemStack item) {
         this.name = name;
+        this.description = description;
         this.spawn = spawn;
         this.start = start;
         this.end = end;
@@ -58,6 +66,10 @@ public class Jump implements ConfigurationSerializable {
     @NotNull
     public String getName() {
         return name;
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public Optional<Location> getSpawn() {
@@ -89,6 +101,10 @@ public class Jump implements ConfigurationSerializable {
 
     public void setName(@NotNull String name) {
         this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setSpawn(@NotNull Location spawn) {
@@ -134,6 +150,7 @@ public class Jump implements ConfigurationSerializable {
         Map<String, Object> data = new HashMap<>();
 
         data.put(NAME, this.name);
+        data.put(DESCRIPTION, this.description);
         data.put(SPAWN, this.spawn);
         data.put(START, this.start);
         data.put(END, this.end);
@@ -158,9 +175,17 @@ public class Jump implements ConfigurationSerializable {
                 .map(Object::toString)
                 .map(name -> new Jump(
                 name,
+                // Description
+                Optional.ofNullable(args.get(DESCRIPTION))
+                        .map(Object::toString)
+                        .orElse(null),
+                // Spawn position
                 LocationUtil.extractLocation(args.get(SPAWN)),
+                // Start position
                 LocationUtil.extractLocation(args.get(START)),
+                // End position
                 LocationUtil.extractLocation(args.get(END)),
+                // Checkpoints list
                 Optional.ofNullable(args.get(CHECKPOINTS))
                         .filter(List.class::isInstance)
                         .map(obj -> (List<?>) obj)
@@ -169,6 +194,7 @@ public class Jump implements ConfigurationSerializable {
                         .map(LocationUtil::extractLocation)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList()),
+                // Scores list
                 Optional.ofNullable(args.get(BEST_SCORES))
                         .filter(List.class::isInstance)
                         .map(obj -> (List<?>) obj)
@@ -178,6 +204,7 @@ public class Jump implements ConfigurationSerializable {
                         .map(PlayerScore.class::cast)
                         .filter(s -> s.getMillis() != 0)
                         .collect(Collectors.toList()),
+                // Logo Item
                 Optional.ofNullable(args.get(ITEM))
                         .filter(ItemStack.class::isInstance)
                         .map(ItemStack.class::cast)

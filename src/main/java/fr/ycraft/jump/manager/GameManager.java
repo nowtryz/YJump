@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class GameManager extends AbstractManager implements Listener {
@@ -82,11 +84,23 @@ public class GameManager extends AbstractManager implements Listener {
         return this.runningGames.values();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onBreakInEditor(BlockBreakEvent event) {
+        // Avoid interaction in editors
+        if (this.plugin.getConfigProvider().isCreativeEditor() &&
+                this.plugin.getEditorsManager().getEditor(event.getPlayer())
+                        .filter(e -> !Perm.EDITOR_INTERACTIONS.isHeldBy(event.getPlayer()))
+                        .isPresent()) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
         if (
-            !this.plugin.getConfigProvider().isPlatesProtected()
-            || !this.protectedWorlds.contains(event.getBlock().getWorld())
+            !this.plugin.getEditorsManager().isInEditor(event.getPlayer()) &&
+            !this.plugin.getConfigProvider().isPlatesProtected() ||
+            !this.protectedWorlds.contains(event.getBlock().getWorld())
         ) return;
 
         Location loc = event.getBlock().getLocation();

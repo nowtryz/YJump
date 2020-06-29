@@ -18,6 +18,7 @@ plates:
   # Weather or not to delete pressure plates when a point location is changed
   auto delete: yes
   # Disallow to break plates
+  # Note: Enabling this feature may impact performances if a lot of break events occur in the same world of jumps
   protect: yes
 
 # Game settings
@@ -40,12 +41,18 @@ game:
     - msg
     - r
 
+# Editor settings
 editor:
   # Put editor in creative mode to be able to break plates, use fly and add blocks
   creative: true
 
+# Gui settings
 best scores:
+  # Score count stored in files (does not change scores shown to players)
   per jump: 10
+  # Score count show in the book
   per player: 5
+# Width of description in the jump list
+description wrap length: 35 # characters
 
 

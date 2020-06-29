@@ -38,6 +38,7 @@ cmd:
     delete: "/jump delete <nom du jump>"
     edit: "/jump edit <nom du jump>"
     create: "/jump create <nom du jump>"
+    #setdesc: "" ## Même qu'en anglais
   description:
     jump: "Commande par défaut"
     jumps: "Affiche la liste des jumps dans un inventaire"
@@ -55,6 +56,7 @@ cmd:
     setspawn: "Définit le spawn du jump"
     setstart: "Définit le bloc de départ du jump"
     setitem: "Définit l'item en main comme 'logo' du jump"
+    setdesc: "Définit la description du jump affiché dans la liste des jumps disponibles"
 editor:
   # header: ===== Jump Editor =====
   title: "§aVous êtes en train d'éditer §e%s§a."
@@ -88,6 +90,7 @@ editor:
     item: "§6Jump Editor §e» §7§oLe logo du jump est désormais §f%s§7§o."
     spawn: "§6Jump Editor §e» §7§oLe spawn de §f%s§7§o a été mis à jour"
     start: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
+    description: "§6Jump Editor §e» §7§oLa description a été mise à jour"
 inventory:
   list:
     title: "Liste des Jumps"
@@ -96,25 +99,25 @@ inventory:
     # var 2,3,4 : score
     lore:
       done:
-        - ""
-        - "§7§m                                               "
+        - "%s" # Les espaces avant et apres la description sont généré si la description n'est pas nulle
+        - "§7§m                                                     "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
         - " §f§l» §eMon meilleur temp §7: §6%02d'%02d''%03d"
         - ""
         - " §aVous avez fait ce jump"
         - ""
-        - "§7§m                                               "
+        - "§7§m                                                     "
       never_done:
         - ""
-        - "§7§m                                               "
+        - "§7§m                                                  "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
         - ""
         - ""
         - " §cVous n'avez jamais fait ce jump"
         - ""
-        - "§7§m                                               "
+        - "§7§m                                                  "
   jump:
     title: "§6§lJump » §r§e%s"
     tp: "§r§eTéléportation au §6jump"

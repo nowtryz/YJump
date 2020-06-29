@@ -4,10 +4,6 @@ import org.bukkit.permissions.Permissible;
 
 public enum Perm {
     /**
-     * Gives access to all jump permissions
-     */
-    ALL("jump.*"),
-    /**
      * Gives access to admin commands
      */
     ADMIN("jump.admin.*"),
@@ -16,9 +12,9 @@ public enum Perm {
      */
     ADMIN_LIST("jump.admin.list"),
     /**
-     * Gives access to the <i>/jump reload</i> command
+     * Gives access to all jump permissions
      */
-    RELOAD("jump.admin.reload"),
+    ALL("jump.*"),
     /**
      * Gives access to the <i>/jump create</i> command and edit jumps
      */
@@ -27,6 +23,14 @@ public enum Perm {
      * Enables the player to edit jumps
      */
     EDIT("jump.admin.edit"),
+    /**
+     * Allow to places/destroy blocks while in editor
+     */
+    EDITOR_INTERACTIONS("jump.admin.editorinteractions"),
+    /**
+     * Enables player to fly in jumps
+     */
+    FLY("jump.fly"),
     /**
      * Give access to the <i>/jump help</i> command
      */
@@ -40,9 +44,9 @@ public enum Perm {
      */
     PLAY("jump.play"),
     /**
-     * Enables player to fly in jumps
+     * Gives access to the <i>/jump reload</i> command
      */
-    FLY("jump.fly");
+    RELOAD("jump.admin.reload");
 
     private final String permission;
 

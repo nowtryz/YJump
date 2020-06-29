@@ -46,16 +46,21 @@ commands:
     usage: /<command>
   jump save:
     description: Sortir du mode éditeur d'un jump
-    prmission: jump.admin.save
+    permission: jump.admin.edit
   jump leave:
     description: Quitter le jump en cours
     permission: jump.play
   jump list:
     description: Afficher la list des jumps
-    prmission: jump.admin.list
+    permission: jump.admin.list
   jump reload:
     description: Recharge le plugin
-    prmission: jump.admin.reload
+    permission: jump.admin.reload
+  jump setdesc:
+    description: Change la description d'un jump
+    permission: jump.admin.edit
+
+
   checkpoint:
     description: Se téléporter au précédent checkpoint
     permission: jump.play
@@ -77,6 +82,7 @@ permissions:
       jump.admin.edit: true
       jump.admin.reload: true
       jump.admin.list: true
+      jump.admin.editorinteractions: true
   jump.admin.list:
     description: Give access to the '/jump list' command
   jump.admin.reload:
@@ -87,6 +93,8 @@ permissions:
       jump.admin.edit: true
   jump.admin.edit:
     description: Enables the player to edit jumps
+  jump.admin.edit.editorinteractions:
+    description: Allow to places/destroy blocks while in editor (to use whith creative editor, cf configuration)
   jump.list:
     description: Gives access to the /jumps command
     default: true
