@@ -17,7 +17,7 @@ import java.util.*;
 public class JumpEditor {
     private final JumpPlugin plugin;
     private final Set<Player> players = new LinkedHashSet<>();
-    private final Map<Player, GameMode> gamemodes = new HashMap<>(); // XXX thread safe
+    private final Map<Player, GameMode> gamemodes = new HashMap<>(); // TODO thread safe
     private final Jump jump;
     private final BukkitTask bukkitTask;
 
