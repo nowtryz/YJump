@@ -17,7 +17,7 @@ import java.util.*;
 public class JumpEditor {
     private final JumpPlugin plugin;
     private final Set<Player> players = new LinkedHashSet<>();
-    private final Map<Player, GameMode> gamemodes = new HashMap<>();
+    private final Map<Player, GameMode> gamemodes = new HashMap<>(); // XXX thread safe
     private final Jump jump;
     private final BukkitTask bukkitTask;
 
@@ -193,9 +193,10 @@ public class JumpEditor {
         Text.QUIT_EDITOR.send(player);
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
 
-        if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () ->
-                Optional.ofNullable(this.gamemodes.get(player)).ifPresent(player::setGameMode)
-        );
+        if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () -> {
+            Optional.ofNullable(this.gamemodes.get(player)).ifPresent(player::setGameMode);
+            this.gamemodes.remove(player);
+        });
 
         if (this.players.isEmpty()) this.close();
     }

@@ -10,6 +10,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -132,6 +133,14 @@ public class JumpGame {
     }
 
     public void onInteract(PlayerInteractEvent event) {
+        if (!event.getAction().equals(Action.PHYSICAL)
+                || event.getClickedBlock() == null
+                || !Jump.ALLOWED_MATERIALS.contains(event.getClickedBlock().getType())
+        ) {
+            event.setCancelled(true);
+            return;
+        }
+
         Location loc = event.getClickedBlock().getLocation();
 
         // jump end

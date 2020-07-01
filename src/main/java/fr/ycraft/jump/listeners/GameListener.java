@@ -2,11 +2,11 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Jump;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
 
 public class GameListener extends AbstractListener {
@@ -19,7 +19,7 @@ public class GameListener extends AbstractListener {
         this.plugin.getGameManager().getGame(event.getPlayer()).ifPresent(JumpGame::close);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCommand(PlayerCommandPreprocessEvent event) {
         this.plugin.getGameManager().getGame(event.getPlayer()).ifPresent(game -> game.onCommand(event));
     }
@@ -31,11 +31,6 @@ public class GameListener extends AbstractListener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (!event.getAction().equals(Action.PHYSICAL)
-                || event.getClickedBlock() == null
-                || !Jump.ALLOWED_MATERIALS.contains(event.getClickedBlock().getType())
-        ) return;
-
         this.plugin.getGameManager().getGame(event.getPlayer()).ifPresent(game -> game.onInteract(event));
     }
 
@@ -50,5 +45,17 @@ public class GameListener extends AbstractListener {
         if (event.getEntity() instanceof Player) {
             this.plugin.getGameManager().getGame((Player) event.getEntity()).ifPresent(game -> game.onDamage(event));
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onHunger(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof Player) {
+            this.plugin.getGameManager().getGame((Player) event.getEntity()).ifPresent(game -> event.setCancelled(true));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onPotion(PlayerItemConsumeEvent event) {
+        this.plugin.getGameManager().getGame(event.getPlayer()).ifPresent(game -> event.setCancelled(true));
     }
 }
