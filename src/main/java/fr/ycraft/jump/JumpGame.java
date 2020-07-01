@@ -9,12 +9,12 @@ import org.bukkit.Location;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JumpGame  implements Listener {
+public class JumpGame {
     private static final int TIMER_HEADER_POS = 5;
     private static final int TIMER_VALUE_POS = 4;
     private static final int CHECKPOINT_HEADER_POS = 2;
@@ -115,16 +115,7 @@ public class JumpGame  implements Listener {
         return jump;
     }
 
-    @EventHandler
-    public void onLeave(PlayerQuitEvent event) {
-        if (!event.getPlayer().equals(this.player)) return;
-        this.close();
-    }
-
-    @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
-        if (!event.getPlayer().equals(this.player)) return;
-
         String[] command = event.getMessage().substring(1).split(" ");
         if (command.length == 0) return;
         if (this.plugin.getConfigProvider().getAllowedCommands().stream().anyMatch(command[0]::equals)) return;
@@ -133,21 +124,14 @@ public class JumpGame  implements Listener {
         Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_COMMANDS.get());
     }
 
-    @EventHandler
     public void onFly(PlayerToggleFlightEvent event) {
-        if (!event.getPlayer().equals(this.player) || this.canFly) return;
-        this.close();
-        Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_FLY.get());
+        if (!this.canFly) {
+            event.setCancelled(true);
+        }
+        Text.NO_FLY.send(event.getPlayer());
     }
 
-    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (!this.player.equals(event.getPlayer())
-            ||!event.getAction().equals(Action.PHYSICAL)
-            || event.getClickedBlock() == null
-            || !Jump.ALLOWED_MATERIALS.contains(event.getClickedBlock().getType())
-        ) return;
-
         Location loc = event.getClickedBlock().getLocation();
 
         // jump end
@@ -166,22 +150,16 @@ public class JumpGame  implements Listener {
         }
     }
 
-    @EventHandler
-    public void onMove(PlayerMoveEvent event) {
-        if (!this.player.equals(event.getPlayer())) return;
-        if (!(this.plugin.getConfigProvider().getMaxFallDistance() > 0)) return;
+    public void onMove() {
         if (this.player.getFallDistance() > this.plugin.getConfigProvider().getMaxFallDistance()) {
             this.player.setFallDistance(0);
             this.tpLastCheckpoint();
         }
     }
 
-    @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        if (!this.player.equals(event.getEntity())) return;
         if (EntityDamageEvent.DamageCause.VOID.equals(event.getCause())) this.tpLastCheckpoint();
         event.setCancelled(true);
-        this.tpLastCheckpoint();
     }
 
     private void updateBossbar() {
@@ -251,6 +229,5 @@ public class JumpGame  implements Listener {
         this.objective.unregister();
         this.bukkitTask.cancel();
 //        this.bossBar = null;
-        HandlerList.unregisterAll(this);
     }
 }

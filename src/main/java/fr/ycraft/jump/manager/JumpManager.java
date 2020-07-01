@@ -3,7 +3,10 @@ package fr.ycraft.jump.manager;
 import com.google.common.base.Charsets;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.util.LocationUtil;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -19,6 +22,9 @@ public class JumpManager extends AbstractManager {
     private final File jumpsFolder;
     private final Configuration defaults;
     private final Map<String, Jump> jumps;
+    private Map<Location, Jump> jumpStarts;
+    private List<Location> protectedLocations;
+    private List<World> protectedWorlds;
 
     public JumpManager(JumpPlugin plugin) {
         super(plugin);
@@ -52,12 +58,56 @@ public class JumpManager extends AbstractManager {
                 .filter(Jump.class::isInstance)
                 .map(Jump.class::cast)
                 .collect(Collectors.toMap(Jump::getName, Function.identity()));
+
+        this.updateJumpList();
+    }
+
+    public void updateJumpList() {
+        this.jumpStarts = this.jumps.values()
+                .stream().parallel()
+                .filter(jump -> jump.getStart().isPresent())
+                .filter(jump -> jump.getEnd().isPresent())
+                .collect(Collectors.toMap(jump -> jump.getStart().get(), Function.identity()));
+
+        List<Location> protectedLocations = new ArrayList<>();
+        protectedLocations.addAll(this.jumpStarts.keySet());
+        protectedLocations.addAll(this.jumps.values().stream().parallel()
+                .map(Jump::getEnd)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList())
+        );
+        protectedLocations.addAll(this.jumps.values().stream().parallel()
+                .map(Jump::getCheckpoints)
+                .flatMap(List::stream)
+                .collect(Collectors.toList())
+        );
+
+        this.protectedLocations = protectedLocations.stream().parallel()
+                .map(LocationUtil::toBlock)
+                .collect(Collectors.toList());
+        this.protectedWorlds = this.protectedLocations.stream().parallel()
+                .map(Location::getWorld)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     // Getters
 
     public Map<String, Jump> getJumps() {
         return this.jumps;
+    }
+
+    public Map<Location, Jump> getJumpStarts() {
+        return jumpStarts;
+    }
+
+    public List<Location> getProtectedLocations() {
+        return protectedLocations;
+    }
+
+    public List<World> getProtectedWorlds() {
+        return protectedWorlds;
     }
 
     public Optional<Jump> getJump(String name) {
@@ -85,11 +135,13 @@ public class JumpManager extends AbstractManager {
         } catch (IOException exception) {
             this.plugin.getLogger().severe(String.format("Unable to save %s: %s", file.getName(), exception.getMessage()));
         }
+
+        if (!this.plugin.isDisabling()) this.updateJumpList();
     }
 
     public void delete(Jump jump) {
         this.jumps.remove(jump.getName());
-        this.plugin.getGameManager().updateJumpList();
+        this.updateJumpList();
         File file = this.getFile(jump);
         if (!file.delete()) this.plugin.getLogger().severe("Unable to delete " + file.getName());
     }

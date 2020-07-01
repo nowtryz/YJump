@@ -204,6 +204,5 @@ public class JumpEditor {
         this.players.forEach(this::leave);
         this.bukkitTask.cancel();
         this.plugin.getJumpManager().persist(this.jump);
-        this.plugin.getGameManager().updateJumpList();
     }
 }

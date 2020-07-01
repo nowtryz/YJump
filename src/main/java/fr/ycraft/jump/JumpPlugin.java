@@ -8,6 +8,10 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.inventories.AbstractInventory;
 import fr.ycraft.jump.inventories.JumpInventory;
+import fr.ycraft.jump.listeners.EditorListener;
+import fr.ycraft.jump.listeners.GameListener;
+import fr.ycraft.jump.listeners.PlateListener;
+import fr.ycraft.jump.listeners.PlatesProtectionListener;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
@@ -42,6 +46,7 @@ public final class JumpPlugin extends JavaPlugin {
     private GameManager gameManager;
     private Config config;
     private PlayerManager playerManager;
+    private boolean isDisabling = false;
 
     @Override
     public void onEnable() {
@@ -64,6 +69,7 @@ public final class JumpPlugin extends JavaPlugin {
         ));
 
         this.registerCommands();
+        this.registerListeners();
         this.replacePlates();
         this.getLogger().info(String.format("%s enabled!", this.getName()));
     }
@@ -75,6 +81,15 @@ public final class JumpPlugin extends JavaPlugin {
         new JumpCommand(this);
         new JumpsCommand(this);
         new CheckpointCommand(this);
+    }
+
+    private void registerListeners() {
+        Bukkit.getPluginManager().registerEvents(new PlateListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlatesProtectionListener(this), this);
+
+        // TODO register and unregister dynamically the following
+        Bukkit.getPluginManager().registerEvents(new EditorListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new GameListener(this), this);
     }
 
     private void replacePlates() {
@@ -115,9 +130,11 @@ public final class JumpPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        this.isDisabling = true;
         Optional.ofNullable(this.editorsManager).ifPresent(EditorsManager::close);
         Optional.ofNullable(this.jumpManager).ifPresent(JumpManager::save);
         Optional.ofNullable(this.gameManager).ifPresent(GameManager::stopAll);
+        this.isDisabling = false;
     }
 
     /**
@@ -144,4 +161,8 @@ public final class JumpPlugin extends JavaPlugin {
     public JumpManager getJumpManager() { return jumpManager; }
     public GameManager getGameManager() { return gameManager; }
     public PlayerManager getPlayerManager() { return playerManager; }
+
+    public boolean isDisabling() {
+        return isDisabling;
+    }
 }
