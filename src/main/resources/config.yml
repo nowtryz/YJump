@@ -44,6 +44,8 @@ game:
 # Editor settings
 editor:
   # Put editor in creative mode to be able to break plates, use fly and add blocks
+  # Notes: - Player will still need jump.admin.editorinteraction to break blocks
+  #        - The plugin does not restore inventory after edition for the moment (gives can occur)
   creative: true
 
 # Gui settings
@@ -53,6 +55,6 @@ best scores:
   # Score count show in the book
   per player: 5
 # Width of description in the jump list
-description wrap length: 35 # characters
+description wrap length: 50 # characters
 
 

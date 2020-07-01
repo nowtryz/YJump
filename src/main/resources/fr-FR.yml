@@ -64,7 +64,7 @@ editor:
   delete_checkpoint: "§6Jump Editor §e» §aCheckpoint supprimé"
   cannot_start_game: "§6Jump Editor §e» §cVous ne pouvez pas commencer de jump lorsque vous êtes dans un éditeur."
   set_air_item: >
-    §6Jump Editor §e» §aTu m'as pris pour qui ? T'as cru j'étais Fuizzy ?
+    §6Jump Editor §e» §cTu m'as pris pour qui ? T'as cru j'étais Fuizzy ?
     Je vais pas remplacer l'item du jump par de l'air !
   quit: "§6Jump Editor §e» §9Vous avez quitté l'éditeur"
   # Attention : cette section est particulière car elle utilise les composants text de Minecraft
@@ -109,7 +109,7 @@ inventory:
         - ""
         - "§7§m                                                     "
       never_done:
-        - ""
+        - "%s" # Les espaces avant et apres la description sont générés si la description n'est pas nulle
         - "§7§m                                                  "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
@@ -168,7 +168,7 @@ game:
   left: "§6Jump §e» §cVous avez quitté le jump : §o%s"
   left_command: "§6Jump §e» §7§oVous avez quitté le jump"
   no_command: "l'usage de commandes n'est pas autorisé"
-  no_flight: "l'usage du fly n'est pas autorisé"
+  no_flight: "§6Jump §e» §cl'usage du fly n'est pas autorisé"
   reset: "§6Jump §e»  §7Le chrono a été réinitialisé à §a0§7."
   checkpoint: "§6Jump §e»  §7Vous avez validé un checkpoint."
   checkpoint_tp: "§6Jump §e»  §7Vous avez téléporté au dernier checkpoint."

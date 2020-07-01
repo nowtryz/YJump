@@ -59,8 +59,6 @@ commands:
   jump setdesc:
     description: Change la description d'un jump
     permission: jump.admin.edit
-
-
   checkpoint:
     description: Se téléporter au précédent checkpoint
     permission: jump.play

@@ -1,5 +1,6 @@
 # This file is generated programmatically. Please, do not edit it
 item: #ItemStack
+description: #string
 name: #string
 spawn: #Location
 start: #Location

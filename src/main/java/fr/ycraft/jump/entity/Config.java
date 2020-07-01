@@ -1,6 +1,5 @@
 package fr.ycraft.jump.entity;
 
-import fr.ycraft.jump.JumpPlugin;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +15,7 @@ public class Config {
     private final BarColor bossbarColor;
     private final List<String> allowedCommands;
     private final boolean deletePlates, protectPlates, resetEnchants, creativeEditor;
-    private final int maxFallDistance, maxScoresPerJump, maxScoresPerPlayer;
+    private final int maxFallDistance, maxScoresPerJump, maxScoresPerPlayer, descriptionWrapLength;
     private final long resetTime;
 
     public Config(
@@ -30,6 +29,7 @@ public class Config {
             int maxFallDistance,
             int maxScoresPerJump,
             int maxScoresPerPlayer,
+            int descriptionWrapLength,
             boolean resetEnchants,
             boolean creativeEditor,
             long resetTime) {
@@ -43,6 +43,7 @@ public class Config {
         this.maxFallDistance = maxFallDistance;
         this.maxScoresPerJump = maxScoresPerJump;
         this.maxScoresPerPlayer = maxScoresPerPlayer;
+        this.descriptionWrapLength = descriptionWrapLength;
         this.resetEnchants = resetEnchants;
         this.creativeEditor = creativeEditor;
         this.resetTime = resetTime;
@@ -88,6 +89,10 @@ public class Config {
         return maxScoresPerPlayer;
     }
 
+    public int getDescriptionWrapLength() {
+        return descriptionWrapLength;
+    }
+
     public boolean doesResetEnchants() {
         return this.resetEnchants;
     }
@@ -112,6 +117,7 @@ public class Config {
                 config.getInt("game.max fall distance"),
                 config.getInt("best scores.per jump"),
                 config.getInt("best scores.per player"),
+                config.getInt("description wrap length"),
                 config.getBoolean("game.reset enchants"),
                 config.getBoolean("editor.creative"),
                 config.getLong("game.reset time")

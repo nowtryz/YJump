@@ -46,7 +46,10 @@ public class ListInventory extends AbstractInventory {
         itemMeta.setDisplayName(Text.JUMP_LIST_HEADER.get(jump.getName()));
 
         String description = jump.getDescription()
-                .map(desc -> WordUtils.wrap(desc, 35, StringUtils.LF, false))
+                .map(desc -> WordUtils.wrap(
+                        desc,
+                        this.plugin.getConfigProvider().getDescriptionWrapLength(),
+                        StringUtils.LF, false))
                 .map(desc -> StringUtils.LF + desc + StringUtils.LF)
                 .orElse(StringUtils.EMPTY);
 
@@ -57,7 +60,7 @@ public class ListInventory extends AbstractInventory {
                 .orElse(0d);
 
         if (scores.isEmpty()) {
-            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(distance).split(StringUtils.LF)));
+            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(description, distance).split(StringUtils.LF)));
         } else {
             TimeScore score = new TimeScore(scores.get(0));
             itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_DONE_LORE.get(
