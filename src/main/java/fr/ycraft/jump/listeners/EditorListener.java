@@ -4,14 +4,11 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.Perm;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public class EditorListener implements Listener {
-    private final JumpPlugin plugin;
-
+public class EditorListener extends AbstractListener {
     public EditorListener(JumpPlugin plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

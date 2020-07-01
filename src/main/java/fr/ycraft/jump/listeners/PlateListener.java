@@ -4,21 +4,16 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.util.LocationUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.Map;
 
-public class PlateListener implements Listener {
-    private final JumpPlugin plugin;
-
+public class PlateListener extends AbstractListener {
     public PlateListener(JumpPlugin plugin) {
-        this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        super(plugin);
     }
 
     @EventHandler

@@ -127,8 +127,8 @@ public class JumpGame {
     public void onFly(PlayerToggleFlightEvent event) {
         if (!this.canFly) {
             event.setCancelled(true);
+            Text.NO_FLY.send(event.getPlayer());
         }
-        Text.NO_FLY.send(event.getPlayer());
     }
 
     public void onInteract(PlayerInteractEvent event) {

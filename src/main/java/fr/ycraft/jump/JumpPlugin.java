@@ -84,12 +84,8 @@ public final class JumpPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlateListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlatesProtectionListener(this), this);
-
-        // TODO register and unregister dynamically the following
-        Bukkit.getPluginManager().registerEvents(new EditorListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new GameListener(this), this);
+        new PlateListener(this).register();
+        new PlatesProtectionListener(this).register();
     }
 
     private void replacePlates() {

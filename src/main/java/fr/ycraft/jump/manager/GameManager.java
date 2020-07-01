@@ -3,6 +3,7 @@ package fr.ycraft.jump.manager;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.listeners.GameListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -13,9 +14,11 @@ import java.util.Optional;
 
 public class GameManager extends AbstractManager {
     private final Map<Player, JumpGame> runningGames = new LinkedHashMap<>();
+    private final GameListener listener;
 
     public GameManager(JumpPlugin plugin) {
         super(plugin);
+        this.listener = new GameListener(plugin);
     }
 
     public boolean isPlaying(Player player) {
@@ -27,8 +30,8 @@ public class GameManager extends AbstractManager {
     }
 
     public void enter(Player player, Jump jump) {
-        JumpGame game = new JumpGame(this.plugin, jump, player);
-        this.runningGames.put(player, game);
+        if (this.runningGames.isEmpty()) this.listener.register();
+        this.runningGames.put(player, new JumpGame(this.plugin, jump, player));
     }
 
     public Collection<JumpGame> getGames() {
@@ -37,6 +40,7 @@ public class GameManager extends AbstractManager {
 
     public void remove(Player player, JumpGame game) {
         this.runningGames.remove(player, game);
+        if (this.runningGames.isEmpty()) this.listener.unRegister();
     }
 
     public void stopAll() {

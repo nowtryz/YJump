@@ -9,17 +9,14 @@ import fr.ycraft.jump.util.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PlatesProtectionListener implements Listener {
-    private final JumpPlugin plugin;
-
+public class PlatesProtectionListener extends AbstractListener {
     public PlatesProtectionListener(JumpPlugin plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

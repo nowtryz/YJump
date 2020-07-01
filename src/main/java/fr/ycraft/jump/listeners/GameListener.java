@@ -5,16 +5,13 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 
-public class GameListener implements Listener {
-    private final JumpPlugin plugin;
-
+public class GameListener extends AbstractListener {
     public GameListener(JumpPlugin plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @EventHandler

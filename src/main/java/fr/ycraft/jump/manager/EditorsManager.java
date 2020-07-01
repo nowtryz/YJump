@@ -4,6 +4,7 @@ import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.listeners.EditorListener;
 import org.bukkit.entity.Player;
 
 import java.util.LinkedHashMap;
@@ -13,9 +14,11 @@ import java.util.Optional;
 public class EditorsManager extends AbstractManager {
     private final Map<Jump, JumpEditor> editors = new LinkedHashMap<>();
     private final Map<Player, JumpEditor> playersInEditors = new LinkedHashMap<>();
+    private final EditorListener listener;
 
     public EditorsManager(JumpPlugin plugin) {
         super(plugin);
+        this.listener = new EditorListener(plugin);
     }
 
     public Map<Jump, JumpEditor> getEditors() {
@@ -38,10 +41,13 @@ public class EditorsManager extends AbstractManager {
         JumpEditor editor = this.playersInEditors.get(player);
         this.playersInEditors.remove(player);
         editor.leave(player);
+
         if (editor.getPlayers().isEmpty()) {
             editor.close();
             this.editors.remove(editor.getJump(), editor);
         }
+
+        if (this.editors.isEmpty()) this.listener.unRegister();
     }
 
     public Optional<JumpEditor> getEditor(Jump jump) {
@@ -50,6 +56,9 @@ public class EditorsManager extends AbstractManager {
 
     public void enter(Jump jump, Player player) {
         JumpEditor editor = this.editors.get(jump);
+
+        // register listener if needed
+        if (this.editors.isEmpty()) this.listener.register();
 
         // If there is no editor for this jump we create a new one
         if (editor == null) {
