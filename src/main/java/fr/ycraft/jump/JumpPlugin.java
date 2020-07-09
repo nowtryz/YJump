@@ -8,21 +8,23 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.inventories.AbstractInventory;
 import fr.ycraft.jump.inventories.JumpInventory;
-import fr.ycraft.jump.listeners.EditorListener;
-import fr.ycraft.jump.listeners.GameListener;
-import fr.ycraft.jump.listeners.PlateListener;
-import fr.ycraft.jump.listeners.PlatesProtectionListener;
+import fr.ycraft.jump.listeners.*;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
+import fr.ycraft.jump.util.ItemLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,11 +43,12 @@ public final class JumpPlugin extends JavaPlugin {
         }
     }
 
+    private Config config;
     private JumpManager jumpManager;
     private EditorsManager editorsManager;
     private GameManager gameManager;
-    private Config config;
     private PlayerManager playerManager;
+    private InventoryListener inventoryListener;
     private boolean isDisabling = false;
 
     @Override
@@ -58,9 +61,10 @@ public final class JumpPlugin extends JavaPlugin {
         this.editorsManager = new EditorsManager(this);
         this.gameManager = new GameManager(this);
         this.playerManager = new PlayerManager(this);
+        this.inventoryListener = new InventoryListener(this);
 
         Text.init(this);
-        AbstractInventory.init();
+        ItemLibrary.init();
         JumpInventory.init(this);
 
         this.getLogger().info(String.format(
@@ -157,8 +161,7 @@ public final class JumpPlugin extends JavaPlugin {
     public JumpManager getJumpManager() { return jumpManager; }
     public GameManager getGameManager() { return gameManager; }
     public PlayerManager getPlayerManager() { return playerManager; }
+    public InventoryListener getInventoryListener() { return inventoryListener; }
 
-    public boolean isDisabling() {
-        return isDisabling;
-    }
+    public boolean isDisabling() { return isDisabling; }
 }

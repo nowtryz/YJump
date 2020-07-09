@@ -27,6 +27,7 @@ public class JumpCommand extends PluginCommandExecutor {
                 new ReloadCommand(),
                 new DeleteCommand(),
                 new AddCheckPointCommand(),
+                new InfoCommand(),
                 new HelpCommand());
     }
 
@@ -35,13 +36,13 @@ public class JumpCommand extends PluginCommandExecutor {
         // TODO if player is in a jump -> leave the jump
         if (sender instanceof Player) {
             Player player = (Player) sender;
-
-            if (plugin.getEditorsManager().isInEditor(player)) {
+            if (args.length > 0) {
+                Text.UNKNOWN_COMMAND.send(player);
+            } else if (plugin.getEditorsManager().isInEditor(player)) {
                 plugin.getEditorsManager().leave(player);
             } else if (plugin.getGameManager().isPlaying(player)) {
                 plugin.getGameManager().getGame(player).ifPresent(JumpGame::close);
             } else {
-                Text.UNKNOWN_COMMAND.send(player);
                 HelpCommand.sendHelp(player);
             }
         } else {

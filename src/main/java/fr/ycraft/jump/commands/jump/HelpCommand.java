@@ -7,6 +7,7 @@ import fr.ycraft.jump.commands.CommandSpec;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class HelpCommand extends AbstractCommandImpl {
@@ -29,6 +30,7 @@ public class HelpCommand extends AbstractCommandImpl {
         Text.HELP_HEADER.send(target);
         Arrays.stream(CommandSpec.values())
                 .filter(command -> command.permission.isHeldBy(target))
+                .sorted(Comparator.comparing(CommandSpec::getUsage)) // slow down command but save ram
                 .forEach(command -> Text.HELP_COMMAND.send(target, command.getUsage(), command.description));
     }
 }

@@ -4,13 +4,11 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
-import fr.ycraft.jump.util.ItemStackUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -22,6 +20,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static fr.ycraft.jump.util.ItemLibrary.*;
 
 
 public class BestScoresInventory extends AbstractInventory {
@@ -47,40 +47,13 @@ public class BestScoresInventory extends AbstractInventory {
             .filter(isPlayerHead)
             .collect(Collectors.toList());
 
-    private static final ItemStack blackGlassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
-    private static final ItemStack grayGlassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 7);
-    private static final ItemStack magentaGlassPane = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
-    private static final ItemStack DIAMOND = new ItemStack(Material.DIAMOND_BLOCK);
-    private static final ItemStack GOLD = new ItemStack(Material.GOLD_BLOCK);
-    private static final ItemStack IRON = new ItemStack(Material.IRON_BLOCK);
-
-    static {
-        ItemMeta itemMeta = magentaGlassPane.getItemMeta();
-        itemMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.setDisplayName(" ");
-        magentaGlassPane.setItemMeta(itemMeta);
-    }
-    static {
-        ItemStackUtil.setName(blackGlassPane, " ");
-        ItemStackUtil.setName(grayGlassPane, " ");
-        ItemStackUtil.setName(DIAMOND, "#1");
-        ItemStackUtil.setName(GOLD, "#2");
-        ItemStackUtil.setName(IRON, "#3");
-    }
-
-    public BestScoresInventory(JumpPlugin plugin, Player player, Jump jump) {
-        this(plugin, player, jump, null);
-    }
-
-
     public BestScoresInventory(JumpPlugin plugin, Player player, Jump jump, Runnable backAction) {
         super(plugin, player, backAction);
 
-        this.inventory = Bukkit.createInventory(player, 54, Text.TOP_INVENTORY_TITLE.get(jump.getName()));
+        Inventory inventory = Bukkit.createInventory(player, 54, Text.TOP_INVENTORY_TITLE.get(jump.getName()));
 
-        GRAY_PANE_POS.forEach(i -> this.inventory.setItem(i, grayGlassPane));
-        BLACK_PANE_POS.forEach(i -> this.inventory.setItem(i, blackGlassPane));
+        GRAY_PANE_POS.forEach(i -> inventory.setItem(i, GRAY_FILLER));
+        BLACK_PANE_POS.forEach(i -> inventory.setItem(i, BLACK_FILLER));
 
         ItemStack emptySlot = new ItemStack(Material.SKULL_ITEM);
         ItemMeta itemMeta = emptySlot.getItemMeta();
@@ -110,22 +83,22 @@ public class BestScoresInventory extends AbstractInventory {
             ).split("\n")));
             skull.setItemMeta(meta);
 
-            this.inventory.setItem(PLAYER_POS.get(i), skull);
+            inventory.setItem(PLAYER_POS.get(i), skull);
         } else {
-            this.inventory.setItem(PLAYER_POS.get(i), emptySlot);
+            inventory.setItem(PLAYER_POS.get(i), emptySlot);
         }
 
-        this.inventory.setItem(DIAMOND_POS, DIAMOND);
-        this.inventory.setItem(GOLD_POS, GOLD);
-        this.inventory.setItem(IRON_POS, IRON);
-        this.inventory.setItem(MAGENTA_POS, magentaGlassPane);
+        inventory.setItem(DIAMOND_POS, DIAMOND);
+        inventory.setItem(GOLD_POS, GOLD);
+        inventory.setItem(IRON_POS, IRON);
+        inventory.setItem(MAGENTA_POS, ENCHANTED_FILLER);
 
         // if an inventory can handle a back arrow
         if (backAction != null) {
-            this.inventory.setItem(49, back);
-            super.addClickableItem(back, super::onBack);
+            inventory.setItem(49, BACK);
+            super.addClickableItem(BACK, super::onBack);
         }
 
-        player.openInventory(this.inventory);
+        this.setInventory(inventory);
     }
 }

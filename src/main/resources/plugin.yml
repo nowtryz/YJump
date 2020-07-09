@@ -1,7 +1,7 @@
 name: Jump
 version: ${project.version}
 main: fr.ycraft.jump.JumpPlugin
-authors: [Nowtryz]
+author: Nowtryz
 description: Le Plugin de Jump d'YCraft
 website: nowtryz.net
 prefix: YJump

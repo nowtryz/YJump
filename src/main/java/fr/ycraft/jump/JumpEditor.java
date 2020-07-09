@@ -1,6 +1,7 @@
 package fr.ycraft.jump;
 
 import fr.ycraft.jump.commands.CommandSpec;
+import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.entity.Jump;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -9,6 +10,8 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +20,7 @@ import java.util.*;
 public class JumpEditor {
     private final JumpPlugin plugin;
     private final Set<Player> players = new LinkedHashSet<>();
-    private final Map<Player, GameMode> gamemodes = new HashMap<>(); // TODO thread safe
+    private final Map<Player, GameMode> gameModes = new HashMap<>(); // TODO thread safe
     private final Jump jump;
     private final BukkitTask bukkitTask;
 
@@ -47,7 +50,7 @@ public class JumpEditor {
         this.updateTitles();
 
         if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () ->{
-            this.gamemodes.put(player, player.getGameMode());
+            this.gameModes.put(player, player.getGameMode());
             player.setGameMode(GameMode.CREATIVE);
         });
 
@@ -78,8 +81,6 @@ public class JumpEditor {
                 , FormatRetention.NONE)
             .create()
         );
-
-
 
         player.spigot().sendMessage(
             new ComponentBuilder(Text.ENTER_EDITOR_INFO_BLOCKS.get())
@@ -194,8 +195,8 @@ public class JumpEditor {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
 
         if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () -> {
-            Optional.ofNullable(this.gamemodes.get(player)).ifPresent(player::setGameMode);
-            this.gamemodes.remove(player);
+            Optional.ofNullable(this.gameModes.get(player)).ifPresent(player::setGameMode);
+            this.gameModes.remove(player);
         });
 
         if (this.players.isEmpty()) this.close();

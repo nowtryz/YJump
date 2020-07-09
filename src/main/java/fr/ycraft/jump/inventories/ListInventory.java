@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,17 +26,18 @@ public class ListInventory extends AbstractInventory {
 
         int jumpCount = plugin.getJumpManager().getJumps().size();
         int size = jumpCount - jumpCount % 9 + 9;
-        this.inventory = Bukkit.createInventory(player, size, Text.JUMP_LIST_INVENTORY.get());
+        Inventory inventory = Bukkit.createInventory(player, size, Text.JUMP_LIST_INVENTORY.get());
         plugin.getJumpManager()
                 .getJumps()
                 .values()
                 .stream()
+                .filter(jump -> jump.getStart().isPresent())
                 .map(this::jumpToItem)
                 .peek(pair -> registerJump(pair.getRight(), pair.getLeft()))
                 .map(Pair::getRight)
                 .forEach(inventory::addItem);
 
-        player.openInventory(inventory);
+        this.setInventory(inventory);
     }
 
     private Pair<Jump, ItemStack> jumpToItem(Jump jump) {
@@ -80,7 +82,7 @@ public class ListInventory extends AbstractInventory {
 
     private void registerJump(ItemStack itemStack, Jump jump) {
         super.addClickableItem(itemStack, event -> {
-            this.close();
+            this.closeInventory();
             new JumpInventory(this.plugin, this.player, jump, () -> new ListInventory(this.plugin, this.player));
         });
     }

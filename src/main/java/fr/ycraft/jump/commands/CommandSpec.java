@@ -21,6 +21,8 @@ public enum CommandSpec {
     SET_ITEM(JUMP, "setitem", Perm.EDIT, Text.DESC_SET_ITEM),
     SET_END(JUMP, "setend", Perm.EDIT, Text.DESC_SET_END),
     SET_DESCRIPTION(JUMP, "setdesc", Perm.EDIT, Text.DESC_SET_DESCRIPTION, Text.SET_DESCRIPTION_USAGE),
+    RENAME(JUMP, "rename", Perm.EDIT, Text.DESC_RENAME, Text.RENAME_USAGE),
+    INFO(JUMP, "info", Perm.EDIT, Text.DESC_INFO),
     RELOAD(JUMP, "reload", Perm.RELOAD, Text.DESC_RELOAD);
 
     public final String label;

@@ -27,7 +27,7 @@ only_game_command: "§6Jump §e» §cVous devez être sur un jump pour executer 
 only_editor_action: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette action"
 only_editor_command: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "§cSeul un joueur peut exécuter cette commande"
-unknown_command: "§cCommande inconnue"
+unknown_command: "§cCommande inconnue ! Faites §o/jump help §r§c pour recevoir de l'aide."
 help:
   header: "§e§m=  §r§e» §6§lYJump §m §r §6Aide §r§e«§m  ="
   command:
@@ -38,25 +38,28 @@ cmd:
     delete: "/jump delete <nom du jump>"
     edit: "/jump edit <nom du jump>"
     create: "/jump create <nom du jump>"
+    rename: "/jump rename <nouveau nom>"
     #setdesc: "" ## Même qu'en anglais
   description:
-    jump: "Commande par défaut"
-    jumps: "Affiche la liste des jumps dans un inventaire"
-    checkpoint: "Vous téléporte au dernier checkpoint"
     addcheckpoint: "Ajoute un checkpoit au jump en cours d'éditon"
+    checkpoint: "Vous téléporte au dernier checkpoint"
     create: "Crée un nouveau jump"
     delete: "Supprime un jump"
     edit: "Entrer en mode édition pour le jump spécifié"
     help: "Affiche la description de toutes le commandes"
+    info: "Affiche les informations relatives au paramètres d'un jump"
+    jump: "Commande par défaut"
+    jumps: "Affiche la liste des jumps dans un inventaire"
     leave: "Quitte le jump en cours"
     list: "Affiche la liste des jumps"
     reload: "Recharge les configurations et les fichiers"
+    rename: "Renomme le jump en cours d'édition"
     save: "Sauvegarde le jump en cours d'édition et ferme le mode édition"
+    setdesc: "Définit la description du jump affiché dans la liste des jumps disponibles"
     setend: "Définit le bloc d'arrivé du jump"
+    setitem: "Définit l'item en main comme 'logo' du jump"
     setspawn: "Définit le spawn du jump"
     setstart: "Définit le bloc de départ du jump"
-    setitem: "Définit l'item en main comme 'logo' du jump"
-    setdesc: "Définit la description du jump affiché dans la liste des jumps disponibles"
 editor:
   # header: ===== Jump Editor =====
   title: "§aVous êtes en train d'éditer §e%s§a."
@@ -92,6 +95,31 @@ editor:
     start: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
     description: "§6Jump Editor §e» §7§oLa description a été mise à jour"
 inventory:
+  info:
+    title: "§e§lInformation » §8%s"
+    name:
+      checkpoint: "§b§l» §r§6Checkpoint"
+      spawn: "§b§l» §r§6Point de spawn"
+      start: "§b§l» §r§6Point de départ"
+      end: "§b§l» §r§6Point d'arrivée"
+      fall: "§b§l» §r§6Distance de chute"
+    lore:
+      fall: "§e%dm"
+      not_set: "§c ce point n'a pas été définit."
+      set:
+        - ""
+        - "§aPoint définit."
+        - ""
+        - "§7§m                                       "
+        - ""
+        - " §f§l» §eX §7: §6§l%d"
+        - " §f§l» §eY §7: §6§l%d"
+        - " §f§l» §eZ §7: §6§l%d"
+        - ""
+        - "§eCliquez pour vous y téléporter"
+        - ""
+        - "§7§m                                       "
+
   list:
     title: "Liste des Jumps"
     header: "§b§l» §r§6%s"
@@ -100,14 +128,14 @@ inventory:
     lore:
       done:
         - "%s" # Les espaces avant et apres la description sont généré si la description n'est pas nulle
-        - "§7§m                                                     "
+        - "§7§m                                                  "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
         - " §f§l» §eMon meilleur temp §7: §6%02d'%02d''%03d"
         - ""
         - " §aVous avez fait ce jump"
         - ""
-        - "§7§m                                                     "
+        - "§7§m                                                  "
       never_done:
         - "%s" # Les espaces avant et apres la description sont générés si la description n'est pas nulle
         - "§7§m                                                  "
@@ -123,6 +151,7 @@ inventory:
     tp: "§r§eTéléportation au §6jump"
     top: "§r§eVoir le §6top %d §epour ce jump"
     self: "§r§eVoir mes §6meilleurs scores"
+    settings: "§r§eParamètre du §6jump"
   top:
     name: "§6§l%s » §r§eTOP 10"
     empty: "Vide"
