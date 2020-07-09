@@ -14,21 +14,22 @@ import java.util.List;
 public class JumpCommand extends PluginCommandExecutor {
     public JumpCommand(@NotNull JumpPlugin plugin) {
         super(plugin, CommandSpec.JUMP, any -> true, // allow any arguments to show help message
+                new AddCheckPointCommand(),
                 new CreateCommand(),
+                new DeleteCommand(),
                 new EditCommand(),
-                new SaveCommand(),
+                new HelpCommand(),
+                new InfoCommand(),
                 new LeaveCommand(),
                 new ListCommand(),
-                new SetDescriptionCommand(),
-                new SetSpawnCommand(),
-                new SetStartCommand(),
-                new SetItemCommand(),
-                new SetEndCommand(),
                 new ReloadCommand(),
-                new DeleteCommand(),
-                new AddCheckPointCommand(),
-                new InfoCommand(),
-                new HelpCommand());
+                new RenameCommand(),
+                new SaveCommand(),
+                new SetDescriptionCommand(),
+                new SetEndCommand(),
+                new SetItemCommand(),
+                new SetSpawnCommand(),
+                new SetStartCommand());
     }
 
     @Override

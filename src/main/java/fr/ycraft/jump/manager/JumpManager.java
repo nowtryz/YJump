@@ -139,11 +139,21 @@ public class JumpManager extends AbstractManager {
         if (!this.plugin.isDisabling()) this.updateJumpList();
     }
 
+    public void updateName(Jump jump, String name) {
+        File file = new File(this.jumpsFolder, jump.getName() + ".yml");
+        if (!file.delete()) this.plugin.getLogger().severe(() -> "Unable to delete " + file.getName());
+        this.jumps.remove(jump.getName(), jump);
+
+        jump.setName(name);
+        this.jumps.put(name, jump);
+        this.persist(jump);
+    }
+
     public void delete(Jump jump) {
         this.jumps.remove(jump.getName());
         this.updateJumpList();
         File file = this.getFile(jump);
-        if (!file.delete()) this.plugin.getLogger().severe("Unable to delete " + file.getName());
+        if (!file.delete()) this.plugin.getLogger().severe(() -> "Unable to delete " + file.getName());
     }
 
     public void save() {
