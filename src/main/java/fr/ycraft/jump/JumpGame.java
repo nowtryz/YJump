@@ -79,7 +79,7 @@ public class JumpGame {
 
         this.originalScoreboard = player.getScoreboard();
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        this.objective = scoreboard.registerNewObjective(plugin.getName() + player.getName(), "dummy");
+        this.objective = scoreboard.registerNewObjective("Sidebar", "dummy");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         this.objective.setDisplayName(Text.SCOREBOARD_DISPLAY_NAME.get(this.jump.getName()));
         this.objective.getScore(Text.SCOREBOARD_TIMER_HEADER.get()).setScore(TIMER_HEADER_POS);

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class GameManager extends AbstractManager {
     private final Map<Player, JumpGame> runningGames = new LinkedHashMap<>();
@@ -31,7 +32,22 @@ public class GameManager extends AbstractManager {
 
     public void enter(Player player, Jump jump) {
         if (this.runningGames.isEmpty()) this.listener.register();
-        this.runningGames.put(player, new JumpGame(this.plugin, jump, player));
+        this.runningGames.put(player, null);
+
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.initializeGame(player, jump));
+    }
+
+    private synchronized void initializeGame(Player player, Jump jump) {
+        try {
+            this.runningGames.put(player, new JumpGame(this.plugin, jump, player));
+        } catch (Exception exception) {
+            this.plugin.getLogger().log(
+                    Level.SEVERE,
+                    "Unable to create game session for " + player.getName() + ": " + exception.getMessage(),
+                    exception
+            );
+
+        }
     }
 
     public Collection<JumpGame> getGames() {

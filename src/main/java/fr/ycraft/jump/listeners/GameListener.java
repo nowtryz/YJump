@@ -2,6 +2,7 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +17,9 @@ public class GameListener extends AbstractListener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        this.plugin.getGameManager().getGame(event.getPlayer()).ifPresent(JumpGame::close);
+        this.plugin.getGameManager()
+                .getGame(event.getPlayer())
+                .ifPresent(game -> Bukkit.getScheduler().runTask(this.plugin, game::close));
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

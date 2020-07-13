@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 public class LocationUtil {
-    public static Location roundLocation(@NotNull Location base) {
+    public static @NotNull Location roundLocation(@NotNull Location base) {
         Location loc = base.clone();
         loc.setX(loc.getBlockX());
         loc.setY(loc.getBlockY());
@@ -12,14 +12,14 @@ public class LocationUtil {
         return loc;
     }
 
-    public static Location toBlock(Location base) {
+    public static @NotNull Location toBlock(Location base) {
         Location loc = roundLocation(base);
         loc.setPitch(0);
         loc.setYaw(0);
         return loc;
     }
 
-    public static Location toCheckpoint(Location base) {
+    public static @NotNull Location toCheckpoint(@NotNull Location base) {
         Location loc = base.clone();
         loc.setX(loc.getBlockX() + .5);
         loc.setY(loc.getBlockY());

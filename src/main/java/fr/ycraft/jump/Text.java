@@ -69,6 +69,7 @@ public enum Text {
     GAME_BOSSBAR("game.bossbar", "Jump %s > %d/%d"),
     HEADER_EDITOR("editor.header", "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="),
     HELP_COMMAND("help.command", "%s\n  %s"),
+    COMMAND_ERROR("command_error", "Unable to execute command"),
     HELP_HEADER("help.header", "Jump help:"),
     ITEM_AIR("editor.set_air_item", "Seriously?"),
     ITEM_UPDATED("editor.updated.item", "Item updated to %s"),
