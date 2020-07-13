@@ -202,3 +202,4 @@ game:
   reset: "§6Jump §e»  §7Le chrono a été réinitialisé à §a0§7."
   checkpoint: "§6Jump §e»  §7Vous avez validé un checkpoint."
   checkpoint_tp: "§6Jump §e»  §7Vous avez téléporté au dernier checkpoint."
+  missing_checkpoint: "§6Jump §e»  §cVous devez valider tous les checkpoints."

@@ -143,7 +143,8 @@ public class JumpGame {
 
         // jump end
         if (this.jump.getEnd().map(l -> LocationUtil.isBlockLocationEqual(l, loc)).orElse(false)) {
-            this.end();
+            if (this.validated.size() == this.jump.getCheckpoints().size()) this.end();
+            else Text.GAME_MISSING_CHECKPOINT.send(this.player);
         }
         // chrono reset
         else if (LocationUtil.isBlockLocationEqual(this.startLocation, loc)) {
