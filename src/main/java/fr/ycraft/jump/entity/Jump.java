@@ -146,6 +146,19 @@ public class Jump implements ConfigurationSerializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Jump)) return false;
+        Jump jump = (Jump) o;
+        return name.equals(jump.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
 

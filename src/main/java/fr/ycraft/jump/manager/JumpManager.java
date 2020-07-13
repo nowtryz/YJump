@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,16 +49,17 @@ public class JumpManager extends AbstractManager {
         }
 
         this.defaults = defaults;
-        this.jumps = Arrays.stream(this.jumpsFolder.listFiles((dir, name) ->
-                (name.endsWith(".yml") || name.endsWith(".yaml"))
-                        && !new File(dir, name).isDirectory()))
+        this.jumps = new ConcurrentHashMap<>(Arrays
+                .stream(this.jumpsFolder.listFiles((dir, name) -> (name.endsWith(".yml") || name.endsWith(".yaml"))))
+                .filter(File::isFile)
                 .map(YamlConfiguration::loadConfiguration)
                 .peek(conf -> conf.setDefaults(this.defaults))
                 .peek(conf -> conf.options().copyDefaults(true))
                 .map(conf -> conf.get("jump"))
+                .distinct()
                 .filter(Jump.class::isInstance)
                 .map(Jump.class::cast)
-                .collect(Collectors.toMap(Jump::getName, Function.identity()));
+                .collect(Collectors.toMap(Jump::getName, Function.identity())));
 
         this.updateJumpList();
     }
