@@ -34,7 +34,6 @@ public class JumpCommand extends PluginCommandExecutor {
 
     @Override
     public boolean execute(JumpPlugin plugin, CommandSender sender, String[] args) {
-        // TODO if player is in a jump -> leave the jump
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (args.length > 0) {

@@ -50,7 +50,6 @@ public abstract class PluginCommandExecutor extends AbstractCommandImpl implemen
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // if no sub commands, we run the default command
-        // TODO is async ?
         if (args.length == 0 || this.commands == null) return this.process(plugin, sender, args);
 
         // grab sub command and execute it

@@ -16,11 +16,12 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JumpEditor {
     private final JumpPlugin plugin;
     private final Set<Player> players = new LinkedHashSet<>();
-    private final Map<Player, GameMode> gameModes = new HashMap<>(); // TODO thread safe
+    private final Map<Player, GameMode> gameModes = new ConcurrentHashMap<>();
     private final Jump jump;
     private final BukkitTask bukkitTask;
 
