@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -15,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -96,7 +99,11 @@ public class InfoInventory extends AbstractInventory {
         List<Location> checkpoints = jump.getCheckpoints();
         for (int i = 0; i < checkpoints.size() % checkpointsPos.size(); i++) {
             Location location = checkpoints.get(i);
-            ItemStack checkpoint = new ItemStack(plugin.getConfigProvider().getCheckpointMaterial());
+            Material material = Optional.of(location.getBlock().getRelative(BlockFace.DOWN))
+                    .map(Block::getType)
+                    .filter(m -> m != Material.AIR)
+                    .orElse(plugin.getConfigProvider().getCheckpointMaterial());
+            ItemStack checkpoint = new ItemStack(material);
             ItemMeta itemMeta = checkpoint.getItemMeta();
 
             itemMeta.setDisplayName(Text.INFO_CHECKPOINT_NAME.get());
