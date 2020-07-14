@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.util.LocationUtil;
+import fr.ycraft.jump.util.MapCollector;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,7 +17,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class JumpManager extends AbstractManager {
@@ -56,12 +61,63 @@ public class JumpManager extends AbstractManager {
                 .peek(conf -> conf.setDefaults(this.defaults))
                 .peek(conf -> conf.options().copyDefaults(true))
                 .map(conf -> conf.get("jump"))
-                .distinct()
                 .filter(Jump.class::isInstance)
                 .map(Jump.class::cast)
-                .collect(Collectors.toMap(Jump::getName, Function.identity())));
+                .collect(MapCollector.toMap(
+                        name -> this.plugin.getLogger().severe(
+                                "Jump \"" + name + "\" is duplicated, please verify your jump files"),
+                        Jump::getName,
+                        Function.identity()
+                )));
 
         this.updateJumpList();
+    }
+
+    private class JumpCollector implements Collector<Jump, HashMap<String, Jump>, Map<String, Jump>> {
+
+        @Override
+        public Supplier<HashMap<String, Jump>> supplier() {
+            return HashMap::new;
+        }
+
+        @Override
+        public BiConsumer<HashMap<String, Jump>, Jump> accumulator() {
+            return (map, jump) -> {
+                if (map.putIfAbsent(jump.getName(), jump) != null) this.duplicateKeyException(jump.getName());
+            };
+        }
+
+        @Override
+        public BinaryOperator<HashMap<String, Jump>> combiner() {
+            return (m1, m2) -> {
+                for (Map.Entry<String,Jump> e : m2.entrySet()) {
+                    String k = e.getKey();
+                    Jump v = Objects.requireNonNull(e.getValue());
+                    Jump u = m1.putIfAbsent(k, v);
+                    if (u != null) this.duplicateKeyException(k);
+                }
+                return m1;
+            };
+        }
+
+        private void duplicateKeyException(String name) {
+            JumpManager.this.plugin.getLogger().severe(
+                    () -> "Jump " + name + " is duplicated, please verify jump files"
+            );
+        }
+
+        @Override
+        public Function<HashMap<String, Jump>, Map<String, Jump>> finisher() {
+            return map -> map;
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return new HashSet<>(Arrays.asList(
+                Characteristics.IDENTITY_FINISH,
+                Characteristics.UNORDERED
+            ));
+        }
     }
 
     public void updateJumpList() {
