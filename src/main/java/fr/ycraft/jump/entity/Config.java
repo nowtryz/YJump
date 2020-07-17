@@ -14,39 +14,34 @@ public class Config {
     private final Material checkpointMaterial;
     private final BarColor bossbarColor;
     private final List<String> allowedCommands;
-    private final boolean deletePlates, protectPlates, resetEnchants, creativeEditor;
-    private final int maxFallDistance, maxScoresPerJump, maxScoresPerPlayer, descriptionWrapLength;
+    private final boolean deletePlates, protectPlates, resetEnchants, creativeEditor, databaseStorage;
+    private final int maxFallDistance, maxScoresPerJump, maxScoresPerPlayer, descriptionWrapLength, databasePort;
     private final long resetTime;
+    private final String databaseHost, databaseName, databaseUser, databasePassword;
 
-    public Config(
-            Material startMaterial,
-            Material endMaterial,
-            Material checkpointMaterial,
-            BarColor bossbarColor,
-            List<String> allowedCommands,
-            boolean deletePlates,
-            boolean protectPlates,
-            int maxFallDistance,
-            int maxScoresPerJump,
-            int maxScoresPerPlayer,
-            int descriptionWrapLength,
-            boolean resetEnchants,
-            boolean creativeEditor,
-            long resetTime) {
-        this.startMaterial = startMaterial;
-        this.endMaterial = endMaterial;
-        this.checkpointMaterial = checkpointMaterial;
-        this.bossbarColor = bossbarColor;
-        this.allowedCommands = allowedCommands;
-        this.deletePlates = deletePlates;
-        this.protectPlates = protectPlates;
-        this.maxFallDistance = maxFallDistance;
-        this.maxScoresPerJump = maxScoresPerJump;
-        this.maxScoresPerPlayer = maxScoresPerPlayer;
-        this.descriptionWrapLength = descriptionWrapLength;
-        this.resetEnchants = resetEnchants;
-        this.creativeEditor = creativeEditor;
-        this.resetTime = resetTime;
+    public Config(FileConfiguration config, Logger logger) {
+        this.startMaterial = Config.extractMaterial(config.getString("materials.start"), logger);
+        this.endMaterial = Config.extractMaterial(config.getString("materials.end"), logger);
+        this.checkpointMaterial = Config.extractMaterial(config.getString("materials.checkpoint"), logger);
+        this.bossbarColor = Config.extractBossbarColor(config.getString("game.bossbar"), logger);
+        this.allowedCommands = config.getStringList("game.allowed commands");
+        this.deletePlates = config.getBoolean("plates.auto delete");
+        this.protectPlates = config.getBoolean("plates.protect");
+        this.maxFallDistance = config.getInt("game.max fall distance");
+        this.maxScoresPerJump = config.getInt("best scores.per jump");
+        this.maxScoresPerPlayer = config.getInt("best scores.per player");
+        this.descriptionWrapLength = config.getInt("description wrap length");
+        this.resetEnchants = config.getBoolean("game.reset enchants");
+        this.creativeEditor = config.getBoolean("editor.creative");
+        this.resetTime = config.getLong("game.reset time");
+
+        this.databaseHost = config.getString("database.host", null);
+        this.databaseName = config.getString("database.name", null);
+        this.databaseUser = config.getString("database.user", null);
+        this.databasePassword = config.getString("database.pass", null);
+        this.databasePort = config.getInt("database.port", 3308);
+        this.databaseStorage = this.databaseHost != null && this.databaseUser != null && this.databaseName != null
+                && config.getBoolean("database.enabled", false);
     }
 
     public Material getStartMaterial() {
@@ -105,23 +100,28 @@ public class Config {
         return this.resetTime;
     }
 
-    public static Config fromYAML(FileConfiguration config, Logger logger) {
-        return new Config(
-                Config.extractMaterial(config.getString("materials.start"), logger),
-                Config.extractMaterial(config.getString("materials.end"), logger),
-                Config.extractMaterial(config.getString("materials.checkpoint"), logger),
-                Config.extractBossbarColor(config.getString("game.bossbar"), logger),
-                config.getStringList("game.allowed commands"),
-                config.getBoolean("plates.auto delete"),
-                config.getBoolean("plates.protect"),
-                config.getInt("game.max fall distance"),
-                config.getInt("best scores.per jump"),
-                config.getInt("best scores.per player"),
-                config.getInt("description wrap length"),
-                config.getBoolean("game.reset enchants"),
-                config.getBoolean("editor.creative"),
-                config.getLong("game.reset time")
-        );
+    public boolean isDatabaseStorage() {
+        return databaseStorage;
+    }
+
+    public int getDatabasePort() {
+        return databasePort;
+    }
+
+    public String getDatabaseHost() {
+        return databaseHost;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public String getDatabaseUser() {
+        return databaseUser;
+    }
+
+    public String getDatabasePassword() {
+        return databasePassword;
     }
 
     private static Material extractMaterial(@NotNull String name, @NotNull Logger logger) {

@@ -119,6 +119,7 @@ public enum Text {
     SET_DESCRIPTION_USAGE("cmd.usage.setdesc", "/jump setdesc <description>"),
     SPAWN_UPDATED("editor.updated.spawn", "Spawn updated for %s"),
     START_UPDATED("editor.updated.start", "Start position updated for %s"),
+    NAME_UPDATED("editor.updated.name", "Jump renamed to %s"),
     TOP_INVENTORY_TITLE("inventory.top.name", "TOP 10"),
     TOP_SCORE_LORE("inventory.top.score.lore", "%1$s\n%3$02d'%4$02d''%5$03d"),
     TOP_SCORE_TITLE("inventory.top.score.name", "TOP %2$d"),

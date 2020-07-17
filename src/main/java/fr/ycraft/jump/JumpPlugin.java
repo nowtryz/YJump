@@ -1,31 +1,38 @@
 package fr.ycraft.jump;
 
+import com.mysql.jdbc.Driver;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
 import fr.ycraft.jump.commands.misc.JumpsCommand;
 import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
-import fr.ycraft.jump.inventories.AbstractInventory;
 import fr.ycraft.jump.inventories.JumpInventory;
-import fr.ycraft.jump.listeners.*;
+import fr.ycraft.jump.listeners.InventoryListener;
+import fr.ycraft.jump.listeners.PlateListener;
+import fr.ycraft.jump.listeners.PlatesProtectionListener;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
+import fr.ycraft.jump.manager.database.DBJumpManager;
+import fr.ycraft.jump.manager.database.DBPlayerManager;
+import fr.ycraft.jump.manager.file.FileJumpManager;
+import fr.ycraft.jump.manager.file.FilePlayerManager;
+import fr.ycraft.jump.util.DatabaseUtil;
 import fr.ycraft.jump.util.ItemLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Main class of the Jump plugin, this class is loaded by Bukkit on startup
@@ -38,6 +45,7 @@ public final class JumpPlugin extends JavaPlugin {
         try {
             JumpPlugin.class.getClassLoader().loadClass(Jump.class.getName());
             JumpPlugin.class.getClassLoader().loadClass(PlayerScore.class.getName());
+            JumpPlugin.class.getClassLoader().loadClass(Driver.class.getName());
         } catch (ClassNotFoundException e) {
             Bukkit.getLogger().severe("[YJump] Unable to preload classes for Yaml deserialization");
         }
@@ -56,20 +64,40 @@ public final class JumpPlugin extends JavaPlugin {
         super.saveDefaultConfig();
         this.exportDefaultResource("fr-FR.yml");
 
-        this.config = Config.fromYAML(this.getConfig(), this.getLogger());
-        this.jumpManager = new JumpManager(this);
+        this.config = new Config(this.getConfig(), this.getLogger());
         this.editorsManager = new EditorsManager(this);
         this.gameManager = new GameManager(this);
-        this.playerManager = new PlayerManager(this);
         this.inventoryListener = new InventoryListener(this);
+
+        if (this.config.isDatabaseStorage()) {
+            try {
+                this.getLogger().info(String.format(
+                    "Using %s database on %s:%d",
+                    this.config.getDatabaseName(),
+                    this.config.getDatabaseHost(),
+                    this.config.getDatabasePort()
+                ));
+                this.initDatabaseManagers();
+            } catch (SQLException exception) {
+                this.initFileManagers();
+                this.getLogger().severe("Unable to connect to database: " + exception);
+                this.getLogger().warning("Falling back to yaml files");
+                this.getLogger().log(Level.SEVERE, "Stack trace:", exception);
+            }
+        } else {
+            this.initFileManagers();
+            this.getLogger().info("Using YAML files");
+        }
 
         Text.init(this);
         ItemLibrary.init();
         JumpInventory.init(this);
 
-        this.getLogger().info(String.format(
+        String[] jumps = this.jumpManager.getJumps().keySet().toArray(new String[0]);
+        if (jumps.length == 0) this.getLogger().warning("No jump loaded");
+        else this.getLogger().info(String.format(
                 "Loaded the following jumps: %s",
-                String.join(", ", this.jumpManager.getJumps().keySet().toArray(new String[0]))
+                String.join(", ", jumps)
         ));
 
         this.registerCommands();
@@ -126,6 +154,16 @@ public final class JumpPlugin extends JavaPlugin {
                     .filter(b -> !b.getType().equals(this.config.getCheckpointMaterial()))
                     .forEach(b -> b.setType(this.config.getCheckpointMaterial()));
         });
+    }
+
+    private void initFileManagers() {
+        this.jumpManager = new FileJumpManager(this);
+        this.playerManager = new FilePlayerManager(this);
+    }
+
+    private void initDatabaseManagers() throws SQLException {
+        this.jumpManager = new DBJumpManager(this);
+        this.playerManager = new DBPlayerManager(this);
     }
 
     @Override

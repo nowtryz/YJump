@@ -2,12 +2,17 @@
 # ---- Jump ---- #
 ##################
 
+# Whether to use an SQL database or not (fall back to yaml files if disabled)
+database:
+  enabled: no
+  host: "localhost"
+  name: "database"
+  port: 3306
+  user: "root"
+  pass: ""
+
 # Each checkpoint, start, end points need to have a pressure plate to be used by the plugin
-# materials can be (case insensitive):
-# - gold
-# - iron
-# - stone
-# - wood
+# materials can be (case insensitive): gold, iron, stone, or wood
 materials:
   start: gold
   end: gold
@@ -28,7 +33,7 @@ game:
   # Max fall distance before teleport the player to its last checkpoint (-1 to disable)
   max fall distance: 5
   # Reset enchantments when a player begin a jump
-  reset enchants: true
+  reset enchants: yes
   # color of the bossbar (possible values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)
   bossbar: green
   # Allowed command while in jump, other commands performed by player will cause it to leave the jump
@@ -44,9 +49,9 @@ game:
 # Editor settings
 editor:
   # Put editor in creative mode to be able to break plates, use fly and add blocks
-  # Notes: - Player will still need jump.admin.editorinteraction to break blocks
-  #        - The plugin does not restore inventory after edition for the moment (gives can occur)
-  creative: true
+  # Notes: - Player will still need jump.admin.editorinteraction to break and place blocks
+  #        - Players without the permission here above cannot add item to there inventory through creative panel
+  creative: yes
 
 # Gui settings
 best scores:
@@ -56,5 +61,3 @@ best scores:
   per player: 5
 # Width of description in the jump list
 description wrap length: 50 # characters
-
-

@@ -95,6 +95,7 @@ editor:
     spawn: "§6Jump Editor §e» §7§oLe spawn de §f%s§7§o a été mis à jour"
     start: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
     description: "§6Jump Editor §e» §7§oLa description a été mise à jour"
+    name: "§6Jump Editor §e» §7§oLe jump a été renommé en %s."
 inventory:
   info:
     title: "§e§lInformation » §8%s"
