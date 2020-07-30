@@ -40,6 +40,7 @@ game:
   allowed commands:
     # Jump plugin
     - jump
+    - j # jump alias (don't forget it :) )
     - checkpoint
     - cp
     # Essentials example

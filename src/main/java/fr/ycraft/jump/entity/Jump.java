@@ -119,6 +119,14 @@ public class Jump implements ConfigurationSerializable {
         this.end = Optional.ofNullable(end).map(LocationUtil::roundLocation).orElse(null);
     }
 
+    /**
+     * Remove a from this jump (only in cache), this update must be performed by a JumpManager to ensure
+     * that caches are coherent with the storage as, depending on the storage use, the update may nat be
+     * taken into account. If you want to ensure that the checkpoint is removed from the storage, use
+     * {@link fr.ycraft.jump.manager.JumpManager#deleteCheckpoint(Jump, Location) JumpManager#deleteCheckpoint()}
+     * instead
+     * @param loc the location to remove from this jump
+     */
     public void removeCheckpoint(@NotNull Location loc) {
         new LinkedList<>(this.checkpoints).stream()
                 .filter(l -> l.getBlockX() == loc.getBlockX()

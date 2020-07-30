@@ -80,6 +80,7 @@ public abstract class JumpManager extends AbstractManager {
 
     public abstract void persist(Jump jump);
     public abstract void updateName(Jump jump, String name);
+    public abstract void deleteCheckpoint(Jump jump, Location location);
     public abstract void delete(Jump jump);
     public abstract void save();
 }

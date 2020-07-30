@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public class DatabaseUtil {
-    public static Connection initDatabase(JumpPlugin plugin) throws SQLException {
-        Connection connection = connect(plugin.getConfigProvider());
+    public static void initDatabase(JumpPlugin plugin) throws SQLException {
+        Connection connection = createConnection(plugin.getConfigProvider());
         Statement statement = connection.createStatement();
         Logger logger = plugin.getLogger();
 
@@ -35,10 +35,14 @@ public class DatabaseUtil {
             logger.info("Created Score table");
         }
 
-        return connection;
+        if (!tables.contains("jump_checkpoints")) {
+            createCheckpointTable(statement);
+            logger.info("Created Score table");
+        }
+
     }
 
-    private static Connection connect(Config config) throws SQLException {
+    public static Connection createConnection(Config config) throws SQLException {
         return DriverManager.getConnection(
                 String.format(
                         "jdbc:mysql://%s:%d/%s",
@@ -53,14 +57,14 @@ public class DatabaseUtil {
 
     private static void createLocationTable(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS `jump_location` (" +
-                "`id` BIGINT NOT NULL AUTO_INCREMENT , " +
+                "`hash` INT NOT NULL , " +
                 "`world` VARCHAR(50) NOT NULL , " +
                 "`x` DOUBLE NOT NULL , " +
                 "`y` DOUBLE NOT NULL , " +
                 "`z` DOUBLE NOT NULL , " +
                 "`pitch` FLOAT NOT NULL , " +
                 "`yaw` FLOAT NOT NULL , " +
-                "PRIMARY KEY (`id`)" +
+                "PRIMARY KEY (`hash`)" +
                 ") ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;");
     }
 
@@ -69,26 +73,26 @@ public class DatabaseUtil {
                 "`id` BIGINT NOT NULL AUTO_INCREMENT , " +
                 "`name` VARCHAR(16) NOT NULL, " +
                 "`description` TEXT," +
-                "`spawn` BIGINT ," +
-                "`start` BIGINT ," +
-                "`end` BIGINT ," +
+                "`spawn` INT ," +
+                "`start` INT ," +
+                "`end` INT ," +
                 "`item` TEXT ," +
                 "PRIMARY KEY (`id`)," +
                 "UNIQUE (`name`)," +
                 "FOREIGN KEY (`spawn`) " +
-                    "REFERENCES `jump_location`(`id`) " +
+                    "REFERENCES `jump_location`(`hash`) " +
                     "ON DELETE CASCADE , " +
                 "FOREIGN KEY (`start`) " +
-                    "REFERENCES `jump_location`(`id`) " +
+                    "REFERENCES `jump_location`(`hash`) " +
                     "ON DELETE CASCADE , " +
                 "FOREIGN KEY (`end`) " +
-                    "REFERENCES `jump_location`(`id`) " +
+                    "REFERENCES `jump_location`(`hash`) " +
                     "ON DELETE CASCADE " +
                 ") ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
     }
 
     private static void createScoreTable(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE `jump_score` (" +
+        statement.execute("CREATE TABLE IF NOT EXISTS `jump_score` (" +
                 "`id` BIGINT NOT NULL AUTO_INCREMENT , " +
                 "`player` BINARY(16) NOT NULL , " +
                 "`duration` BIGINT NOT NULL , " +
@@ -98,5 +102,19 @@ public class DatabaseUtil {
                     "REFERENCES `jump_jump`(`id`) " +
                     "ON DELETE CASCADE" +
                 ") ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;");
+    }
+
+    private static void createCheckpointTable(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS `jump_checkpoints` (" +
+                "`jump` BIGINT NOT NULL ," +
+                "`location` INT NOT NULL ," +
+                "PRIMARY KEY (`jump`, `location`)," +
+                "FOREIGN KEY (`jump`)" +
+                "    REFERENCES `jump_jump`(`id`)" +
+                "    ON DELETE CASCADE ," +
+                "FOREIGN KEY (`location`)" +
+                "    REFERENCES `jump_location`(`hash`)" +
+                "    ON DELETE CASCADE" +
+                ") ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
     }
 }

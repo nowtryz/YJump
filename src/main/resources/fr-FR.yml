@@ -3,8 +3,8 @@
 ########################################
 
 # Pour afficher un message sur plusieurs lignes, utilisez une liste comme suit :
-# monoligne: text
-# multiligne:
+# mono ligne: text
+# multi lignes:
 #   - ligne 1
 #   - ligne 2
 
@@ -15,16 +15,16 @@
 #  - %2$s = affichage du deuxième paramètre en tant que chaine de caractères
 
 
-noperm: "§cVous n'avez pas la permission pour exéuter cette commande"
+noperm: "§cVous n'avez pas la permission pour exécuter cette commande"
 back: "§l» §r§cRetour"
 usage: "§cUsage : %s"
 command_error: "6Jump §e» §cUne erreur est survenue ! Impossible d'executer la command."
 deleted: "§6Jump Editor §e» §f%s §7a été supprimé."
 reloaded: "§6Jump §e» §aLes configurations du plugin ont été rechargée."
-click: "§9Cliquez pour executer"
+click: "§9Cliquez pour exécuter"
 already_exists: "§6Jump Editor §e» §cCe Jump existe déjà"
 not_exists: "§6Jump Editor §e» §cCe jump n'existe pas"
-only_game_command: "§6Jump §e» §cVous devez être sur un jump pour executer cette command."
+only_game_command: "§6Jump §e» §cVous devez être sur un jump pour exécuter cette command."
 only_editor_action: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette action"
 only_editor_command: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "§cSeul un joueur peut exécuter cette commande"
@@ -43,26 +43,26 @@ cmd:
     #setdesc: "" ## Même qu'en anglais
   description:
     addcheckpoint: "Ajoute un checkpoit au jump en cours d'éditon"
-    checkpoint: "Vous téléporte au dernier checkpoint"
-    create: "Crée un nouveau jump"
-    delete: "Supprime un jump"
-    edit: "Entrer en mode édition pour le jump spécifié"
-    help: "Affiche la description de toutes le commandes"
-    info: "Affiche les informations relatives au paramètres d'un jump"
-    jump: "Commande par défaut"
-    jumps: "Affiche la liste des jumps dans un inventaire"
-    leave: "Quitte le jump en cours"
-    list: "Affiche la liste des jumps"
-    reload: "Recharge les configurations et les fichiers"
-    rename: "Renomme le jump en cours d'édition"
-    save: "Sauvegarde le jump en cours d'édition et ferme le mode édition"
-    setdesc: "Définit la description du jump affiché dans la liste des jumps disponibles"
-    setend: "Définit le bloc d'arrivé du jump"
-    setitem: "Définit l'item en main comme 'logo' du jump"
-    setspawn: "Définit le spawn du jump"
-    setstart: "Définit le bloc de départ du jump"
+    checkpoint:    "Vous téléporte au dernier checkpoint"
+    create:        "Crée un nouveau jump"
+    delete:        "Supprime un jump"
+    edit:          "Entrer en mode édition pour le jump spécifié"
+    help:          "Affiche la description de toutes le commandes"
+    info:          "Affiche les informations relatives au paramètres d'un jump"
+    jump:          "Commande par défaut"
+    jumps:         "Affiche la liste des jumps dans un inventaire"
+    leave:         "Quitte le jump en cours"
+    list:          "Affiche la liste des jumps"
+    reload:        "Recharge les configurations et les fichiers"
+    rename:        "Renomme le jump en cours d'édition"
+    save:          "Sauvegarde le jump en cours d'édition et ferme le mode édition"
+    setdesc:       "Définit la description du jump affiché dans la liste des jumps disponibles"
+    setend:        "Définit le bloc d'arrivé du jump"
+    setitem:       "Définit l'item en main comme 'logo' du jump"
+    setspawn:      "Définit le spawn du jump"
+    setstart:      "Définit le bloc de départ du jump"
 editor:
-  # header: ===== Jump Editor =====
+  header: "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="
   title: "§aVous êtes en train d'éditer §e%s§a."
   nospawn: "§6Jump Editor §e» §cCe jump n'a pas encore de spawn"
   delete_checkpoint: "§6Jump Editor §e» §aCheckpoint supprimé"
@@ -77,7 +77,7 @@ editor:
     # Message simple
     info: "§7Vous êtes désormais dans l'éditeur du jump §f%s§7."
     # Prefix devant la commande
-    leave: "§7Pour quitter, faies "
+    leave: "§7Pour quitter, faites "
     # Prefix devant la commande
     spawn: "§7Pour définir le spawn faites "
     # Prefix devant la commande '/jump setstart'
@@ -129,7 +129,7 @@ inventory:
     # var 2,3,4 : score
     lore:
       done:
-        - "%s" # Les espaces avant et apres la description sont généré si la description n'est pas nulle
+        - "%s" # Les espaces avant et après la description sont généré si la description n'est pas nulle
         - "§7§m                                                  "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
@@ -139,7 +139,7 @@ inventory:
         - ""
         - "§7§m                                                  "
       never_done:
-        - "%s" # Les espaces avant et apres la description sont générés si la description n'est pas nulle
+        - "%s" # Les espaces avant et après la description sont générés si la description n'est pas nulle
         - "§7§m                                                  "
         - ""
         - " §f§l» §eDistance §7: §6§l%.2f§r§6m"

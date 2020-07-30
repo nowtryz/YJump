@@ -138,7 +138,7 @@ public class InfoInventory extends AbstractInventory {
     }
 
     public void tpToStart(InventoryClickEvent event) {
-        this.jump.getSpawn().ifPresent(player::teleport);
+        this.jump.getStart().ifPresent(player::teleport);
     }
 
     public void tpToEnd(InventoryClickEvent event) {

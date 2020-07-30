@@ -68,7 +68,7 @@ public enum Text {
     ENTER_EDITOR_INFO_SPAWN("editor.enter.spawn", "To set the spawn, do ") /* usage */,
     ENTER_GAME("game.enter", "You've stated the jump %s"),
     GAME_BOSSBAR("game.bossbar", "Jump %s > %d/%d"),
-    HEADER_EDITOR("editor.header", "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="),
+    HEADER_EDITOR("editor.header", "===== Jump Editor ====="),
     HELP_COMMAND("help.command", "%s\n  %s"),
     HELP_HEADER("help.header", "Jump help:"),
     INFO_CHECKPOINT_NAME("inventory.info.name.checkpoint", "Checkpoint"),

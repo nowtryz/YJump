@@ -6,6 +6,7 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.util.MapCollector;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -98,6 +98,11 @@ public class FileJumpManager extends JumpManager{
         jump.setName(name);
         this.jumps.put(name, jump);
         this.persist(jump);
+    }
+
+    @Override
+    public void deleteCheckpoint(Jump jump, Location location) {
+        jump.removeCheckpoint(location);
     }
 
     @Override

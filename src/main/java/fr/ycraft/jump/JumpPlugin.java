@@ -21,6 +21,7 @@ import fr.ycraft.jump.manager.file.FileJumpManager;
 import fr.ycraft.jump.manager.file.FilePlayerManager;
 import fr.ycraft.jump.util.DatabaseUtil;
 import fr.ycraft.jump.util.ItemLibrary;
+import fr.ycraft.jump.util.MetricsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,8 +29,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -92,6 +91,7 @@ public final class JumpPlugin extends JavaPlugin {
         Text.init(this);
         ItemLibrary.init();
         JumpInventory.init(this);
+        MetricsUtils.init(this);
 
         String[] jumps = this.jumpManager.getJumps().keySet().toArray(new String[0]);
         if (jumps.length == 0) this.getLogger().warning("No jump loaded");
@@ -162,6 +162,7 @@ public final class JumpPlugin extends JavaPlugin {
     }
 
     private void initDatabaseManagers() throws SQLException {
+        DatabaseUtil.initDatabase(this);
         this.jumpManager = new DBJumpManager(this);
         this.playerManager = new DBPlayerManager(this);
     }

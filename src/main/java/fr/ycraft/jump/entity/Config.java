@@ -44,85 +44,26 @@ public class Config {
                 && config.getBoolean("database.enabled", false);
     }
 
-    public Material getStartMaterial() {
-        return startMaterial;
-    }
-
-    public Material getEndMaterial() {
-        return endMaterial;
-    }
-
-    public Material getCheckpointMaterial() {
-        return checkpointMaterial;
-    }
-
-    public BarColor getBossbarColor() {
-        return bossbarColor;
-    }
-
-    public List<String> getAllowedCommands() {
-        return allowedCommands;
-    }
-
-    public boolean doesDeletePlates() {
-        return this.deletePlates;
-    }
-
-    public boolean isPlatesProtected() {
-        return this.protectPlates;
-    }
-
-    public int getMaxFallDistance() {
-        return this.maxFallDistance;
-    }
-
-    public int getMaxScoresPerJump() {
-        return maxScoresPerJump;
-    }
-
-    public int getMaxScoresPerPlayer() {
-        return maxScoresPerPlayer;
-    }
-
-    public int getDescriptionWrapLength() {
-        return descriptionWrapLength;
-    }
-
-    public boolean doesResetEnchants() {
-        return this.resetEnchants;
-    }
-
-    public boolean isCreativeEditor() {
-        return creativeEditor;
-    }
-
-    public long getResetTime() {
-        return this.resetTime;
-    }
-
-    public boolean isDatabaseStorage() {
-        return databaseStorage;
-    }
-
-    public int getDatabasePort() {
-        return databasePort;
-    }
-
-    public String getDatabaseHost() {
-        return databaseHost;
-    }
-
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
-    public String getDatabaseUser() {
-        return databaseUser;
-    }
-
-    public String getDatabasePassword() {
-        return databasePassword;
-    }
+    public Material getStartMaterial() { return startMaterial; }
+    public Material getEndMaterial() { return endMaterial; }
+    public Material getCheckpointMaterial() { return checkpointMaterial; }
+    public BarColor getBossbarColor() { return bossbarColor; }
+    public List<String> getAllowedCommands() { return allowedCommands; }
+    public boolean doesDeletePlates() { return this.deletePlates; }
+    public boolean isPlatesProtected() { return this.protectPlates; }
+    public int getMaxFallDistance() { return this.maxFallDistance; }
+    public int getMaxScoresPerJump() { return maxScoresPerJump; }
+    public int getMaxScoresPerPlayer() { return maxScoresPerPlayer; }
+    public int getDescriptionWrapLength() { return descriptionWrapLength; }
+    public boolean doesResetEnchants() { return this.resetEnchants; }
+    public boolean isCreativeEditor() { return creativeEditor; }
+    public long getResetTime() { return this.resetTime; }
+    public boolean isDatabaseStorage() { return databaseStorage; }
+    public int getDatabasePort() { return databasePort; }
+    public String getDatabaseHost() { return databaseHost; }
+    public String getDatabaseName() { return databaseName; }
+    public String getDatabaseUser() { return databaseUser; }
+    public String getDatabasePassword() { return databasePassword; }
 
     private static Material extractMaterial(@NotNull String name, @NotNull Logger logger) {
         try {
@@ -138,23 +79,12 @@ public class Config {
     private static BarColor extractBossbarColor(@NotNull String name, @NotNull Logger logger) {
         try {
 
-            return BarColor.valueOf(String.format("%s", name).toUpperCase());
+            return BarColor.valueOf(name.toUpperCase());
         } catch (IllegalArgumentException e) {
             logger.severe(String.format(
                     "%s is not a valid bossbar color", name)
             );
             return BarColor.GREEN;
-        }
-    }
-
-    private static Material extractToolMaterial(@NotNull String name,  @NotNull Logger logger) {
-        try {
-            return Material.valueOf(name.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            logger.severe(String.format(
-                    "%s is not a valid material", name)
-            );
-            return Material.STICK;
         }
     }
 }
