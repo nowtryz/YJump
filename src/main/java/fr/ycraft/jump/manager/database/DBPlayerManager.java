@@ -4,6 +4,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.util.DatabaseUtil;
+import lombok.Cleanup;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -24,26 +25,21 @@ public class DBPlayerManager extends PlayerManager {
 
     @Override
     public List<Long> getScores(Player player, Jump jump) {
-        try {
-            PreparedStatement preparedStatement = this.connection.prepareStatement(
-                    "SELECT `duration` " +
-                            "FROM `jump_score` s " +
-                            "INNER JOIN `jump_jump` j " +
-                            "ON s.`jump_id` = j.`id` " +
-                            "WHERE j.`name` = ? AND s.`player` = UNHEX(REPLACE(?, '-','')) " +
-                            "ORDER BY `duration` DESC " +
-                            "LIMIT " + this.plugin.getConfigProvider().getMaxScoresPerPlayer()
-            );
-
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(
+                "SELECT `duration` " +
+                        "FROM `jump_score` s " +
+                        "INNER JOIN `jump_jump` j " +
+                        "ON s.`jump_id` = j.`id` " +
+                        "WHERE j.`name` = ? AND s.`player` = UNHEX(REPLACE(?, '-','')) " +
+                        "ORDER BY `duration` DESC " +
+                        "LIMIT " + this.plugin.getConfigProvider().getMaxScoresPerPlayer()
+        )) {
             preparedStatement.setString(1, jump.getName());
             preparedStatement.setString(2, player.getUniqueId().toString());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
             List<Long> scores = new ArrayList<>();
 
             while (resultSet.next()) scores.add(resultSet.getLong(1));
-
-            resultSet.close();
-            preparedStatement.close();
             return scores;
         } catch (SQLException exception) {
             this.plugin.getLogger().severe(String.format(
@@ -58,17 +54,16 @@ public class DBPlayerManager extends PlayerManager {
 
     @Override
     public void addNewPlayerScore(Player player, Jump jump, long millis) {
-        try {
-            PreparedStatement preparedStatement = this.connection.prepareStatement(
-                    "INSERT INTO `jump_score`(player, duration, jump_id) " +
-                            "VALUE (" +
-                            "UNHEX(REPLACE(?, '-','')),?," +
-                            "(SELECT `jump_id` FROM `jump_jump` WHERE `name` = ?)" +
-                            ")");
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(
+                "INSERT INTO `jump_score`(player, duration, jump_id) " +
+                        "VALUE (" +
+                        "UNHEX(REPLACE(?, '-','')),?," +
+                        "(SELECT `jump_id` FROM `jump_jump` WHERE `name` = ?)" +
+                    ")")) {
 
-            preparedStatement.setString(1, player.getUniqueId().toString());
-            preparedStatement.setLong(2, millis);
-            preparedStatement.setString(3, jump.getName());
+            writeScore(jump, player, millis, preparedStatement);
+            preparedStatement.executeUpdate();
+
         } catch (SQLException exception) {
             this.plugin.getLogger().severe(String.format(
                     "Unable to save a new score for %s: [%d] %s",
@@ -78,5 +73,12 @@ public class DBPlayerManager extends PlayerManager {
             ));
         }
         // To convert uuid to binary : UNHEX(REPLACE("3f06af63-a93c-11e4-9797-00505690773f", "-",""))
+    }
+
+    private static void writeScore(Jump jump, Player player, long score, PreparedStatement preparedStatement)
+            throws SQLException {
+        preparedStatement.setString(1, player.getUniqueId().toString());
+        preparedStatement.setLong(2, score);
+        preparedStatement.setString(3, jump.getName());
     }
 }

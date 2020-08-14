@@ -5,6 +5,7 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.util.DatabaseUtil;
+import lombok.Cleanup;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,21 +27,12 @@ public class DBJumpManager extends JumpManager {
         this.connection = DatabaseUtil.createConnection(plugin.getConfigProvider());
         this.jumps = new ConcurrentHashMap<>();
 
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT id, name, description, spawn, start, end FROM `jump_jump`");
+        @Cleanup Statement statement = connection.createStatement();
+        @Cleanup ResultSet resultSet = statement.executeQuery("SELECT id, name, description, spawn, start, end FROM `jump_jump`");
 
         while (resultSet.next()) {
             long id = resultSet.getLong("id");
-            Jump jump = new Jump(
-                    resultSet.getString("name"),
-                    resultSet.getString("description"),
-                    this.extractLocation(resultSet.getInt("spawn")),
-                    this.extractLocation(resultSet.getInt("start")),
-                    this.extractLocation(resultSet.getInt("end")),
-                    this.extractCheckpoints(id),
-                    this.extractScores(id),
-                    new ItemStack(Material.SLIME_BLOCK)
-            );
+            Jump jump = readJump(resultSet, id);
             this.jumps.put(jump.getName(), jump);
             this.ids.put(jump, id);
         }
@@ -51,9 +43,8 @@ public class DBJumpManager extends JumpManager {
     @Override
     public void persist(Jump jump) {
         if (this.jumps.containsValue(jump)) {
-            try {
-                // update
-                PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET description = ? WHERE id = ?");
+            // update
+            try (PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET description = ? WHERE id = ?")) {
                 preparedStatement.setString(1, jump.getDescription().orElse(null));
                 preparedStatement.setLong(2, this.ids.get(jump));
                 preparedStatement.executeUpdate();
@@ -70,12 +61,11 @@ public class DBJumpManager extends JumpManager {
                 exception.printStackTrace();
             }
         } else {
-            try {
-                // insert
-                PreparedStatement preparedStatement = this.connection.prepareStatement(
-                        "INSERT INTO `jump_jump`(name, description) VALUE (?,?)",
-                        Statement.RETURN_GENERATED_KEYS
-                );
+            // insert
+            try (PreparedStatement preparedStatement = this.connection.prepareStatement(
+                    "INSERT INTO `jump_jump`(name, description) VALUE (?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
                 preparedStatement.setString(1, jump.getName());
                 preparedStatement.setString(2, jump.getDescription().orElse(null));
                 preparedStatement.execute();
@@ -106,8 +96,7 @@ public class DBJumpManager extends JumpManager {
     public void updateName(Jump jump, String name) {
         String oldName = jump.getName();
         Optional.ofNullable(this.ids.get(jump)).ifPresent(id -> {
-            try {
-                PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET name = ? WHERE id = ?");
+            try (PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET name = ? WHERE id = ?")){
                 preparedStatement.setString(1, name);
                 preparedStatement.setLong(2, id);
                 preparedStatement.executeUpdate();
@@ -131,20 +120,16 @@ public class DBJumpManager extends JumpManager {
 
     @Override
     public void deleteCheckpoint(Jump jump, Location location) {
-        try {
-            PreparedStatement preparedStatement = this.connection
-                    .prepareStatement("DELETE FROM `jump_checkpoints` WHERE `location` = ?");
+        try(PreparedStatement preparedStatement = this.connection
+                .prepareStatement("DELETE FROM `jump_checkpoints` WHERE `location` = ?")) {
             preparedStatement.setInt(1, location.hashCode());
             preparedStatement.executeUpdate();
         } catch (SQLException exception) {
             this.plugin.getLogger().severe(String.format(
                     "Unable to remove %s's checkpoint (@%d, %d, %d) from the database: [%d]%s",
                     jump.getName(),
-                    location.getBlockX(),
-                    location.getBlockY(),
-                    location.getBlockZ(),
-                    exception.getErrorCode(),
-                    exception.getLocalizedMessage()
+                    location.getBlockX(), location.getBlockY(), location.getBlockZ(),
+                    exception.getErrorCode(), exception.getLocalizedMessage()
             ));
         }
     }
@@ -190,20 +175,19 @@ public class DBJumpManager extends JumpManager {
         // FIXME Update only if necessary
 
         Optional<Location> location = locationSupplier.get();
-        PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET " + field + " = ? WHERE id = ?");
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement("UPDATE `jump_jump` SET " + field + " = ? WHERE id = ?");
 
         if (location.isPresent()) preparedStatement.setLong(1, this.insertLocation(location.get()));
         else preparedStatement.setNull(1, Types.BIGINT);
 
         preparedStatement.setLong(2, id);
         preparedStatement.executeUpdate();
-        preparedStatement.close();
     }
 
     private void updateCheckpoints(Jump jump) throws SQLException {
         long id = this.ids.get(jump);
 
-        PreparedStatement preparedStatement = this.connection.prepareStatement(
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(
                 "INSERT IGNORE INTO `jump_checkpoints` (`jump`, `location`) VALUE (?,?)");
 
         for (Location location: jump.getCheckpoints()) {
@@ -211,12 +195,10 @@ public class DBJumpManager extends JumpManager {
             preparedStatement.setInt(2, this.insertLocation(location));
             preparedStatement.executeUpdate();
         }
-
-        preparedStatement.close();
     }
 
     private List<PlayerScore> extractScores(long jumpId) throws SQLException {
-        PreparedStatement preparedStatement = this.connection.prepareStatement(
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(
                 "SELECT HEX(`player`) `player`, `duration` " +
                 "FROM jump_score " +
                 "WHERE `jump_id` = ? " +
@@ -225,7 +207,7 @@ public class DBJumpManager extends JumpManager {
         );
 
         preparedStatement.setLong(1, jumpId);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
         List<PlayerScore> scores = new ArrayList<>();
 
         while (resultSet.next()) {
@@ -239,13 +221,11 @@ public class DBJumpManager extends JumpManager {
             ));
         }
 
-        resultSet.close();
-        preparedStatement.close();
         return scores;
     }
 
     private List<Location> extractCheckpoints(long jumpId) throws SQLException {
-        PreparedStatement preparedStatement = this.connection.prepareStatement(
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(
             "SELECT world, x, y, z, pitch, yaw " +
             "FROM `jump_location` l " +
             "INNER JOIN `jump_checkpoints` c " +
@@ -253,26 +233,39 @@ public class DBJumpManager extends JumpManager {
             "WHERE c.`jump` = ?"
         );
         preparedStatement.setLong(1, jumpId);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
 
         HashSet<Location> locations = new HashSet<>();
 
-        while (resultSet.next()) locations.add(this.extractLocationFromResultSet(resultSet));
+        while (resultSet.next()) locations.add(readLocation(resultSet));
         return new ArrayList<>(locations);
     }
 
-    private Location extractLocation(int hashCode) throws SQLException {
+    private Location fetchLocation(int hashCode) throws SQLException {
         if (hashCode == 0) return null; // 0 stands for null value
 
-        PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT world, x, y, z, pitch, yaw FROM `jump_location` WHERE hash = ?");
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT world, x, y, z, pitch, yaw FROM `jump_location` WHERE hash = ?");
         preparedStatement.setLong(1, hashCode);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
 
-        if (resultSet.next()) return this.extractLocationFromResultSet(resultSet);
+        if (resultSet.next()) return readLocation(resultSet);
         else return null;
     }
 
-    private Location extractLocationFromResultSet(ResultSet resultSet) throws SQLException {
+    private int insertLocation(Location location) throws SQLException {
+        int hashCode = location.hashCode();
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(
+                "INSERT IGNORE INTO `jump_location` (world,x,y,z,pitch,yaw,hash) VALUE (?,?,?,?,?,?,?)"
+        );
+
+        writeLocation(location, hashCode, preparedStatement);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+
+        return hashCode;
+    }
+
+    private static Location readLocation(ResultSet resultSet) throws SQLException {
         return new Location(
                 Bukkit.getWorld(resultSet.getString("world")),
                 resultSet.getDouble("x"),
@@ -283,20 +276,20 @@ public class DBJumpManager extends JumpManager {
         );
     }
 
-    private int insertLocation(Location location) throws SQLException {
-        int hashCode = location.hashCode();
-        PreparedStatement preparedStatement = this.connection.prepareStatement(
-                "INSERT IGNORE INTO `jump_location` (world,x,y,z,pitch,yaw,hash) VALUE (?,?,?,?,?,?,?)"
+    private Jump readJump(ResultSet resultSet, long id) throws SQLException {
+        return new Jump(
+                resultSet.getString("name"),
+                resultSet.getString("description"),
+                this.fetchLocation(resultSet.getInt("spawn")),
+                this.fetchLocation(resultSet.getInt("start")),
+                this.fetchLocation(resultSet.getInt("end")),
+                this.extractCheckpoints(id),
+                this.extractScores(id),
+                new ItemStack(Material.SLIME_BLOCK)
         );
-
-        this.setLocationValues(location, hashCode, preparedStatement);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        return hashCode;
     }
 
-    private void setLocationValues(Location location, int hashCode, PreparedStatement preparedStatement) throws SQLException {
+    private static void writeLocation(Location location, int hashCode, PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.setString(1, location.getWorld().getName());
         preparedStatement.setDouble(2, location.getBlockX() + 0.5);
         preparedStatement.setDouble(3, location.getBlockY());
