@@ -2,6 +2,7 @@ package fr.ycraft.jump.entity;
 
 import fr.ycraft.jump.util.ItemStackUtil;
 import fr.ycraft.jump.util.LocationUtil;
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -25,11 +26,12 @@ public class Jump implements ConfigurationSerializable {
             Material.WOOD_PLATE
     ));
 
-    private String name, description;
+    private @Getter @NotNull String name;
+    private String description;
     private Location spawn, start, end;
     private final List<Location> checkpoints;
-    private List<PlayerScore> bestScores;
-    private ItemStack item;
+    private @Getter @NotNull List<PlayerScore> bestScores;
+    private @Getter ItemStack item;
 
     public Jump(String name) {
         this.name = name;
@@ -63,11 +65,6 @@ public class Jump implements ConfigurationSerializable {
         ItemStackUtil.clearEnchants(item);
     }
 
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
     public Optional<String> getDescription() {
         return Optional.ofNullable(description);
     }
@@ -84,19 +81,8 @@ public class Jump implements ConfigurationSerializable {
         return Optional.ofNullable(this.end);
     }
 
-    @NotNull
-    public List<Location> getCheckpoints() {
+    public @NotNull List<Location> getCheckpoints() {
         return new LinkedList<>(checkpoints);
-    }
-
-    @NotNull
-    public List<PlayerScore> getBestScores() {
-        return bestScores;
-    }
-
-    @NotNull
-    public ItemStack getItem() {
-        return item;
     }
 
     public void setName(@NotNull String name) {
@@ -153,12 +139,23 @@ public class Jump implements ConfigurationSerializable {
         ItemStackUtil.clearEnchants(this.item);
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof Jump)) return false;
+//        Jump jump = (Jump) o;
+//        return name.equals(jump.name);
+//    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Jump)) return false;
         Jump jump = (Jump) o;
-        return name.equals(jump.name);
+        return name.equals(jump.name) &&
+                Objects.equals(spawn, jump.spawn) &&
+                Objects.equals(start, jump.start) &&
+                Objects.equals(end, jump.end);
     }
 
     @Override

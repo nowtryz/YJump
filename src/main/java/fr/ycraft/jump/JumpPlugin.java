@@ -22,6 +22,7 @@ import fr.ycraft.jump.manager.file.FilePlayerManager;
 import fr.ycraft.jump.util.DatabaseUtil;
 import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,6 +37,7 @@ import java.util.logging.Level;
 /**
  * Main class of the Jump plugin, this class is loaded by Bukkit on startup
  */
+@Getter
 public final class JumpPlugin extends JavaPlugin {
     /*
      * Preloads classes used in reflection by YAML deserializer
@@ -50,31 +52,32 @@ public final class JumpPlugin extends JavaPlugin {
         }
     }
 
-    private Config config;
+
+    private Config configProvider;
     private JumpManager jumpManager;
     private EditorsManager editorsManager;
     private GameManager gameManager;
     private PlayerManager playerManager;
     private InventoryListener inventoryListener;
-    private boolean isDisabling = false;
+    private boolean disabling = false;
 
     @Override
     public void onEnable() {
         super.saveDefaultConfig();
         this.exportDefaultResource("fr-FR.yml");
 
-        this.config = new Config(this.getConfig(), this.getLogger());
+        this.configProvider = new Config(this.getConfig(), this.getLogger());
         this.editorsManager = new EditorsManager(this);
         this.gameManager = new GameManager(this);
         this.inventoryListener = new InventoryListener(this);
 
-        if (this.config.isDatabaseStorage()) {
+        if (this.configProvider.isDatabaseStorage()) {
             try {
                 this.getLogger().info(String.format(
                     "Using %s database on %s:%d",
-                    this.config.getDatabaseName(),
-                    this.config.getDatabaseHost(),
-                    this.config.getDatabasePort()
+                    this.configProvider.getDatabaseName(),
+                    this.configProvider.getDatabaseHost(),
+                    this.configProvider.getDatabasePort()
                 ));
                 this.initDatabaseManagers();
             } catch (SQLException exception) {
@@ -142,17 +145,17 @@ public final class JumpPlugin extends JavaPlugin {
             // Place plates
             jump.getStart()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.config.getStartMaterial()))
-                    .ifPresent(b -> b.setType(this.config.getStartMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.getStartMaterial()))
+                    .ifPresent(b -> b.setType(this.configProvider.getStartMaterial()));
             jump.getEnd()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.config.getEndMaterial()))
-                    .ifPresent(b -> b.setType(this.config.getEndMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.getEndMaterial()))
+                    .ifPresent(b -> b.setType(this.configProvider.getEndMaterial()));
             jump.getCheckpoints()
                     .stream()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.config.getCheckpointMaterial()))
-                    .forEach(b -> b.setType(this.config.getCheckpointMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.getCheckpointMaterial()))
+                    .forEach(b -> b.setType(this.configProvider.getCheckpointMaterial()));
         });
     }
 
@@ -169,11 +172,11 @@ public final class JumpPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.isDisabling = true;
+        this.disabling = true;
         Optional.ofNullable(this.editorsManager).ifPresent(EditorsManager::close);
         Optional.ofNullable(this.jumpManager).ifPresent(JumpManager::save);
         Optional.ofNullable(this.gameManager).ifPresent(GameManager::stopAll);
-        this.isDisabling = false;
+        this.disabling = false;
     }
 
     /**
@@ -194,13 +197,4 @@ public final class JumpPlugin extends JavaPlugin {
         if (!file.exists()) saveResource(fileName, false);
         else if (file.isDirectory() && file.delete()) saveResource(fileName, false);
     }
-
-    public Config getConfigProvider() { return config; }
-    public EditorsManager getEditorsManager() { return editorsManager; }
-    public JumpManager getJumpManager() { return jumpManager; }
-    public GameManager getGameManager() { return gameManager; }
-    public PlayerManager getPlayerManager() { return playerManager; }
-    public InventoryListener getInventoryListener() { return inventoryListener; }
-
-    public boolean isDisabling() { return isDisabling; }
 }

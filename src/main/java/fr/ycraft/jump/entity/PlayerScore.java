@@ -1,5 +1,6 @@
 package fr.ycraft.jump.entity;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
 public class PlayerScore implements ConfigurationSerializable {
     private static final String PLAYER = "player", SCORE = "score";
     private final OfflinePlayer player;
@@ -23,14 +25,6 @@ public class PlayerScore implements ConfigurationSerializable {
     public PlayerScore(OfflinePlayer player, TimeScore score) {
         this.player = player;
         this.score = score;
-    }
-
-    public OfflinePlayer getPlayer() {
-        return player;
-    }
-
-    public TimeScore getScore() {
-        return score;
     }
 
     public long getMillis() {
