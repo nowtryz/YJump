@@ -1,5 +1,8 @@
 package fr.ycraft.jump.entity;
 
+import com.google.inject.Inject;
+import fr.ycraft.jump.injection.DefaultConfig;
+import fr.ycraft.jump.injection.PluginLogger;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Material;
@@ -7,10 +10,12 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.configuration.Configuration;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.logging.Logger;
 
 @Getter
+@Singleton
 public class Config {
     private final Material startMaterial;
     private final Material endMaterial;
@@ -24,7 +29,8 @@ public class Config {
     private final long resetTime;
     private final String databaseHost, databaseName, databaseUser, databasePassword;
 
-    public Config(Configuration config, Logger logger) {
+    @Inject
+    public Config(@DefaultConfig Configuration config, @PluginLogger Logger logger) {
         this.startMaterial = Config.extractMaterial(config.getString("materials.start"), logger);
         this.endMaterial = Config.extractMaterial(config.getString("materials.end"), logger);
         this.checkpointMaterial = Config.extractMaterial(config.getString("materials.checkpoint"), logger);

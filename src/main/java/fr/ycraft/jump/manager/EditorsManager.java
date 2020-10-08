@@ -1,24 +1,35 @@
 package fr.ycraft.jump.manager;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
+import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.listeners.EditorListener;
 import org.bukkit.entity.Player;
 
+import javax.inject.Singleton;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Singleton
 public class EditorsManager extends AbstractManager {
     private final Map<Jump, JumpEditor> editors = new LinkedHashMap<>();
     private final Map<Player, JumpEditor> playersInEditors = new LinkedHashMap<>();
-    private final EditorListener listener;
 
-    public EditorsManager(JumpPlugin plugin) {
+    private final EditorListener listener;
+    private final GameManager gameManager;
+    private final Injector injector;
+
+    @Inject
+    public EditorsManager(JumpPlugin plugin, Config config, GameManager gameManager, Injector injector) {
         super(plugin);
-        this.listener = new EditorListener(plugin);
+        this.listener = new EditorListener(plugin, config, this);
+        this.gameManager = gameManager;
+        this.injector = injector;
     }
 
     public Map<Jump, JumpEditor> getEditors() {
@@ -63,11 +74,12 @@ public class EditorsManager extends AbstractManager {
         // If there is no editor for this jump we create a new one
         if (editor == null) {
             editor = new JumpEditor(this.plugin, jump);
+            this.injector.injectMembers(editor);
             this.editors.put(jump, editor);
         }
 
         this.playersInEditors.put(player, editor);
-        this.plugin.getGameManager().getGame(player).ifPresent(JumpGame::close);
+        this.gameManager.getGame(player).ifPresent(JumpGame::close);
         editor.join(player);
     }
 

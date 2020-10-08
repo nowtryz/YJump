@@ -1,5 +1,8 @@
 package fr.ycraft.jump;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 import com.mysql.jdbc.Driver;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
@@ -7,19 +10,17 @@ import fr.ycraft.jump.commands.misc.JumpsCommand;
 import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
+import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.inventories.JumpInventory;
 import fr.ycraft.jump.listeners.InventoryListener;
 import fr.ycraft.jump.listeners.PlateListener;
 import fr.ycraft.jump.listeners.PlatesProtectionListener;
+import fr.ycraft.jump.listeners.PlayerListener;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
-import fr.ycraft.jump.manager.database.DBJumpManager;
-import fr.ycraft.jump.manager.database.DBPlayerManager;
-import fr.ycraft.jump.manager.file.FileJumpManager;
-import fr.ycraft.jump.manager.file.FilePlayerManager;
-import fr.ycraft.jump.util.DatabaseUtil;
+import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
@@ -29,15 +30,14 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Optional;
-import java.util.logging.Level;
 
 /**
  * Main class of the Jump plugin, this class is loaded by Bukkit on startup
  */
-@Getter
+@Getter(onMethod_={@Deprecated})
 public final class JumpPlugin extends JavaPlugin {
     /*
      * Preloads classes used in reflection by YAML deserializer
@@ -52,51 +52,47 @@ public final class JumpPlugin extends JavaPlugin {
         }
     }
 
+    // managers and listeners
+    private @Inject Config configProvider;
+    private @Inject EditorsManager editorsManager;
+    private @Inject GameManager gameManager;
+    private @Inject InventoryListener inventoryListener;
+    private @Inject Storage storage;
+    private @Inject JumpManager jumpManager;
+    private @Inject PlayerManager playerManager;
 
-    private Config configProvider;
-    private JumpManager jumpManager;
-    private EditorsManager editorsManager;
-    private GameManager gameManager;
-    private PlayerManager playerManager;
-    private InventoryListener inventoryListener;
-    private boolean disabling = false;
+    // commands
+    private @Inject JumpCommand jumpCommand;
+    private @Inject JumpsCommand jumpsCommand;
+
+    @Getter
+    private Injector injector;
+    @Getter
+    private boolean enabling = false, disabling = false, prod;
 
     @Override
     public void onEnable() {
+        this.enabling = true;
         super.saveDefaultConfig();
         this.exportDefaultResource("fr-FR.yml");
 
-        this.configProvider = new Config(this.getConfig(), this.getLogger());
-        this.editorsManager = new EditorsManager(this);
-        this.gameManager = new GameManager(this);
-        this.inventoryListener = new InventoryListener(this);
-
-        if (this.configProvider.isDatabaseStorage()) {
-            try {
-                this.getLogger().info(String.format(
-                    "Using %s database on %s:%d",
-                    this.configProvider.getDatabaseName(),
-                    this.configProvider.getDatabaseHost(),
-                    this.configProvider.getDatabasePort()
-                ));
-                this.initDatabaseManagers();
-            } catch (SQLException exception) {
-                this.initFileManagers();
-                this.getLogger().severe("Unable to connect to database: " + exception);
-                this.getLogger().warning("Falling back to yaml files");
-                this.getLogger().log(Level.SEVERE, "Stack trace:", exception);
-            }
-        } else {
-            this.initFileManagers();
-            this.getLogger().info("Using YAML files");
-        }
+        this.prod = !this.getDescription().getVersion().contains("SNAPSHOT");
+        this.injector = Guice.createInjector(isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT, new JumpModule(this));
+        injector.injectMembers(this);
 
         Text.init(this);
         ItemLibrary.init();
         JumpInventory.init(this);
         MetricsUtils.init(this);
 
-        String[] jumps = this.jumpManager.getJumps().keySet().toArray(new String[0]);
+        this.storage.init();
+        this.playerManager.init();
+        this.jumpManager.init();
+
+        String[] jumps = this.jumpManager
+                .getJumps()
+                .keySet()
+                .toArray(new String[0]);
         if (jumps.length == 0) this.getLogger().warning("No jump loaded");
         else this.getLogger().info(String.format(
                 "Loaded the following jumps: %s",
@@ -104,23 +100,28 @@ public final class JumpPlugin extends JavaPlugin {
         ));
 
         this.registerCommands();
-        this.registerListeners();
         this.replacePlates();
         this.getLogger().info(String.format("%s enabled!", this.getName()));
+        this.enabling = false;
     }
 
     /**
      * Register all Jump plugin commands
      */
     private void registerCommands() {
-        new JumpCommand(this);
-        new JumpsCommand(this);
+//        new JumpCommand(this);
+//        new JumpsCommand(this);
         new CheckpointCommand(this);
     }
 
-    private void registerListeners() {
-        new PlateListener(this).register();
-        new PlatesProtectionListener(this).register();
+    @Inject
+    private void registerListeners(
+            PlateListener plateListener,
+            PlayerListener playerListener,
+            PlatesProtectionListener platesProtectionListener) {
+        plateListener.register();
+        playerListener.register();
+        platesProtectionListener.register();
     }
 
     private void replacePlates() {
@@ -159,23 +160,13 @@ public final class JumpPlugin extends JavaPlugin {
         });
     }
 
-    private void initFileManagers() {
-        this.jumpManager = new FileJumpManager(this);
-        this.playerManager = new FilePlayerManager(this);
-    }
-
-    private void initDatabaseManagers() throws SQLException {
-        DatabaseUtil.initDatabase(this);
-        this.jumpManager = new DBJumpManager(this);
-        this.playerManager = new DBPlayerManager(this);
-    }
-
     @Override
     public void onDisable() {
         this.disabling = true;
         Optional.ofNullable(this.editorsManager).ifPresent(EditorsManager::close);
         Optional.ofNullable(this.jumpManager).ifPresent(JumpManager::save);
         Optional.ofNullable(this.gameManager).ifPresent(GameManager::stopAll);
+        Optional.ofNullable(this.storage).ifPresent(Storage::close);
         this.disabling = false;
     }
 
@@ -196,5 +187,9 @@ public final class JumpPlugin extends JavaPlugin {
 
         if (!file.exists()) saveResource(fileName, false);
         else if (file.isDirectory() && file.delete()) saveResource(fileName, false);
+    }
+
+    public boolean isReady() {
+        return !this.enabling && !this.disabling && this.isEnabled();
     }
 }

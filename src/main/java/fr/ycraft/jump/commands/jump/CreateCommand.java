@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class CreateCommand extends AbstractCommandImpl {
-
     public CreateCommand() {
         super(CommandSpec.CREATE, c -> c.length == 1);
     }
@@ -26,8 +25,7 @@ public class CreateCommand extends AbstractCommandImpl {
             return true;
         }
 
-        Jump jump = new Jump(args[0]);
-        plugin.getJumpManager().persist(jump);
+        Jump jump = plugin.getJumpManager().createAndSave(args[0]);
         if (sender instanceof Player) plugin.getEditorsManager().enter(jump, (Player) sender);
         return true;
     }

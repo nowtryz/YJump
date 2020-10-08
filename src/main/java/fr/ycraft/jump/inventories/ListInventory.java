@@ -3,6 +3,7 @@ package fr.ycraft.jump.inventories;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,9 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ListInventory extends AbstractInventory {
+    private final JumpPlayer jumpPlayer;
 
-    public ListInventory(JumpPlugin plugin, Player player) {
+    public ListInventory(JumpPlugin plugin, JumpPlayer jumpPlayer, Player player) {
         super(plugin, player);
+        this.jumpPlayer = jumpPlayer;
 
         int jumpCount = plugin.getJumpManager().getJumps().size();
         int size = jumpCount - jumpCount % 9 + 9;
@@ -41,7 +44,7 @@ public class ListInventory extends AbstractInventory {
     }
 
     private Pair<Jump, ItemStack> jumpToItem(Jump jump) {
-        List<Long> scores = this.plugin.getPlayerManager().getScores(this.player, jump);
+        List<TimeScore> scores = this.jumpPlayer.get(jump);
         ItemStack itemStack = jump.getItem().clone();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -64,7 +67,7 @@ public class ListInventory extends AbstractInventory {
         if (scores.isEmpty()) {
             itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(description, distance).split(StringUtils.LF)));
         } else {
-            TimeScore score = new TimeScore(scores.get(0));
+            TimeScore score = scores.get(0);
             itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_DONE_LORE.get(
                 description,
                 distance,
@@ -83,7 +86,7 @@ public class ListInventory extends AbstractInventory {
     private void registerJump(ItemStack itemStack, Jump jump) {
         super.addClickableItem(itemStack, event -> {
             this.closeInventory();
-            new JumpInventory(this.plugin, this.player, jump, () -> new ListInventory(this.plugin, this.player));
+            new JumpInventory(this.plugin, this.player, this.jumpPlayer,  jump, () -> new ListInventory(this.plugin, this.jumpPlayer, this.player));
         });
     }
 }

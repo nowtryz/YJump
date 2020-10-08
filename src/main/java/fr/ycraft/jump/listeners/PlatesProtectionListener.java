@@ -4,7 +4,10 @@ import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.manager.EditorsManager;
+import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.util.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -12,9 +15,15 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class PlatesProtectionListener extends AbstractListener {
+    private @Inject EditorsManager editorsManager;
+    private @Inject JumpManager jumpManager;
+    private @Inject Config config;
+
+    @Inject
     public PlatesProtectionListener(JumpPlugin plugin) {
         super(plugin);
     }
@@ -22,23 +31,23 @@ public class PlatesProtectionListener extends AbstractListener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
         if (
-                !this.plugin.getEditorsManager().isInEditor(event.getPlayer()) &&
-                        !this.plugin.getConfigProvider().isPlatesProtected() ||
-                        !this.plugin.getJumpManager().getProtectedWorlds().contains(event.getBlock().getWorld())
+                !this.editorsManager.isInEditor(event.getPlayer()) &&
+                        !this.config.isPlatesProtected() ||
+                        !this.jumpManager.getProtectedWorlds().contains(event.getBlock().getWorld())
         ) return;
 
         Location loc = event.getBlock().getLocation();
         Location top = loc.clone();
         top.setY(top.getBlockY() + 1);
 
-        List<Location> protectedLocations = this.plugin.getJumpManager().getProtectedLocations();
+        List<Location> protectedLocations = this.jumpManager.getProtectedLocations();
 
         if (protectedLocations.contains(loc) || protectedLocations.contains(top)) {
             if (Perm.EDIT.isHeldBy(event.getPlayer())) {
-                if (!this.plugin.getEditorsManager().isInEditor(event.getPlayer())) {
+                if (!this.editorsManager.isInEditor(event.getPlayer())) {
                     event.setCancelled(true);
                     Text.EDITOR_ONLY_ACTION.send(event.getPlayer());
-                } else this.plugin.getEditorsManager()
+                } else this.editorsManager
                         .getEditor(event.getPlayer()).ifPresent(editor -> this.onInteractInEditor(event, editor));
             } else {
                 event.setCancelled(true);

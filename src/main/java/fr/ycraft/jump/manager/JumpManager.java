@@ -1,8 +1,14 @@
 package fr.ycraft.jump.manager;
 
+import com.google.inject.Inject;
+import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.injection.PluginLogger;
+import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.LocationUtil;
+import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -10,23 +16,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public abstract class JumpManager extends AbstractManager {
+@Getter
+public class JumpManager extends AbstractManager {
+    private final Storage storage;
+    private final Logger logger;
+
     protected Map<String, Jump> jumps;
     protected Map<Location, Jump> jumpStarts;
     protected List<Location> protectedLocations;
     protected List<World> protectedWorlds;
 
-    public JumpManager(JumpPlugin plugin) {
+    @Inject
+    public JumpManager(JumpPlugin plugin, Storage storage, @PluginLogger Logger logger) {
         super(plugin);
+        this.storage = storage;
+        this.logger = logger;
+    }
+
+    public void init() {
+        try {
+            this.storage.loadJumps().thenAccept(this::updateJumpList).get();
+        } catch (InterruptedException | ExecutionException e) {
+            this.logger.log(Level.SEVERE, "Unable to load jumps", e);
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
+        }
     }
 
     public void updateJumpList() {
-        this.jumpStarts = this.jumps
-                .values()
-                .stream().parallel()
+        this.updateJumpList(new ArrayList<>(this.jumps.values()));
+    }
+
+    public synchronized void updateJumpList(List<Jump> jumps) {
+        this.jumps = BiStream.from(jumps, Jump::getName, Function.identity()).toMap();
+
+        // only keep playable jumps
+        this.jumpStarts = jumps.parallelStream()
                 .filter(jump -> jump.getStart().isPresent())
                 .filter(jump -> jump.getEnd().isPresent())
                 .collect(Collectors.toMap(jump -> jump.getStart().get(), Function.identity()));
@@ -39,48 +70,45 @@ public abstract class JumpManager extends AbstractManager {
                 .map(Optional::get)
                 .collect(Collectors.toList())
         );
-        protectedLocations.addAll(this.jumps.values().stream().parallel()
+        protectedLocations.addAll(jumps.parallelStream()
                 .map(Jump::getCheckpoints)
-                .flatMap(List::stream)
+                .flatMap(List::parallelStream)
                 .collect(Collectors.toList())
         );
 
-        this.protectedLocations = protectedLocations.stream().parallel()
+        this.protectedLocations = protectedLocations.parallelStream()
                 .map(LocationUtil::toBlock)
                 .collect(Collectors.toList());
-        this.protectedWorlds = this.protectedLocations.stream().parallel()
+        this.protectedWorlds = this.protectedLocations.parallelStream()
                 .map(Location::getWorld)
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    // Getters
-
-    public Map<String, Jump> getJumps() {
-        return this.jumps;
-    }
-
-    public Map<Location, Jump> getJumpStarts() {
-        return jumpStarts;
-    }
-
-    public List<Location> getProtectedLocations() {
-        return protectedLocations;
-    }
-
-    public List<World> getProtectedWorlds() {
-        return protectedWorlds;
     }
 
     public Optional<Jump> getJump(String name) {
         return Optional.ofNullable(this.jumps.get(name));
     }
 
-    // Utilities
+    public Jump createAndSave(String name) {
+        Jump jump = new Jump(name);
+        this.storage.storeJump(jump);
+        this.jumps.put(name, jump);
+        return jump;
+    }
 
-    public abstract void persist(Jump jump);
-    public abstract void updateName(Jump jump, String name);
-    public abstract void deleteCheckpoint(Jump jump, Location location);
-    public abstract void delete(Jump jump);
-    public abstract void save();
+    public void delete(Jump jump) {
+        this.storage.deleteJump(jump).whenComplete((result, throwable) -> {
+            if (result) this.jumps.remove(jump.getName(), jump);
+            else this.plugin.getLogger().log(Level.SEVERE, "Unable to delete jump", throwable);
+        });
+    }
+
+    public void save() {
+        CompletableFuture<?>[] completableFutures = this.jumps.values()
+                .parallelStream()
+                .map(this.storage::storeJump)
+                .toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(completableFutures).join();
+
+    }
 }

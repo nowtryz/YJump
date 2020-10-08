@@ -1,28 +1,45 @@
 package fr.ycraft.jump.manager;
 
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.entity.JumpPlayer;
+import fr.ycraft.jump.storage.Storage;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.OfflinePlayer;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public abstract class PlayerManager extends AbstractManager {
-    public PlayerManager(JumpPlugin plugin) {
+public class PlayerManager extends AbstractManager {
+    private final Storage storage;
+    private final Map<OfflinePlayer, JumpPlayer> players = new HashMap<>();
+
+    @Inject
+    public PlayerManager(JumpPlugin plugin, Storage storage) {
         super(plugin);
+        this.storage = storage;
     }
 
-    public abstract List<Long> getScores(Player player, Jump jump);
-    public abstract void addNewPlayerScore(Player player, Jump jump, long millis);
+    public void init() {
+        Bukkit.getOnlinePlayers().parallelStream().forEach(this::load);
+    }
+
+    public Optional<JumpPlayer> getPlayer(OfflinePlayer player) {
+        return Optional.ofNullable(this.players.get(player));
+    }
+
+    public void load(OfflinePlayer player) {
+        this.storage.loadPlayer(player).thenAccept(jumpPlayer -> {
+            this.plugin.getLogger().info(jumpPlayer.toString());
+            this.players.put(player, jumpPlayer);
+        });
+    }
+
+    public void unload(OfflinePlayer player) {
+        this.getPlayer(player).ifPresent(jumpPlayer -> {
+            this.storage.storePlayer(jumpPlayer);
+            this.players.remove(player, jumpPlayer);
+        });
+    }
 }

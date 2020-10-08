@@ -5,31 +5,55 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.PluginCommandExecutor;
+import fr.ycraft.jump.manager.EditorsManager;
+import fr.ycraft.jump.manager.GameManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class JumpCommand extends PluginCommandExecutor {
-    public JumpCommand(@NotNull JumpPlugin plugin) {
+    private @Inject EditorsManager editorsManager;
+    private @Inject GameManager gameManager;
+
+    @Inject
+    public JumpCommand(@NotNull JumpPlugin plugin,
+                       AddCheckPointCommand addCheckPointCommand,
+                       CreateCommand createCommand,
+                       DeleteCommand deleteCommand,
+                       EditCommand editCommand,
+                       HelpCommand helpCommand,
+                       InfoCommand infoCommand,
+                       LeaveCommand leaveCommand,
+                       ListCommand listCommand,
+                       ReloadCommand reloadCommand,
+                       RenameCommand renameCommand,
+                       SaveCommand saveCommand,
+                       SetDescriptionCommand setDescriptionCommand,
+                       SetEndCommand setEndCommand,
+                       SetItemCommand setItemCommand,
+                       SetSpawnCommand setSpawnCommand,
+                       SetStartCommand setStartCommand
+    ) {
         super(plugin, CommandSpec.JUMP, any -> true, // allow any arguments to show help message
-                new AddCheckPointCommand(),
-                new CreateCommand(),
-                new DeleteCommand(),
-                new EditCommand(),
-                new HelpCommand(),
-                new InfoCommand(),
-                new LeaveCommand(),
-                new ListCommand(),
-                new ReloadCommand(),
-                new RenameCommand(),
-                new SaveCommand(),
-                new SetDescriptionCommand(),
-                new SetEndCommand(),
-                new SetItemCommand(),
-                new SetSpawnCommand(),
-                new SetStartCommand());
+                addCheckPointCommand,
+                createCommand,
+                deleteCommand,
+                editCommand,
+                helpCommand,
+                infoCommand,
+                leaveCommand,
+                listCommand,
+                reloadCommand,
+                renameCommand,
+                saveCommand,
+                setDescriptionCommand,
+                setEndCommand,
+                setItemCommand,
+                setSpawnCommand,
+                setStartCommand);
     }
 
     @Override
@@ -38,10 +62,10 @@ public class JumpCommand extends PluginCommandExecutor {
             Player player = (Player) sender;
             if (args.length > 0) {
                 Text.UNKNOWN_COMMAND.send(player);
-            } else if (plugin.getEditorsManager().isInEditor(player)) {
-                plugin.getEditorsManager().leave(player);
-            } else if (plugin.getGameManager().isPlaying(player)) {
-                plugin.getGameManager().getGame(player).ifPresent(JumpGame::close);
+            } else if (this.editorsManager.isInEditor(player)) {
+                this.editorsManager.leave(player);
+            } else if (this.gameManager.isPlaying(player)) {
+                this.gameManager.getGame(player).ifPresent(JumpGame::close);
             } else {
                 HelpCommand.sendHelp(player);
             }

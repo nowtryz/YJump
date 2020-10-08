@@ -1,8 +1,13 @@
 package fr.ycraft.jump;
 
+import com.sun.istack.internal.NotNull;
 import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.manager.GameManager;
+import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,10 +25,11 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
-import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class JumpGame {
     private static final int TIMER_HEADER_POS = 5;
@@ -31,24 +37,29 @@ public class JumpGame {
     private static final int CHECKPOINT_HEADER_POS = 2;
     private static final int CHECKPOINT_VALUE_POS = 1;
 
-    @NotNull private final Location startLocation;
+    @com.sun.istack.internal.NotNull
+    private final Location startLocation;
     private final List<Location> validated = new LinkedList<>();
     private final JumpPlugin plugin;
     private final Jump jump;
     private final Player player;
-    private final long resetTime;
     private final boolean canFly;
     private final BossBar bossBar;
     private final Scoreboard originalScoreboard;
-    private final Objective objective;
-    private final Scoreboard scoreboard;
     private final BukkitTask bukkitTask;
+    private Objective objective;
+    private Scoreboard scoreboard;
     private Score timer, checkpoints;
+    private JumpPlayer jumpPlayer;
+    private Config config;
+    private long resetTime;
     private boolean ended = false;
     private long start;
     private Location checkpoint;
 
-    public JumpGame(@NotNull JumpPlugin plugin, @NotNull Jump jump, @NotNull Player player) {
+    private @Inject GameManager gameManager;
+
+    public JumpGame(@com.sun.istack.internal.NotNull JumpPlugin plugin, @com.sun.istack.internal.NotNull Jump jump, @com.sun.istack.internal.NotNull Player player) {
         assert jump.getStart().isPresent();
 
         this.plugin = plugin;
@@ -60,15 +71,6 @@ public class JumpGame {
         this.canFly = Perm.FLY.isHeldBy(player);
         this.checkpoint = this.startLocation;
 
-        if (!this.canFly) player.setFlying(false);
-        if (plugin.getConfigProvider().doesResetEnchants()) player
-                .getActivePotionEffects()
-                .stream()
-                .map(PotionEffect::getType)
-                .forEach(player::removePotionEffect);
-
-        Text.ENTER_GAME.send(player, jump.getName());
-
         this.bossBar = Bukkit.createBossBar(
                 Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
                 plugin.getConfigProvider().getBossbarColor(),
@@ -78,6 +80,35 @@ public class JumpGame {
         this.bossBar.addPlayer(player);
 
         this.originalScoreboard = player.getScoreboard();
+
+        this.player.setScoreboard(scoreboard);
+        this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
+    }
+
+    @Inject
+    private void injectConfig(Config config) {
+        this.config = config;
+        this.resetTime = config.getResetTime();
+    }
+
+    @Inject
+    private void injectPlayer(PlayerManager playerManager) {
+        Optional<JumpPlayer> player = playerManager.getPlayer(this.player);
+        assert player.isPresent();
+        this.jumpPlayer = player.get();
+    }
+
+    public void init() {
+        assert Bukkit.isPrimaryThread();
+        Text.ENTER_GAME.send(player, jump.getName());
+
+        if (!this.canFly) player.setFlying(false);
+        if (this.config.doesResetEnchants()) player
+                .getActivePotionEffects()
+                .stream()
+                .map(PotionEffect::getType)
+                .forEach(player::removePotionEffect);
+
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         this.objective = scoreboard.registerNewObjective("Sidebar", "dummy");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -90,9 +121,6 @@ public class JumpGame {
         this.timer.setScore(TIMER_VALUE_POS);
         this.checkpoints = this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_VALUE.get(0, this.jump.getCheckpoints().size()));
         this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
-
-        this.player.setScoreboard(scoreboard);
-        this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
     }
 
     public void updateTimer() {
@@ -117,7 +145,7 @@ public class JumpGame {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         String[] command = event.getMessage().substring(1).split(" ");
         if (command.length == 0) return;
-        if (this.plugin.getConfigProvider().getAllowedCommands().stream().anyMatch(command[0]::equals)) return;
+        if (this.config.getAllowedCommands().stream().anyMatch(command[0]::equals)) return;
 
         this.close();
         Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_COMMANDS.get());
@@ -159,7 +187,7 @@ public class JumpGame {
     }
 
     public void onMove() {
-        if (this.player.getFallDistance() > this.plugin.getConfigProvider().getMaxFallDistance()) {
+        if (this.player.getFallDistance() > this.config.getMaxFallDistance()) {
             this.player.setFallDistance(0);
             this.tpLastCheckpoint();
         }
@@ -222,11 +250,11 @@ public class JumpGame {
 
     private void saveScore(TimeScore score) {
         this.jump.registerScore(this.player, score.getDuration(), this.plugin.getConfigProvider().getMaxScoresPerJump());
-        this.plugin.getPlayerManager().addNewPlayerScore(this.player, this.jump, score.getDuration());
+        this.jumpPlayer.put(this.jump, score);
     }
 
     public void close() {
-        this.plugin.getGameManager().remove(this.player, this);
+        this.gameManager.remove(this.player, this);
         this.stop();
     }
 

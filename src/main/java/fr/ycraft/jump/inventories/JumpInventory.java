@@ -8,6 +8,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.util.ItemStackUtil;
 import io.netty.buffer.ByteBuf;
@@ -30,6 +31,9 @@ import java.util.stream.Stream;
 import static fr.ycraft.jump.util.ItemLibrary.WHITE_FILLER;
 import static fr.ycraft.jump.util.ItemLibrary.BACK;
 
+/**
+ * This gui show information about the selected jump: best scores, a tp button and a settings button
+ */
 public class JumpInventory  extends AbstractInventory {
     private static final int INVENTORY_SIZE = 54;
     private static final List<Integer> panePos = Stream.iterate(0, i->i+1)
@@ -49,13 +53,15 @@ public class JumpInventory  extends AbstractInventory {
     }
 
     private final Jump jump;
+    private final JumpPlayer jumpPlayer;
 
-    public JumpInventory(JumpPlugin plugin, Player player, Jump jump) {
-        this(plugin, player, jump, null);
+    public JumpInventory(JumpPlugin plugin, Player player, JumpPlayer jumpPlayer, Jump jump) {
+        this(plugin, player, jumpPlayer, jump, null);
     }
 
-    public JumpInventory(JumpPlugin plugin, Player player, Jump jump, Runnable backAction) {
+    public JumpInventory(JumpPlugin plugin, Player player, JumpPlayer jumpPlayer, Jump jump, Runnable backAction) {
         super(plugin, player, backAction);
+        this.jumpPlayer = jumpPlayer;
         this.jump = jump;
 
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal());
@@ -93,12 +99,12 @@ public class JumpInventory  extends AbstractInventory {
 
     public void onTop(Event event) {
         new BestScoresInventory(this.plugin, this.player, this.jump,
-                () -> new JumpInventory(this.plugin, this.player, this.jump, super.backAction));
+                () -> new JumpInventory(this.plugin, this.player, this.jumpPlayer, this.jump, super.backAction));
     }
 
     public void onSettings(Event event) {
         new InfoInventory(this.plugin, this.player, this.jump,
-                () -> new JumpInventory(this.plugin, this.player, this.jump, super.backAction));
+                () -> new JumpInventory(this.plugin, this.player, this.jumpPlayer, this.jump, super.backAction));
     }
 
     public void onTp(Event event) {
@@ -106,11 +112,11 @@ public class JumpInventory  extends AbstractInventory {
     }
 
     public void onPlayerBestScores(Event event) {
-        List<Long> scores = this.plugin.getPlayerManager().getScores(this.player, this.jump);
+        List<TimeScore> scores = this.jumpPlayer.get(this.jump);
         BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
         String collect = Stream.iterate(0, i -> i + 1)
                 .limit(scores.size())
-                .map(i -> new ImmutablePair<>(i + 1, new TimeScore(scores.get(i))))
+                .map(i -> new ImmutablePair<>(i + 1, scores.get(i)))
                 .map(pair -> Text.BEST_SCORES_BOOK_LINE.get(
                         pair.left,
                         pair.right.getMinutes(),

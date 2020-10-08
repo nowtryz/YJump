@@ -1,25 +1,32 @@
 package fr.ycraft.jump.manager;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.listeners.GameListener;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 
+@Singleton
 public class GameManager extends AbstractManager {
     private final Map<Player, JumpGame> runningGames = new LinkedHashMap<>();
-    private final GameListener listener;
+    private final Injector injector;
+    @Setter private GameListener listener;
 
-    public GameManager(JumpPlugin plugin) {
+    @Inject
+    public GameManager(JumpPlugin plugin, Injector injector) {
         super(plugin);
-        this.listener = new GameListener(plugin);
+        this.injector = injector;
     }
 
     public boolean isPlaying(Player player) {
@@ -39,7 +46,11 @@ public class GameManager extends AbstractManager {
 
     private synchronized void initializeGame(Player player, Jump jump) {
         try {
-            this.runningGames.put(player, new JumpGame(this.plugin, jump, player));
+            JumpGame game = new JumpGame(this.plugin, jump, player);
+            this.injector.injectMembers(game);
+            this.runningGames.put(player, game);
+
+            Bukkit.getScheduler().runTask(this.plugin, game::init);
         } catch (Exception exception) {
             this.plugin.getLogger().log(
                     Level.SEVERE,

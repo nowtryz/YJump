@@ -7,13 +7,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Singleton
 public class InventoryListener extends AbstractListener {
     private final Map<Inventory, AbstractInventory> inventories = new HashMap<>();
 
+    @Inject
     public InventoryListener(JumpPlugin plugin) {
         super(plugin);
     }

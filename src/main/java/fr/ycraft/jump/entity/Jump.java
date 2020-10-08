@@ -2,7 +2,11 @@ package fr.ycraft.jump.entity;
 
 import fr.ycraft.jump.util.ItemStackUtil;
 import fr.ycraft.jump.util.LocationUtil;
+import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -14,11 +18,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Getter @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Jump implements ConfigurationSerializable {
-    protected static final String NAME = "name", SPAWN = "spawn", START = "start", END = "end";
-    protected static final String CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item";
-    protected static final String DESCRIPTION = "description";
-    protected static final Material defaultMaterial = Material.SLIME_BLOCK;
+    protected static final String
+            ID = "id", NAME = "name", SPAWN = "spawn", START = "start", END = "end",
+            CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item",
+            DESCRIPTION = "description";
+    protected static final Material DEFAULT_MATERIAL = Material.SLIME_BLOCK;
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
             Material.GOLD_PLATE,
             Material.IRON_PLATE,
@@ -26,14 +33,18 @@ public class Jump implements ConfigurationSerializable {
             Material.WOOD_PLATE
     ));
 
-    private @Getter @NotNull String name;
+    @Include @NonNull
+    private final UUID id;
+    @Setter @NonNull
+    private String name;
     private String description;
     private Location spawn, start, end;
     private final List<Location> checkpoints;
-    private @Getter @NotNull List<PlayerScore> bestScores;
-    private @Getter ItemStack item;
+    private @NotNull List<PlayerScore> bestScores;
+    private ItemStack item;
 
     public Jump(String name) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.description = null;
         this.spawn = null;
@@ -41,18 +52,20 @@ public class Jump implements ConfigurationSerializable {
         this.end = null;
         this.checkpoints = new LinkedList<>();
         this.bestScores = new LinkedList<>();
-        this.item = new ItemStack(Jump.defaultMaterial);
+        this.item = new ItemStack(DEFAULT_MATERIAL);
     }
 
     public Jump(
-            @NotNull String name,
+            @NonNull UUID id,
+            @NonNull String name,
             @Nullable String description,
             @Nullable Location spawn,
             @Nullable Location start,
             @Nullable Location end,
             @Nullable List<Location> checkpoints,
-            @NotNull List<PlayerScore> bestScores,
-            @NotNull ItemStack item) {
+            @NonNull List<PlayerScore> bestScores,
+            @NonNull ItemStack item) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.spawn = spawn;
@@ -85,39 +98,26 @@ public class Jump implements ConfigurationSerializable {
         return new LinkedList<>(checkpoints);
     }
 
-    public void setName(@NotNull String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public void setSpawn(@NotNull Location spawn) {
-        this.spawn = LocationUtil.roundLocation(spawn);
+        this.spawn = LocationUtil.toCheckpoint(spawn);
     }
 
     public void setStart(Location start) {
-        this.start = Optional.ofNullable(start).map(LocationUtil::roundLocation).orElse(null);
+        this.start = Optional.ofNullable(start).map(LocationUtil::toCheckpoint).orElse(null);
     }
 
     public void setEnd(Location end) {
-        this.end = Optional.ofNullable(end).map(LocationUtil::roundLocation).orElse(null);
+        this.end = Optional.ofNullable(end).map(LocationUtil::toCheckpoint).orElse(null);
     }
 
     /**
-     * Remove a from this jump (only in cache), this update must be performed by a JumpManager to ensure
-     * that caches are coherent with the storage as, depending on the storage use, the update may nat be
-     * taken into account. If you want to ensure that the checkpoint is removed from the storage, use
-     * {@link fr.ycraft.jump.manager.JumpManager#deleteCheckpoint(Jump, Location) JumpManager#deleteCheckpoint()}
-     * instead
+     * Remove a checkpoint from this jump
      * @param loc the location to remove from this jump
      */
     public void removeCheckpoint(@NotNull Location loc) {
         new LinkedList<>(this.checkpoints).stream()
-                .filter(l -> l.getBlockX() == loc.getBlockX()
-                        && l.getBlockY() == loc.getBlockY()
-                        && l.getBlockZ() == loc.getBlockZ())
+                .filter(l -> LocationUtil.isBlockLocationEqual(l, loc))
                 .forEach(this.checkpoints::remove);
     }
 
@@ -139,34 +139,11 @@ public class Jump implements ConfigurationSerializable {
         ItemStackUtil.clearEnchants(this.item);
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof Jump)) return false;
-//        Jump jump = (Jump) o;
-//        return name.equals(jump.name);
-//    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Jump)) return false;
-        Jump jump = (Jump) o;
-        return name.equals(jump.name) &&
-                Objects.equals(spawn, jump.spawn) &&
-                Objects.equals(start, jump.start) &&
-                Objects.equals(end, jump.end);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
 
+        data.put(ID, this.id.toString());
         data.put(NAME, this.name);
         data.put(DESCRIPTION, this.description);
         data.put(SPAWN, this.spawn);
@@ -189,44 +166,55 @@ public class Jump implements ConfigurationSerializable {
      * @see ConfigurationSerializable
      */
     public static Jump deserialize(Map<String, Object> args) {
-        return Optional.ofNullable(args.get(NAME))
-                .map(Object::toString)
-                .map(name -> new Jump(
-                name,
-                // Description
-                Optional.ofNullable(args.get(DESCRIPTION))
-                        .map(Object::toString)
-                        .orElse(null),
-                // Spawn position
-                LocationUtil.extractLocation(args.get(SPAWN)),
-                // Start position
-                LocationUtil.extractLocation(args.get(START)),
-                // End position
-                LocationUtil.extractLocation(args.get(END)),
-                // Checkpoints list
-                Optional.ofNullable(args.get(CHECKPOINTS))
-                        .filter(List.class::isInstance)
-                        .map(obj -> (List<?>) obj)
-                        .orElseGet(LinkedList::new)
-                        .stream()
-                        .map(LocationUtil::extractLocation)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList()),
-                // Scores list
-                Optional.ofNullable(args.get(BEST_SCORES))
-                        .filter(List.class::isInstance)
-                        .map(obj -> (List<?>) obj)
-                        .orElseGet(LinkedList::new)
-                        .stream()
-                        .filter(PlayerScore.class::isInstance)
-                        .map(PlayerScore.class::cast)
-                        .filter(s -> s.getMillis() != 0)
-                        .collect(Collectors.toList()),
-                // Logo Item
-                Optional.ofNullable(args.get(ITEM))
-                        .filter(ItemStack.class::isInstance)
-                        .map(ItemStack.class::cast)
-                        .orElseGet(() -> new ItemStack(Jump.defaultMaterial))
-        )).orElse(null);
+        try {
+            return Optional.ofNullable(args.get(NAME))
+                    .map(Object::toString)
+                    .map(name -> new Jump(
+                            Optional.ofNullable(args.get(ID))
+                                    .map(Object::toString)
+                                    .map(UUID::fromString)
+                                    .orElseGet(UUID::randomUUID),
+                            name,
+                            // Description
+                            Optional.ofNullable(args.get(DESCRIPTION))
+                                    .map(Object::toString)
+                                    .orElse(null),
+                            // Spawn position
+                            LocationUtil.extractLocation(args.get(SPAWN)),
+                            // Start position
+                            LocationUtil.extractLocation(args.get(START)),
+                            // End position
+                            LocationUtil.extractLocation(args.get(END)),
+                            // Checkpoints list
+                            Optional.ofNullable(args.get(CHECKPOINTS))
+                                    .filter(List.class::isInstance)
+                                    .map(obj -> (List<?>) obj)
+                                    .orElseGet(LinkedList::new)
+                                    .stream()
+                                    .map(LocationUtil::extractLocation)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList()),
+                            // Scores list
+                            Optional.ofNullable(args.get(BEST_SCORES))
+                                    .filter(List.class::isInstance)
+                                    .map(obj -> (List<?>) obj)
+                                    .orElseGet(LinkedList::new)
+                                    .stream()
+                                    .filter(PlayerScore.class::isInstance)
+                                    .map(PlayerScore.class::cast)
+                                    .filter(s -> s.getMillis() != 0)
+                                    .collect(Collectors.toList()),
+                            // Logo Item
+                            Optional.ofNullable(args.get(ITEM))
+                                    .filter(ItemStack.class::isInstance)
+                                    .map(ItemStack.class::cast)
+                                    .orElseGet(() -> new ItemStack(Jump.DEFAULT_MATERIAL))
+                    )).orElse(null);
+        } catch (Exception exception) {
+            System.err.println("[YJump] Unable to deserialize jump");
+            exception.printStackTrace();
+            return null;
+        }
+
     }
 }

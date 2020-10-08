@@ -5,6 +5,10 @@ YJump plugin
 
 ## Plugin information
 
+### Roadmap
+There are a lot of things to come, you can follow the development progress by taking a look to
+[my roadmap](https://www.notion.so/nowtryz/ae979233fb1e4599ba3b148608918f96)
+
 ### Permissions:
 
 | Node                            | Default | Description                                               | Children
@@ -24,7 +28,7 @@ YJump plugin
 ### Commands
 All commands can be seen in games using `/jump help`
 
-## Database shema
+## Database schema
 
 ![Schema](http://yuml.me/91c8cd14.svg)
 <!--

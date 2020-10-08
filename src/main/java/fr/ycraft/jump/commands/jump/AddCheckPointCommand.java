@@ -8,9 +8,11 @@ import fr.ycraft.jump.commands.EditorCommand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class AddCheckPointCommand extends AbstractCommandImpl implements EditorCommand {
+    @Inject
     public AddCheckPointCommand() {
         super(CommandSpec.ADD_CHECKPOINT);
     }

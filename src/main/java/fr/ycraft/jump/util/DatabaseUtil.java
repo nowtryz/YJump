@@ -70,14 +70,14 @@ public class DatabaseUtil {
 
     private static void createJumpTable(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS `jump_jump` (" +
-                "`id` BIGINT NOT NULL AUTO_INCREMENT , " +
+                "`id` BINARY(16) NOT NULL , " +
                 "`name` VARCHAR(16) NOT NULL, " +
-                "`description` TEXT," +
-                "`spawn` INT ," +
-                "`start` INT ," +
-                "`end` INT ," +
-                "`item` TEXT ," +
-                "PRIMARY KEY (`id`)," +
+                "`description` TEXT, " +
+                "`spawn` INT, " +
+                "`start` INT, " +
+                "`end` INT, " +
+                "`item` TEXT, " +
+                "PRIMARY KEY (`id`), " +
                 "UNIQUE (`name`)," +
                 "FOREIGN KEY (`spawn`) " +
                     "REFERENCES `jump_location`(`hash`) " +
@@ -98,6 +98,7 @@ public class DatabaseUtil {
                 "`duration` BIGINT NOT NULL , " +
                 "`jump_id` BIGINT NOT NULL , " +
                 "PRIMARY KEY (`id`) , " +
+                "UNIQUE (`player`, `duration`, `jump_id`) , " +
                 "FOREIGN KEY (`jump_id`) " +
                     "REFERENCES `jump_jump`(`id`) " +
                     "ON DELETE CASCADE" +

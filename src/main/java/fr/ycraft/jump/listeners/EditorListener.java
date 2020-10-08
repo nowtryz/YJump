@@ -2,6 +2,8 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.manager.EditorsManager;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -12,9 +14,19 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class EditorListener extends AbstractListener {
-    public EditorListener(JumpPlugin plugin) {
+    private final Config config;
+    private final EditorsManager editorsManager;
+
+    @Inject
+    public EditorListener(JumpPlugin plugin, Config config, EditorsManager editorsManager) {
         super(plugin);
+        this.config = config;
+        this.editorsManager = editorsManager;
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -40,8 +52,8 @@ public class EditorListener extends AbstractListener {
 
     public void cancelEventIfNeeded(Cancellable event, Player player) {
         // Avoid interaction in editors
-        if (this.plugin.getConfigProvider().isCreativeEditor() &&
-                this.plugin.getEditorsManager().getEditor(player)
+        if (this.config.isCreativeEditor() &&
+                this.editorsManager.getEditor(player)
                         .filter(e -> !Perm.EDITOR_INTERACTIONS.isHeldBy(player))
                         .isPresent()) {
             event.setCancelled(true);

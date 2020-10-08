@@ -1,8 +1,10 @@
 package fr.ycraft.jump;
 
 import fr.ycraft.jump.commands.CommandSpec;
-import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.entity.Config;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.manager.JumpManager;
+import fr.ycraft.jump.storage.Storage;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
@@ -10,12 +12,14 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import javax.inject.Inject;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JumpEditor {
@@ -24,6 +28,10 @@ public class JumpEditor {
     private final Map<Player, GameMode> gameModes = new ConcurrentHashMap<>();
     private final Jump jump;
     private final BukkitTask bukkitTask;
+
+    @Inject Config config;
+    @Inject Storage storage;
+    @Inject JumpManager jumpManager;
 
     public JumpEditor(JumpPlugin plugin, Jump jump) {
         this.plugin = plugin;
@@ -50,7 +58,7 @@ public class JumpEditor {
         Text.ENTER_EDITOR_INFO.send(player, this.jump.getName());
         this.updateTitles();
 
-        if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () ->{
+        if (this.config.isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () ->{
             this.gameModes.put(player, player.getGameMode());
             player.setGameMode(GameMode.CREATIVE);
         });
@@ -131,21 +139,21 @@ public class JumpEditor {
 
     public void setSpawn(Location location) {
         this.jump.setSpawn(location);
-        plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
         this.players.forEach(player -> Text.SPAWN_UPDATED.send(player, this.jump.getName()));
     }
 
     public void setStart(Location location) {
-        if (this.plugin.getConfigProvider().doesDeletePlates()) {
+        if (this.config.doesDeletePlates()) {
             this.jump.getStart().map(Location::getBlock).ifPresent(block -> block.setType(Material.AIR));
         }
 
         this.jump.setStart(location);
-        plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
 
         if (location != null) {
             this.ensureSafeLocation(location);
-            location.getBlock().setType(this.plugin.getConfigProvider().getStartMaterial());
+            location.getBlock().setType(this.config.getStartMaterial());
         }
 
         this.players.forEach(player -> Text.START_UPDATED.send(player, this.jump.getName()));
@@ -157,16 +165,16 @@ public class JumpEditor {
     }
 
     public void setSEnd(Location location) {
-        if (this.plugin.getConfigProvider().doesDeletePlates()) {
+        if (this.config.doesDeletePlates()) {
             this.jump.getEnd().map(Location::getBlock).ifPresent(block -> block.setType(Material.AIR));
         }
 
         this.jump.setEnd(location);
-        plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
 
         if (location != null) {
             this.ensureSafeLocation(location);
-            location.getBlock().setType(this.plugin.getConfigProvider().getEndMaterial());
+            location.getBlock().setType(this.config.getEndMaterial());
         }
 
         this.players.forEach(player -> Text.END_UPDATED.send(player, this.jump.getName()));
@@ -174,18 +182,18 @@ public class JumpEditor {
 
     public void addCheckpoint(@NotNull Location location) {
         this.jump.addCheckpoint(location);
-        plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
         this.ensureSafeLocation(location);
-        location.getBlock().setType(this.plugin.getConfigProvider().getCheckpointMaterial());
+        location.getBlock().setType(this.config.getCheckpointMaterial());
         this.players.forEach(player -> Text.CHECKPOINT_ADDED.send(player, this.jump.getName()));
     }
 
     public void deleteCheckpoint(@NotNull Location location) {
         this.jump.removeCheckpoint(location);
         this.players.forEach(Text.CHECKPOINT_DELETED::send);
-        plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
 
-        if (this.plugin.getConfigProvider().doesDeletePlates()) {
+        if (this.config.doesDeletePlates()) {
             location.getBlock().setType(Material.AIR);
         }
     }
@@ -195,7 +203,7 @@ public class JumpEditor {
         Text.QUIT_EDITOR.send(player);
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
 
-        if (this.plugin.getConfigProvider().isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () -> {
+        if (this.config.isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () -> {
             Optional.ofNullable(this.gameModes.get(player)).ifPresent(player::setGameMode);
             this.gameModes.remove(player);
         });
@@ -206,6 +214,7 @@ public class JumpEditor {
     public void close() {
         this.players.forEach(this::leave);
         this.bukkitTask.cancel();
-        this.plugin.getJumpManager().persist(this.jump);
+        this.storage.storeJump(this.jump);
+        this.jumpManager.updateJumpList();
     }
 }
