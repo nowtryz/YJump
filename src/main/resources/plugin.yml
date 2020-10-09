@@ -16,6 +16,10 @@ commands:
     description: Voir la liste des jumps
     permission: jump.list
     usage: /<command>
+  checkpoint:
+    description: Se téléporter au précédent checkpoint
+    permission: jump.play
+    aliases: [ 'cp' ]
 
 permissions:
   jump.*:
