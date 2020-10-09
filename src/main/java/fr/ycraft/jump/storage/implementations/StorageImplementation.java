@@ -1,4 +1,4 @@
-package fr.ycraft.jump.storage;
+package fr.ycraft.jump.storage.implementations;
 
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;

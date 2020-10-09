@@ -2,6 +2,7 @@ package fr.ycraft.jump.inventories;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -49,8 +50,8 @@ public class InfoInventory extends AbstractInventory {
         List<String> notSet = Arrays.asList(Text.INFO_POINT_NOT_SET_LORE.get().split(StringUtils.LF));
         ItemStack icon = jump.getItem().clone();
         ItemStack spawn = new ItemStack(Material.COMPASS);
-        ItemStack start = new ItemStack(plugin.getConfigProvider().getStartMaterial());
-        ItemStack end = new ItemStack(plugin.getConfigProvider().getEndMaterial());
+        ItemStack start = new ItemStack(plugin.getConfigProvider().get(Key.START_MATERIAL));
+        ItemStack end = new ItemStack(plugin.getConfigProvider().get(Key.END_MATERIAL));
         ItemStack fall = new ItemStack(Material.BED, 1, (short) 14);
         ItemMeta spawnMeta = spawn.getItemMeta();
         ItemMeta startMeta = start.getItemMeta();
@@ -62,7 +63,7 @@ public class InfoInventory extends AbstractInventory {
         endMeta.setDisplayName(Text.INFO_END_NAME.get());
         fallMeta.setDisplayName(Text.INFO_FALL_NAME.get());
         fallMeta.setLore(Arrays.asList(Text.INFO_FALL_LORE
-                .get(plugin.getConfigProvider().getMaxFallDistance())
+                .get(plugin.getConfigProvider().get(Key.MAX_FALL_DISTANCE))
                 .split(StringUtils.LF)));
 
         jump.getSpawn().ifPresent(location -> spawnMeta.setLore(Arrays.asList(Text.INFO_POINT_SET_LORE.get(
@@ -102,7 +103,7 @@ public class InfoInventory extends AbstractInventory {
             Material material = Optional.of(location.getBlock().getRelative(BlockFace.DOWN))
                     .map(Block::getType)
                     .filter(m -> m != Material.AIR)
-                    .orElse(plugin.getConfigProvider().getCheckpointMaterial());
+                    .orElse(plugin.getConfigProvider().get(Key.CHECKPOINT_MATERIAL));
             ItemStack checkpoint = new ItemStack(material);
             ItemMeta itemMeta = checkpoint.getItemMeta();
 

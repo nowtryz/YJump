@@ -1,7 +1,8 @@
 package fr.ycraft.jump.util;
 
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 
 import java.sql.*;
 import java.util.HashSet;
@@ -46,12 +47,12 @@ public class DatabaseUtil {
         return DriverManager.getConnection(
                 String.format(
                         "jdbc:mysql://%s:%d/%s",
-                        config.getDatabaseHost(),
-                        config.getDatabasePort(),
-                        config.getDatabaseName()
+                        config.get(Key.DATABASE_HOST),
+                        config.get(Key.DATABASE_PORT),
+                        config.get(Key.DATABASE_NAME)
                 ),
-                config.getDatabaseUser(),
-                config.getDatabasePassword()
+                config.get(Key.DATABASE_USER),
+                config.get(Key.DATABASE_PASSWORD)
         );
     }
 

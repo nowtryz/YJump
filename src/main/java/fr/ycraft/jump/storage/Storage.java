@@ -5,6 +5,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.injection.BukkitExecutor;
+import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.OfflinePlayer;
@@ -54,7 +55,7 @@ public class Storage {
                 }
                 throw new CompletionException(e);
             }
-        }, this.plugin.isReady() ? this.executor : ForkJoinPool.commonPool());
+        }, this.executor);
     }
 
     private CompletableFuture<Void> future(StorageImplementation.Runnable runnable) {

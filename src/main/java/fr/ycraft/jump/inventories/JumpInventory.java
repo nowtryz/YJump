@@ -7,6 +7,7 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
@@ -49,7 +50,7 @@ public class JumpInventory  extends AbstractInventory {
     public static void init(JumpPlugin plugin) {
         ItemStackUtil.setName(TP, Text.JUMP_INVENTORY_TP.get());
         ItemStackUtil.setName(SETTINGS, Text.JUMP_INVENTORY_SETTINGS.get());
-        ItemStackUtil.setName(TOP, Text.JUMP_INVENTORY_TOP.get(plugin.getConfigProvider().getMaxScoresPerJump()));
+        ItemStackUtil.setName(TOP, Text.JUMP_INVENTORY_TOP.get(plugin.getConfigProvider().get(Key.MAX_SCORES_PER_JUMP)));
     }
 
     private final Jump jump;
@@ -128,7 +129,7 @@ public class JumpInventory  extends AbstractInventory {
         meta.setAuthor("Nowtryz");
         meta.setPages(Text.BEST_SCORES_HEADER.get(
                 this.player.getName(),
-                this.plugin.getConfigProvider().getMaxScoresPerPlayer()
+                this.plugin.getConfigProvider().get(Key.MAX_SCORES_PER_PLAYER)
         ) + "\n\n" + collect);
 
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);

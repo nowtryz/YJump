@@ -1,8 +1,8 @@
 package fr.ycraft.jump;
 
-import com.sun.istack.internal.NotNull;
 import fr.ycraft.jump.commands.Perm;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
@@ -25,6 +25,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ public class JumpGame {
     private static final int CHECKPOINT_HEADER_POS = 2;
     private static final int CHECKPOINT_VALUE_POS = 1;
 
-    @com.sun.istack.internal.NotNull
+    @NotNull
     private final Location startLocation;
     private final List<Location> validated = new LinkedList<>();
     private final JumpPlugin plugin;
@@ -59,7 +60,7 @@ public class JumpGame {
 
     private @Inject GameManager gameManager;
 
-    public JumpGame(@com.sun.istack.internal.NotNull JumpPlugin plugin, @com.sun.istack.internal.NotNull Jump jump, @com.sun.istack.internal.NotNull Player player) {
+    public JumpGame(@NotNull JumpPlugin plugin, @NotNull Jump jump, @NotNull Player player) {
         assert jump.getStart().isPresent();
 
         this.plugin = plugin;
@@ -67,13 +68,13 @@ public class JumpGame {
         this.player = player;
         this.startLocation = jump.getStart().get();
         this.start = System.currentTimeMillis();
-        this.resetTime = this.plugin.getConfigProvider().getResetTime();
+        this.resetTime = this.plugin.getConfigProvider().get(Key.RESET_TIME);
         this.canFly = Perm.FLY.isHeldBy(player);
         this.checkpoint = this.startLocation;
 
         this.bossBar = Bukkit.createBossBar(
                 Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
-                plugin.getConfigProvider().getBossbarColor(),
+                plugin.getConfigProvider().get(Key.BOSS_BAR_COLOR),
                 BarStyle.SOLID
         );
         this.bossBar.setProgress(0);
@@ -88,7 +89,7 @@ public class JumpGame {
     @Inject
     private void injectConfig(Config config) {
         this.config = config;
-        this.resetTime = config.getResetTime();
+        this.resetTime = config.get(Key.RESET_TIME);
     }
 
     @Inject
@@ -103,7 +104,7 @@ public class JumpGame {
         Text.ENTER_GAME.send(player, jump.getName());
 
         if (!this.canFly) player.setFlying(false);
-        if (this.config.doesResetEnchants()) player
+        if (this.config.get(Key.RESET_ENCHANTS)) player
                 .getActivePotionEffects()
                 .stream()
                 .map(PotionEffect::getType)
@@ -145,7 +146,7 @@ public class JumpGame {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         String[] command = event.getMessage().substring(1).split(" ");
         if (command.length == 0) return;
-        if (this.config.getAllowedCommands().stream().anyMatch(command[0]::equals)) return;
+        if (this.config.get(Key.ALLOWED_COMMANDS).stream().anyMatch(command[0]::equals)) return;
 
         this.close();
         Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_COMMANDS.get());
@@ -187,7 +188,7 @@ public class JumpGame {
     }
 
     public void onMove() {
-        if (this.player.getFallDistance() > this.config.getMaxFallDistance()) {
+        if (this.player.getFallDistance() > this.config.get(Key.MAX_FALL_DISTANCE)) {
             this.player.setFallDistance(0);
             this.tpLastCheckpoint();
         }
@@ -249,7 +250,7 @@ public class JumpGame {
     }
 
     private void saveScore(TimeScore score) {
-        this.jump.registerScore(this.player, score.getDuration(), this.plugin.getConfigProvider().getMaxScoresPerJump());
+        this.jump.registerScore(this.player, score.getDuration(), this.plugin.getConfigProvider().get(Key.MAX_SCORES_PER_JUMP));
         this.jumpPlayer.put(this.jump, score);
     }
 

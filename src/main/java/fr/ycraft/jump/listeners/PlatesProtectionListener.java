@@ -4,7 +4,8 @@ import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.Perm;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.JumpManager;
@@ -32,7 +33,7 @@ public class PlatesProtectionListener extends AbstractListener {
     public void onBreak(BlockBreakEvent event) {
         if (
                 !this.editorsManager.isInEditor(event.getPlayer()) &&
-                        !this.config.isPlatesProtected() ||
+                        !this.config.get(Key.PLATES_PROTECTED) ||
                         !this.jumpManager.getProtectedWorlds().contains(event.getBlock().getWorld())
         ) return;
 

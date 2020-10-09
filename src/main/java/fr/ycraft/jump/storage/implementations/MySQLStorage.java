@@ -1,11 +1,13 @@
-package fr.ycraft.jump.storage;
+package fr.ycraft.jump.storage.implementations;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.*;
+import fr.ycraft.jump.injection.PluginLogger;
 import fr.ycraft.jump.util.DatabaseUtil;
 import fr.ycraft.jump.util.UUIDUtils;
 import lombok.Cleanup;
@@ -20,11 +22,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.intellij.lang.annotations.Language;
 
+import javax.inject.Inject;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
@@ -69,10 +73,21 @@ public class MySQLStorage implements StorageImplementation {
     private final Config config;
     private Connection connection;
 
+    @Inject
+    @PluginLogger
+    private Logger logger;
+
     @Override
     public void init() throws SQLException {
         DatabaseUtil.initDatabase(this.plugin);
         this.connection = DatabaseUtil.createConnection(plugin.getConfigProvider());
+
+        logger.info(String.format(
+                "Using %s database on %s:%d",
+                config.get(Key.DATABASE_NAME),
+                config.get(Key.DATABASE_HOST),
+                config.get(Key.DATABASE_PORT)
+        ));
     }
 
     @Override
@@ -83,7 +98,7 @@ public class MySQLStorage implements StorageImplementation {
 
     @Override
     public JumpPlayer loadPlayer(OfflinePlayer player) throws SQLException {
-        return this.loadPlayer(player.getUniqueId(), this.config.getMaxScoresPerPlayer());
+        return this.loadPlayer(player.getUniqueId(), this.config.get(Key.MAX_SCORES_PER_PLAYER));
     }
 
     public JumpPlayer loadPlayer(UUID playerId, int limite) throws SQLException {
@@ -295,7 +310,7 @@ public class MySQLStorage implements StorageImplementation {
                         "FROM jump_score " +
                         "WHERE `jump_id` = ? " +
                         "ORDER BY `duration` DESC " +
-                        "LIMIT " + this.plugin.getConfigProvider().getMaxScoresPerJump()
+                        "LIMIT " + this.plugin.getConfigProvider().get(Key.MAX_SCORES_PER_JUMP)
         );
 
         preparedStatement.setLong(1, jumpId);

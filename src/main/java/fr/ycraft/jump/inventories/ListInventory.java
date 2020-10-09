@@ -2,6 +2,7 @@ package fr.ycraft.jump.inventories;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
@@ -53,7 +54,7 @@ public class ListInventory extends AbstractInventory {
         String description = jump.getDescription()
                 .map(desc -> WordUtils.wrap(
                         desc,
-                        this.plugin.getConfigProvider().getDescriptionWrapLength(),
+                        this.plugin.getConfigProvider().get(Key.DESCRIPTION_WRAP_LENGTH),
                         StringUtils.LF, false))
                 .map(desc -> StringUtils.LF + desc + StringUtils.LF)
                 .orElse(StringUtils.EMPTY);

@@ -6,6 +6,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.AbstractCommandImpl;
 import fr.ycraft.jump.commands.CommandSpec;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -40,7 +41,7 @@ public class DeleteCommand extends AbstractCommandImpl {
         plugin.getJumpManager().delete(jump);
         Text.DELETED.send(sender, jump.getName());
 
-        if (plugin.getConfigProvider().doesDeletePlates()) {
+        if (plugin.getConfigProvider().get(Key.DELETE_PLATES)) {
             Bukkit.getScheduler().runTask(plugin, () -> this.deleteAllPlates(jump));
         }
     }

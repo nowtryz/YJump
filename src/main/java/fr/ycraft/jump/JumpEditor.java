@@ -1,7 +1,8 @@
 package fr.ycraft.jump;
 
 import fr.ycraft.jump.commands.CommandSpec;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.storage.Storage;
@@ -58,7 +59,7 @@ public class JumpEditor {
         Text.ENTER_EDITOR_INFO.send(player, this.jump.getName());
         this.updateTitles();
 
-        if (this.config.isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () ->{
+        if (this.config.get(Key.CREATIVE_EDITOR)) Bukkit.getScheduler().runTask(this.plugin, () ->{
             this.gameModes.put(player, player.getGameMode());
             player.setGameMode(GameMode.CREATIVE);
         });
@@ -144,7 +145,7 @@ public class JumpEditor {
     }
 
     public void setStart(Location location) {
-        if (this.config.doesDeletePlates()) {
+        if (this.config.get(Key.DELETE_PLATES)) {
             this.jump.getStart().map(Location::getBlock).ifPresent(block -> block.setType(Material.AIR));
         }
 
@@ -153,7 +154,7 @@ public class JumpEditor {
 
         if (location != null) {
             this.ensureSafeLocation(location);
-            location.getBlock().setType(this.config.getStartMaterial());
+            location.getBlock().setType(this.config.get(Key.START_MATERIAL));
         }
 
         this.players.forEach(player -> Text.START_UPDATED.send(player, this.jump.getName()));
@@ -165,7 +166,7 @@ public class JumpEditor {
     }
 
     public void setSEnd(Location location) {
-        if (this.config.doesDeletePlates()) {
+        if (this.config.get(Key.DELETE_PLATES)) {
             this.jump.getEnd().map(Location::getBlock).ifPresent(block -> block.setType(Material.AIR));
         }
 
@@ -174,7 +175,7 @@ public class JumpEditor {
 
         if (location != null) {
             this.ensureSafeLocation(location);
-            location.getBlock().setType(this.config.getEndMaterial());
+            location.getBlock().setType(this.config.get(Key.END_MATERIAL));
         }
 
         this.players.forEach(player -> Text.END_UPDATED.send(player, this.jump.getName()));
@@ -184,7 +185,7 @@ public class JumpEditor {
         this.jump.addCheckpoint(location);
         this.storage.storeJump(this.jump);
         this.ensureSafeLocation(location);
-        location.getBlock().setType(this.config.getCheckpointMaterial());
+        location.getBlock().setType(this.config.get(Key.CHECKPOINT_MATERIAL));
         this.players.forEach(player -> Text.CHECKPOINT_ADDED.send(player, this.jump.getName()));
     }
 
@@ -193,7 +194,7 @@ public class JumpEditor {
         this.players.forEach(Text.CHECKPOINT_DELETED::send);
         this.storage.storeJump(this.jump);
 
-        if (this.config.doesDeletePlates()) {
+        if (this.config.get(Key.DELETE_PLATES)) {
             location.getBlock().setType(Material.AIR);
         }
     }
@@ -203,7 +204,7 @@ public class JumpEditor {
         Text.QUIT_EDITOR.send(player);
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
 
-        if (this.config.isCreativeEditor()) Bukkit.getScheduler().runTask(this.plugin, () -> {
+        if (this.config.get(Key.CREATIVE_EDITOR)) Bukkit.getScheduler().runTask(this.plugin, () -> {
             Optional.ofNullable(this.gameModes.get(player)).ifPresent(player::setGameMode);
             this.gameModes.remove(player);
         });

@@ -2,7 +2,8 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.manager.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,7 +55,7 @@ public class GameListener extends AbstractListener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (this.config.getMaxFallDistance() < 0) return;
+        if (this.config.get(Key.MAX_FALL_DISTANCE) < 0) return;
         this.gameManager.getGame(event.getPlayer()).ifPresent(JumpGame::onMove);
     }
 

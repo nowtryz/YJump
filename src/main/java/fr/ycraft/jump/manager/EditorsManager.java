@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.listeners.EditorListener;
 import org.bukkit.entity.Player;

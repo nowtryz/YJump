@@ -1,14 +1,11 @@
 package fr.ycraft.jump.injection;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Config;
-import fr.ycraft.jump.storage.FlatFileStorage;
-import fr.ycraft.jump.storage.MySQLStorage;
-import fr.ycraft.jump.storage.StorageImplementation;
+import fr.ycraft.jump.storage.StorageFactory;
+import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
@@ -17,9 +14,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
@@ -61,38 +57,15 @@ public class JumpModule extends AbstractModule {
     @Provides
     @BukkitExecutor
     Executor provideExecutor() {
-        return runnable -> Bukkit.getScheduler().runTaskAsynchronously(this.plugin, runnable);
+        return runnable -> {
+            if (this.plugin.isReady()) Bukkit.getScheduler().runTaskAsynchronously(this.plugin, runnable);
+            else ForkJoinPool.commonPool().execute(runnable);
+        };
     }
 
     @Provides
     @Singleton
-    StorageImplementation provideStorage(Config config, Injector injector, @PluginLogger Logger logger) {
-        if (config.isDatabaseStorage()) {
-            try {
-                logger.info(String.format(
-                        "Using %s database on %s:%d",
-                        config.getDatabaseName(),
-                        config.getDatabaseHost(),
-                        config.getDatabasePort()
-                ));
-                MySQLStorage implementation = injector.getInstance(MySQLStorage.class);
-                implementation.init();
-                return implementation;
-            } catch (SQLException exception) {
-                logger.severe("Unable to connect to database: " + exception);
-                logger.warning("Falling back to yaml files");
-                logger.log(Level.SEVERE, "Stack trace:", exception);
-                return this.makeFileStorage(injector, logger);
-            }
-        } else {
-            return this.makeFileStorage(injector, logger);
-        }
-    }
-
-    FlatFileStorage makeFileStorage(Injector injector, Logger logger) {
-        FlatFileStorage implementation = injector.getInstance(FlatFileStorage.class);
-        implementation.init();
-        logger.info("Using YAML files");
-        return implementation;
+    StorageImplementation provideStorage(StorageFactory storageFactory) {
+        return storageFactory.getImplementation();
     }
 }

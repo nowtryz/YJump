@@ -2,22 +2,6 @@
 # ---- Jump ---- #
 ##################
 
-# Whether to use an SQL database or not (fall back to yaml files if disabled)
-database:
-  enabled: no
-  host: "localhost"
-  name: "database"
-  port: 3306
-  user: "root"
-  pass: ""
-
-# Each checkpoint, start, end points need to have a pressure plate to be used by the plugin
-# materials can be (case insensitive): gold, iron, stone, or wood
-materials:
-  start: gold
-  end: gold
-  checkpoint: iron
-
 # Protection settings
 plates:
   # Weather or not to delete pressure plates when a point location is changed
@@ -25,6 +9,12 @@ plates:
   # Disallow to break plates
   # Note: Enabling this feature may impact performances if a lot of break events occur in the same world of jumps
   protect: yes
+  # Each checkpoint, start, end points need to have a pressure plate to be used by the plugin
+  # materials can be (case insensitive): gold, iron, stone, or wood
+  materials:
+    start: gold
+    end: gold
+    checkpoint: iron
 
 # Game settings
 game:
@@ -60,5 +50,31 @@ best scores:
   per jump: 10
   # Score count show in the book
   per player: 5
-# Width of description in the jump list
-description wrap length: 50 # characters
+
+# Parkour settings
+parkour:
+  # Width of description in the jump list
+  description wrap length: 50 # characters
+  # Default item used as icon for the jump
+  default icon: SLIME_BLOCK
+
+# Storages properties
+storage:
+  # Implementation to use, either:
+  #  - yaml (fallback if not recognized)
+  #  - mysql
+  #  - ... (more coming soon)
+  implementation: "yml"
+  # Server properties if the implementation is a remote database
+  remote:
+    # IP of the server
+    host: "localhost"
+    # Port of the server, default are
+    #   MySQL: 3306
+    port: 3306
+    # Name of the database
+    name: "database"
+    # User to use again the database
+    user: "root"
+    # User's password
+    pass: ""

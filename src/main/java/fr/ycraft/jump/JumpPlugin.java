@@ -7,7 +7,8 @@ import com.mysql.jdbc.Driver;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
 import fr.ycraft.jump.commands.misc.JumpsCommand;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.injection.JumpModule;
@@ -146,17 +147,17 @@ public final class JumpPlugin extends JavaPlugin {
             // Place plates
             jump.getStart()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.getStartMaterial()))
-                    .ifPresent(b -> b.setType(this.configProvider.getStartMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.START_MATERIAL)))
+                    .ifPresent(b -> b.setType(this.configProvider.get(Key.START_MATERIAL)));
             jump.getEnd()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.getEndMaterial()))
-                    .ifPresent(b -> b.setType(this.configProvider.getEndMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.END_MATERIAL)))
+                    .ifPresent(b -> b.setType(this.configProvider.get(Key.END_MATERIAL)));
             jump.getCheckpoints()
                     .stream()
                     .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.getCheckpointMaterial()))
-                    .forEach(b -> b.setType(this.configProvider.getCheckpointMaterial()));
+                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.CHECKPOINT_MATERIAL)))
+                    .forEach(b -> b.setType(this.configProvider.get(Key.CHECKPOINT_MATERIAL)));
         });
     }
 

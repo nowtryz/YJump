@@ -1,4 +1,4 @@
-package fr.ycraft.jump.storage;
+package fr.ycraft.jump.storage.implementations;
 
 import com.google.common.base.Charsets;
 import com.google.inject.Inject;

@@ -2,7 +2,8 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.Perm;
-import fr.ycraft.jump.entity.Config;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.manager.EditorsManager;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -52,7 +53,7 @@ public class EditorListener extends AbstractListener {
 
     public void cancelEventIfNeeded(Cancellable event, Player player) {
         // Avoid interaction in editors
-        if (this.config.isCreativeEditor() &&
+        if (this.config.get(Key.CREATIVE_EDITOR) &&
                 this.editorsManager.getEditor(player)
                         .filter(e -> !Perm.EDITOR_INTERACTIONS.isHeldBy(player))
                         .isPresent()) {
