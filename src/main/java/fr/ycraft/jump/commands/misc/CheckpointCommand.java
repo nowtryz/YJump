@@ -8,9 +8,13 @@ import fr.ycraft.jump.commands.PluginCommandExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
+@Singleton
 public class CheckpointCommand extends PluginCommandExecutor implements GameCommand {
+    @Inject
     public CheckpointCommand(@NotNull JumpPlugin plugin) {
         super(plugin, CommandSpec.CHECKPOINT);
     }

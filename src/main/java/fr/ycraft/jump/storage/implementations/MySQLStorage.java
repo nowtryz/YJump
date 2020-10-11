@@ -6,14 +6,17 @@ import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
-import fr.ycraft.jump.entity.*;
+import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.entity.JumpPlayer;
+import fr.ycraft.jump.entity.PlayerScore;
+import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.injection.PluginLogger;
 import fr.ycraft.jump.util.DatabaseUtil;
-import fr.ycraft.jump.util.UUIDUtils;
+import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.ExtensionMethod;
+import net.nowtryz.mcutils.UUIDUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bukkit.Bukkit;
@@ -32,8 +35,7 @@ import java.util.logging.Logger;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-@RequiredArgsConstructor(onConstructor_={@Inject})
-@ExtensionMethod({MySQLStorage.class})
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_={@Inject})
 public class MySQLStorage implements StorageImplementation {
     private static final Gson gson = new Gson();
     @Language("SQL")

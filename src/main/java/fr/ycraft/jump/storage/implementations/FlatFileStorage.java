@@ -36,7 +36,7 @@ public class FlatFileStorage implements StorageImplementation {
     private final Logger logger;
 
     @Inject
-    public FlatFileStorage(JumpPlugin plugin, @PluginLogger Logger logger, @DataFolder File dataFolder) {
+    FlatFileStorage(JumpPlugin plugin, @PluginLogger Logger logger, @DataFolder File dataFolder) {
         this.plugin = plugin;
         this.logger = logger;
         this.playersFolder = new File(dataFolder, "players");

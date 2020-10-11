@@ -7,16 +7,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Singleton
 public class PlayerManager extends AbstractManager {
     private final Storage storage;
     private final Map<OfflinePlayer, JumpPlayer> players = new HashMap<>();
 
     @Inject
-    public PlayerManager(JumpPlugin plugin, Storage storage) {
+    PlayerManager(JumpPlugin plugin, Storage storage) {
         super(plugin);
         this.storage = storage;
     }
@@ -30,10 +32,7 @@ public class PlayerManager extends AbstractManager {
     }
 
     public void load(OfflinePlayer player) {
-        this.storage.loadPlayer(player).thenAccept(jumpPlayer -> {
-            this.plugin.getLogger().info(jumpPlayer.toString());
-            this.players.put(player, jumpPlayer);
-        });
+        this.storage.loadPlayer(player).thenAccept(jumpPlayer -> this.players.put(player, jumpPlayer));
     }
 
     public void unload(OfflinePlayer player) {

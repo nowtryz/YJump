@@ -5,6 +5,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.manager.GameManager;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,17 +19,14 @@ import javax.inject.Singleton;
 
 @Singleton
 public class GameListener extends AbstractListener {
-    private final GameManager gameManager;
+    private@Setter GameManager gameManager;
     private final Config config;
 
 
     @Inject
-    public GameListener(JumpPlugin plugin, Config config, GameManager gameManager) {
+    public GameListener(JumpPlugin plugin, Config config) {
         super(plugin);
         this.config = config;
-        this.gameManager = gameManager;
-
-        gameManager.setListener(this);
     }
 
     @EventHandler

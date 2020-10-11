@@ -1,11 +1,13 @@
 package fr.ycraft.jump;
 
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.storage.Storage;
+import lombok.experimental.FieldDefaults;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
@@ -23,19 +25,24 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@FieldDefaults(makeFinal = true)
 public class JumpEditor {
-    private final JumpPlugin plugin;
-    private final Set<Player> players = new LinkedHashSet<>();
-    private final Map<Player, GameMode> gameModes = new ConcurrentHashMap<>();
-    private final Jump jump;
-    private final BukkitTask bukkitTask;
+    JumpManager jumpManager;
+    JumpPlugin plugin;
+    Storage storage;
+    Config config;
+    Jump jump;
 
-    @Inject Config config;
-    @Inject Storage storage;
-    @Inject JumpManager jumpManager;
+    Set<Player> players = new LinkedHashSet<>();
+    Map<Player, GameMode> gameModes = new ConcurrentHashMap<>();
+    BukkitTask bukkitTask;
 
-    public JumpEditor(JumpPlugin plugin, Jump jump) {
+    @Inject
+    public JumpEditor(JumpPlugin plugin, JumpManager jumpManager, Config config, Storage storage, @Assisted Jump jump) {
         this.plugin = plugin;
+        this.jumpManager = jumpManager;
+        this.config = config;
+        this.storage = storage;
         this.jump = jump;
         this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTitles, 50, 50);
     }

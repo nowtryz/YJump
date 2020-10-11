@@ -1,13 +1,14 @@
 package fr.ycraft.jump.manager;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.injection.PluginLogger;
 import fr.ycraft.jump.storage.Storage;
-import fr.ycraft.jump.util.LocationUtil;
 import lombok.Getter;
+import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Getter
+@Singleton
 public class JumpManager extends AbstractManager {
     private final Storage storage;
     private final Logger logger;
@@ -34,7 +36,7 @@ public class JumpManager extends AbstractManager {
     protected List<World> protectedWorlds;
 
     @Inject
-    public JumpManager(JumpPlugin plugin, Storage storage, @PluginLogger Logger logger) {
+    JumpManager(JumpPlugin plugin, Storage storage, @PluginLogger Logger logger) {
         super(plugin);
         this.storage = storage;
         this.logger = logger;
@@ -60,7 +62,10 @@ public class JumpManager extends AbstractManager {
         this.jumpStarts = jumps.parallelStream()
                 .filter(jump -> jump.getStart().isPresent())
                 .filter(jump -> jump.getEnd().isPresent())
-                .collect(Collectors.toMap(jump -> jump.getStart().get(), Function.identity()));
+                .collect(Collectors.toMap(
+                        jump -> LocationUtil.toBlock(jump.getStart().get()),
+                        Function.identity())
+                );
 
         List<Location> protectedLocations = new ArrayList<>();
         protectedLocations.addAll(this.jumpStarts.keySet());

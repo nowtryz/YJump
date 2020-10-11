@@ -37,14 +37,18 @@ public abstract class PluginCommandExecutor extends AbstractCommandImpl implemen
         this.plugin = plugin;
         this.commands = commands;
 
-        PluginCommand command = plugin.getCommand(spec.label);
-
-        command.setExecutor(this);
-        if (this.canComplete()) command.setTabCompleter(this);
         if (commands != null) this.commandsMap = Arrays
                 .stream(commands)
                 .collect(Collectors.toMap(cmd -> cmd.getKeyword().toLowerCase(), Function.identity()));
         else this.commandsMap = new HashMap<>();
+    }
+
+    public void register() {
+        PluginCommand command = plugin.getCommand(spec.label);
+
+        command.setExecutor(this);
+        if (this.canComplete()) command.setTabCompleter(this);
+
     }
 
     @Override

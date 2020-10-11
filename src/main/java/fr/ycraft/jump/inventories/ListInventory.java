@@ -1,11 +1,13 @@
 package fr.ycraft.jump.inventories;
 
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import net.nowtryz.mcutils.inventory.AbstractGui;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -18,15 +20,22 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-public class ListInventory extends AbstractInventory {
+public class ListInventory extends AbstractGui<JumpPlugin> {
     private final JumpPlayer jumpPlayer;
+    private final JumpInventory.Factory factory;
 
-    public ListInventory(JumpPlugin plugin, JumpPlayer jumpPlayer, Player player) {
+    @Inject
+    ListInventory(JumpPlugin plugin,
+                  JumpInventory.Factory factory,
+                  @Assisted JumpPlayer jumpPlayer,
+                  @Assisted Player player) {
         super(plugin, player);
         this.jumpPlayer = jumpPlayer;
+        this.factory = factory;
 
         int jumpCount = plugin.getJumpManager().getJumps().size();
         int size = jumpCount - jumpCount % 9 + 9;
@@ -85,9 +94,11 @@ public class ListInventory extends AbstractInventory {
     }
 
     private void registerJump(ItemStack itemStack, Jump jump) {
-        super.addClickableItem(itemStack, event -> {
-            this.closeInventory();
-            new JumpInventory(this.plugin, this.player, this.jumpPlayer,  jump, () -> new ListInventory(this.plugin, this.jumpPlayer, this.player));
-        });
+        super.addClickableItem(itemStack, event ->
+                this.factory.create(this.player, this.jumpPlayer, jump, this).open());
+    }
+
+    public interface Factory {
+        ListInventory create(JumpPlayer jumpPlayer, Player player);
     }
 }

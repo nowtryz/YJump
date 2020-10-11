@@ -1,12 +1,12 @@
 package fr.ycraft.jump.entity;
 
-import fr.ycraft.jump.util.ItemStackUtil;
-import fr.ycraft.jump.util.LocationUtil;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import net.nowtryz.mcutils.ItemStackUtil;
+import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -25,13 +25,17 @@ public class Jump implements ConfigurationSerializable {
             ID = "id", NAME = "name", SPAWN = "spawn", START = "start", END = "end",
             CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item",
             DESCRIPTION = "description";
-    protected static final Material DEFAULT_MATERIAL = Material.SLIME_BLOCK;
+    protected static Material DEFAULT_MATERIAL = Material.SLIME_BLOCK;
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
             Material.GOLD_PLATE,
             Material.IRON_PLATE,
             Material.STONE_PLATE,
             Material.WOOD_PLATE
     ));
+
+    public static void setDefaultMaterial(@NonNull Material material) {
+        DEFAULT_MATERIAL = material;
+    }
 
     @Include @NonNull
     private final UUID id;
@@ -100,15 +104,15 @@ public class Jump implements ConfigurationSerializable {
 
 
     public void setSpawn(@NotNull Location spawn) {
-        this.spawn = LocationUtil.toCheckpoint(spawn);
+        this.spawn = LocationUtil.toCenter(spawn);
     }
 
     public void setStart(Location start) {
-        this.start = Optional.ofNullable(start).map(LocationUtil::toCheckpoint).orElse(null);
+        this.start = Optional.ofNullable(start).map(LocationUtil::toCenter).orElse(null);
     }
 
     public void setEnd(Location end) {
-        this.end = Optional.ofNullable(end).map(LocationUtil::toCheckpoint).orElse(null);
+        this.end = Optional.ofNullable(end).map(LocationUtil::toCenter).orElse(null);
     }
 
     /**
@@ -165,6 +169,7 @@ public class Jump implements ConfigurationSerializable {
      * @throws IllegalArgumentException if the world don't exists
      * @see ConfigurationSerializable
      */
+    @SuppressWarnings("unused")
     public static Jump deserialize(Map<String, Object> args) {
         try {
             return Optional.ofNullable(args.get(NAME))

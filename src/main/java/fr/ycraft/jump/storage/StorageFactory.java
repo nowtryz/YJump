@@ -17,7 +17,7 @@ public class StorageFactory {
     Injector injector;
 
     @Inject
-    public StorageFactory(@PluginLogger Logger logger, Config config, Injector injector) {
+    StorageFactory(@PluginLogger Logger logger, Config config, Injector injector) {
         this.logger = logger;
         this.config = config;
         this.injector = injector;
@@ -27,9 +27,7 @@ public class StorageFactory {
         try {
             StorageType storageType = this.config.get(Key.STORAGE_TYPE);
             this.logger.info(String.format("Initializing storage (%s)", storageType.getName()));
-            StorageImplementation implementation = injector.getInstance(storageType.getImplementation());
-            implementation.init();
-            return implementation;
+            return injector.getInstance(storageType.getImplementation());
         } catch (Exception exception) {
             throw new IllegalStateException("Unable initialize storage", exception);
         }

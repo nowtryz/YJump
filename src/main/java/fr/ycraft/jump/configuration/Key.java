@@ -2,6 +2,7 @@ package fr.ycraft.jump.configuration;
 
 import com.google.common.collect.ImmutableList;
 import fr.ycraft.jump.storage.StorageType;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -17,8 +18,8 @@ import java.util.function.Function;
 
 import static fr.ycraft.jump.configuration.KeyFactory.*;
 
-@RequiredArgsConstructor
 @Accessors(fluent = true)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class Key<T> implements Comparable<Key<?>> {
     // plates settings
     public static final Key<Boolean> DELETE_PLATES = booleanKey("plates.auto delete");
@@ -48,6 +49,7 @@ public final class Key<T> implements Comparable<Key<?>> {
     public static final Key<String> DATABASE_USER = stringKey("storage.database.user", null);
     public static final Key<String> DATABASE_PASSWORD = stringKey("storage.database.password", null);
 
+    static final int UNKNOWN_KEY = -1;
     private static final List<Key<?>> VALUES;
 
     public static List<Key<?>> values() {
@@ -79,7 +81,7 @@ public final class Key<T> implements Comparable<Key<?>> {
     }
 
     @Getter
-    private int ordinal = -1;
+    private int ordinal = UNKNOWN_KEY;
     @Getter
     private String name = "";
     private final Function<Configuration, T> extractor;

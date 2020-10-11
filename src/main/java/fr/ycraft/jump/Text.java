@@ -1,10 +1,10 @@
 package fr.ycraft.jump;
 
 import com.google.common.base.Charsets;
+import net.nowtryz.mcutils.api.Translation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * This enumeration represents the messages that need to be translated
  */
-public enum Text {
+public enum Text implements Translation {
     BACK("back", "» Back"),
     BACK_TO_CHECKPOINT("game.checkpoint_tp", "Teleported to last checkpoint"),
     BEST_SCORES_BOOK_LINE("inventory.player.line", "%d) %02d'%02d''%03d"),
@@ -199,18 +199,6 @@ public enum Text {
 
     public String get(Object... args) {
         return String.format(this.get(), args);
-    }
-
-    /**
-     * Send the message to a command sender, usually a player
-     * @param p the CommandSender that will receive the message
-     */
-    public void send(CommandSender p) {
-        p.sendMessage(this.get());
-    }
-
-    public void send(CommandSender p, Object... args) {
-        p.sendMessage(this.get(args));
     }
 
     @Override

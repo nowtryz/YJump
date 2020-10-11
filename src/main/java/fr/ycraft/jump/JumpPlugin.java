@@ -11,9 +11,9 @@ import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
+import fr.ycraft.jump.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.inventories.JumpInventory;
-import fr.ycraft.jump.listeners.InventoryListener;
 import fr.ycraft.jump.listeners.PlateListener;
 import fr.ycraft.jump.listeners.PlatesProtectionListener;
 import fr.ycraft.jump.listeners.PlayerListener;
@@ -25,6 +25,8 @@ import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
+import net.nowtryz.mcutils.api.Plugin;
+import net.nowtryz.mcutils.listener.InventoryListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,7 +41,7 @@ import java.util.Optional;
  * Main class of the Jump plugin, this class is loaded by Bukkit on startup
  */
 @Getter(onMethod_={@Deprecated})
-public final class JumpPlugin extends JavaPlugin {
+public final class JumpPlugin extends JavaPlugin implements Plugin {
     /*
      * Preloads classes used in reflection by YAML deserializer
      */
@@ -57,14 +59,10 @@ public final class JumpPlugin extends JavaPlugin {
     private @Inject Config configProvider;
     private @Inject EditorsManager editorsManager;
     private @Inject GameManager gameManager;
-    private @Inject InventoryListener inventoryListener;
+    private @Inject InventoryListener<JumpPlugin> inventoryListener;
     private @Inject Storage storage;
     private @Inject JumpManager jumpManager;
     private @Inject PlayerManager playerManager;
-
-    // commands
-    private @Inject JumpCommand jumpCommand;
-    private @Inject JumpsCommand jumpsCommand;
 
     @Getter
     private Injector injector;
@@ -78,13 +76,18 @@ public final class JumpPlugin extends JavaPlugin {
         this.exportDefaultResource("fr-FR.yml");
 
         this.prod = !this.getDescription().getVersion().contains("SNAPSHOT");
-        this.injector = Guice.createInjector(isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT, new JumpModule(this));
-        injector.injectMembers(this);
+        // This will created the injector and inject all required objects to the plugin
+        this.injector = Guice.createInjector(
+                isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
+                new JumpModule(this),
+                new BukkitModule<>(this, JumpPlugin.class)
+        );
 
         Text.init(this);
         ItemLibrary.init();
         JumpInventory.init(this);
         MetricsUtils.init(this);
+        Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
         this.storage.init();
         this.playerManager.init();
@@ -99,20 +102,21 @@ public final class JumpPlugin extends JavaPlugin {
                 "Loaded the following jumps: %s",
                 String.join(", ", jumps)
         ));
-
-        this.registerCommands();
         this.replacePlates();
         this.getLogger().info(String.format("%s enabled!", this.getName()));
-        this.enabling = false;
     }
 
     /**
      * Register all Jump plugin commands
      */
-    private void registerCommands() {
-//        new JumpCommand(this);
-//        new JumpsCommand(this);
-        new CheckpointCommand(this);
+    @Inject
+    private void registerCommands(
+            JumpCommand jumpCommand,
+            JumpsCommand jumpsCommand,
+            CheckpointCommand checkpointCommand) {
+        jumpCommand.register();
+        jumpsCommand.register();
+        checkpointCommand.register();
     }
 
     @Inject

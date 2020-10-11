@@ -1,7 +1,6 @@
 package fr.ycraft.jump.storage;
 
 import com.google.inject.Inject;
-import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.injection.BukkitExecutor;
@@ -13,18 +12,19 @@ import org.bukkit.OfflinePlayer;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 
 @Singleton
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Storage {
-    JumpPlugin plugin;
     Executor executor;
     StorageImplementation implementation;
 
     @Inject
-    public Storage(JumpPlugin plugin, StorageImplementation implementation, @BukkitExecutor Executor executor) {
-        this.plugin = plugin;
+    Storage(StorageImplementation implementation, @BukkitExecutor Executor executor) {
         this.implementation = implementation;
         this.executor = executor;
     }

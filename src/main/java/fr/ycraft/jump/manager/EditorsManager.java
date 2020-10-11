@@ -1,12 +1,12 @@
 package fr.ycraft.jump.manager;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import fr.ycraft.jump.JumpEditor;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.factories.JumpEditorFactory;
 import fr.ycraft.jump.listeners.EditorListener;
 import org.bukkit.entity.Player;
 
@@ -22,14 +22,14 @@ public class EditorsManager extends AbstractManager {
 
     private final EditorListener listener;
     private final GameManager gameManager;
-    private final Injector injector;
+    private final JumpEditorFactory factory;
 
     @Inject
-    public EditorsManager(JumpPlugin plugin, Config config, GameManager gameManager, Injector injector) {
+    public EditorsManager(JumpPlugin plugin, Config config, GameManager gameManager, JumpEditorFactory factory) {
         super(plugin);
         this.listener = new EditorListener(plugin, config, this);
         this.gameManager = gameManager;
-        this.injector = injector;
+        this.factory = factory;
     }
 
     public Map<Jump, JumpEditor> getEditors() {
@@ -66,17 +66,15 @@ public class EditorsManager extends AbstractManager {
     }
 
     public void enter(Jump jump, Player player) {
-        JumpEditor editor = this.editors.get(jump);
-
         // register listener if needed
         if (this.editors.isEmpty()) this.listener.register();
 
-        // If there is no editor for this jump we create a new one
-        if (editor == null) {
-            editor = new JumpEditor(this.plugin, jump);
-            this.injector.injectMembers(editor);
-            this.editors.put(jump, editor);
-        }
+        JumpEditor editor = Optional.ofNullable(this.editors.get(jump))
+                .orElseGet(() -> {
+            JumpEditor instance = this.factory.create(jump);
+            this.editors.put(jump, instance);
+            return instance;
+        });
 
         this.playersInEditors.put(player, editor);
         this.gameManager.getGame(player).ifPresent(JumpGame::close);

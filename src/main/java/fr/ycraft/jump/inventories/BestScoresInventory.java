@@ -4,16 +4,15 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
+import net.nowtryz.mcutils.api.Gui;
+import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.inventory.AbstractGui;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.SkullType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
 import static fr.ycraft.jump.util.ItemLibrary.*;
 
 
-public class BestScoresInventory extends AbstractInventory {
+public class BestScoresInventory extends AbstractGui<JumpPlugin> {
     private static final int INVENTORY_SIZE = 54;
     private static final int DIAMOND_POS = 22, GOLD_POS = 30, IRON_POS = 32, MAGENTA_POS = 31;
     private static final int TOP1 = 13, TOP2 = 21, TOP3 = 23, TOP4 = 37;
@@ -47,43 +46,34 @@ public class BestScoresInventory extends AbstractInventory {
             .filter(isPlayerHead)
             .collect(Collectors.toList());
 
-    public BestScoresInventory(JumpPlugin plugin, Player player, Jump jump, Runnable backAction) {
-        super(plugin, player, backAction);
+    public BestScoresInventory(JumpPlugin plugin, Player player, Jump jump, Gui back) {
+        super(plugin, player, back);
 
         Inventory inventory = Bukkit.createInventory(player, 54, Text.TOP_INVENTORY_TITLE.get(jump.getName()));
+        this.setInventory(inventory);
 
         GRAY_PANE_POS.forEach(i -> inventory.setItem(i, GRAY_FILLER));
         BLACK_PANE_POS.forEach(i -> inventory.setItem(i, BLACK_FILLER));
 
-        ItemStack emptySlot = new ItemStack(Material.SKULL_ITEM);
-        ItemMeta itemMeta = emptySlot.getItemMeta();
-        itemMeta.setDisplayName(Text.EMPTY_SCORE.get());
-        emptySlot.setItemMeta(itemMeta);
+        ItemStack emptySlot = ItemBuilder.create(Material.SKULL_ITEM).setDisplayName(Text.EMPTY_SCORE.get()).build();
 
         LinkedList<PlayerScore> bestScores = new LinkedList<>(jump.getBestScores());
         for (int i = 0; i < 10; i++) if (i < bestScores.size()) {
-            ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal());
-            SkullMeta meta = (SkullMeta) skull.getItemMeta();
             PlayerScore score = bestScores.get(i);
-
-            meta.setOwningPlayer(score.getPlayer());
-            meta.setDisplayName(Text.TOP_SCORE_TITLE.get(
-                    score.getPlayer().getName(),
-                    i + 1,
-                    score.getScore().getMinutes(),
-                    score.getScore().getSeconds(),
-                    score.getScore().getMillis()
-            ));
-            meta.setLore(Arrays.asList(Text.TOP_SCORE_LORE.get(
-                    score.getPlayer().getName(),
-                    i + 1,
-                    score.getScore().getMinutes(),
-                    score.getScore().getSeconds(),
-                    score.getScore().getMillis()
-            ).split("\n")));
-            skull.setItemMeta(meta);
-
-            inventory.setItem(PLAYER_POS.get(i), skull);
+            inventory.setItem(PLAYER_POS.get(i), ItemBuilder.skullForPlayer(score.getPlayer())
+                    .setDisplayName(Text.TOP_SCORE_TITLE,
+                            score.getPlayer().getName(),
+                            i + 1,
+                            score.getScore().getMinutes(),
+                            score.getScore().getSeconds(),
+                            score.getScore().getMillis())
+                    .setLore(Text.TOP_SCORE_LORE,
+                            score.getPlayer().getName(),
+                            i + 1,
+                            score.getScore().getMinutes(),
+                            score.getScore().getSeconds(),
+                            score.getScore().getMillis())
+                    .build());
         } else {
             inventory.setItem(PLAYER_POS.get(i), emptySlot);
         }
@@ -94,11 +84,6 @@ public class BestScoresInventory extends AbstractInventory {
         inventory.setItem(MAGENTA_POS, ENCHANTED_FILLER);
 
         // if an inventory can handle a back arrow
-        if (backAction != null) {
-            inventory.setItem(49, BACK);
-            super.addClickableItem(BACK, super::onBack);
-        }
-
-        this.setInventory(inventory);
+        super.registerBackItem(BACK, 49);
     }
 }

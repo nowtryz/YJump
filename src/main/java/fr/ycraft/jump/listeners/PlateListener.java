@@ -6,15 +6,15 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
-import fr.ycraft.jump.util.LocationUtil;
-import org.bukkit.Location;
+import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import javax.inject.Inject;
-import java.util.Map;
+import javax.inject.Singleton;
 
+@Singleton
 public class PlateListener extends AbstractListener {
     private @Inject EditorsManager editorsManager;
     private @Inject GameManager gameManager;
@@ -33,18 +33,16 @@ public class PlateListener extends AbstractListener {
                         || !Jump.ALLOWED_MATERIALS.contains(event.getClickedBlock().getType())
         ) return;
 
-        Location loc = event.getClickedBlock().getLocation();
-
         if (!this.gameManager.isPlaying(event.getPlayer())) {
-            Map<Location, Jump> jumpStarts = this.jumpManager.getJumpStarts();
-            for (Map.Entry<Location, Jump> entry: jumpStarts.entrySet()) {
-                if (LocationUtil.isBlockLocationEqual(entry.getKey(), loc)) {
-                    if (!this.editorsManager.isInEditor(event.getPlayer())) {
-                        this.gameManager.enter(event.getPlayer(), entry.getValue());
-                    } else {
-                        Text.EDITOR_NO_GAME.send(event.getPlayer());
-                    }
-                    break;
+            Jump jump = this.jumpManager
+                    .getJumpStarts()
+                    .get(LocationUtil.toBlock(event.getClickedBlock().getLocation()));
+
+            if (jump != null) {
+                if (!this.editorsManager.isInEditor(event.getPlayer())) {
+                    this.gameManager.enter(event.getPlayer(), jump);
+                } else {
+                    Text.EDITOR_NO_GAME.send(event.getPlayer());
                 }
             }
         }

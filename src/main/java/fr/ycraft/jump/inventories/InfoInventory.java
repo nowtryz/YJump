@@ -1,11 +1,17 @@
 package fr.ycraft.jump.inventories;
 
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
+import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
+import net.nowtryz.mcutils.api.Gui;
+import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.inventory.AbstractGui;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,9 +19,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +30,9 @@ import java.util.stream.Stream;
 
 import static fr.ycraft.jump.util.ItemLibrary.BACK;
 import static fr.ycraft.jump.util.ItemLibrary.WHITE_FILLER;
+import static net.nowtryz.mcutils.builders.ItemBuilder.create;
 
-public class InfoInventory extends AbstractInventory {
+public class InfoInventory extends AbstractGui<JumpPlugin> {
     private static final int INVENTORY_SIZE = 54;
     private static final List<Integer> panePos = Stream.iterate(0, i->i+1)
             .limit(INVENTORY_SIZE)
@@ -38,100 +45,82 @@ public class InfoInventory extends AbstractInventory {
 
     private final Jump jump;
 
-    public InfoInventory(JumpPlugin plugin, Player player, Jump jump) {
-        this(plugin, player, jump, null);
-    }
+    @Inject
+    InfoInventory(JumpPlugin plugin,
+                  Config config,
+                  @Assisted Player player,
+                  @Assisted Jump jump,
+                  @Assisted() @Nullable Gui back) {
 
-    public InfoInventory(JumpPlugin plugin, Player player, Jump jump, Runnable runnable) {
-        super(plugin, player, runnable);
+        super(plugin, player, back);
         this.jump = jump;
 
         Inventory inventory = Bukkit.createInventory(player, INVENTORY_SIZE, Text.INFO_TITLE.get(jump.getName()));
+        this.setInventory(inventory);
+
         List<String> notSet = Arrays.asList(Text.INFO_POINT_NOT_SET_LORE.get().split(StringUtils.LF));
-        ItemStack icon = jump.getItem().clone();
-        ItemStack spawn = new ItemStack(Material.COMPASS);
-        ItemStack start = new ItemStack(plugin.getConfigProvider().get(Key.START_MATERIAL));
-        ItemStack end = new ItemStack(plugin.getConfigProvider().get(Key.END_MATERIAL));
-        ItemStack fall = new ItemStack(Material.BED, 1, (short) 14);
-        ItemMeta spawnMeta = spawn.getItemMeta();
-        ItemMeta startMeta = start.getItemMeta();
-        ItemMeta endMeta = end.getItemMeta();
-        ItemMeta fallMeta = fall.getItemMeta();
+        ItemBuilder<?> spawn = create(Material.COMPASS)
+                .setDisplayName(Text.INFO_SPAWN_NAME);
+        ItemBuilder<?> start = create(config.get(Key.START_MATERIAL))
+                .setDisplayName(Text.INFO_START_NAME);
+        ItemBuilder<?> end = create(config.get(Key.END_MATERIAL))
+                .setDisplayName(Text.INFO_END_NAME);
 
-        spawnMeta.setDisplayName(Text.INFO_SPAWN_NAME.get());
-        startMeta.setDisplayName(Text.INFO_START_NAME.get());
-        endMeta.setDisplayName(Text.INFO_END_NAME.get());
-        fallMeta.setDisplayName(Text.INFO_FALL_NAME.get());
-        fallMeta.setLore(Arrays.asList(Text.INFO_FALL_LORE
-                .get(plugin.getConfigProvider().get(Key.MAX_FALL_DISTANCE))
-                .split(StringUtils.LF)));
-
-        jump.getSpawn().ifPresent(location -> spawnMeta.setLore(Arrays.asList(Text.INFO_POINT_SET_LORE.get(
+        jump.getSpawn().ifPresent(location -> spawn.setLore(
+                Text.INFO_POINT_SET_LORE,
                 location.getBlockX(),
                 location.getBlockY(),
                 location.getBlockZ()
-        ).split(StringUtils.LF))));
-        jump.getStart().ifPresent(location -> startMeta.setLore(Arrays.asList(Text.INFO_POINT_SET_LORE.get(
+        ));
+        jump.getStart().ifPresent(location -> start.setLore(
+                Text.INFO_POINT_SET_LORE,
                 location.getBlockX(),
                 location.getBlockY(),
                 location.getBlockZ()
-        ).split(StringUtils.LF))));
-        jump.getEnd().ifPresent(location -> endMeta.setLore(Arrays.asList(Text.INFO_POINT_SET_LORE.get(
+        ));
+        jump.getEnd().ifPresent(location -> end.setLore(
+                Text.INFO_POINT_SET_LORE,
                 location.getBlockX(),
                 location.getBlockY(),
                 location.getBlockZ()
-        ).split(StringUtils.LF))));
+        ));
 
-        if (!jump.getSpawn().isPresent()) spawnMeta.setLore(notSet);
-        if (!jump.getStart().isPresent()) startMeta.setLore(notSet);
-        if (!jump.getEnd().isPresent())   endMeta.setLore(notSet);
+        if (!jump.getSpawn().isPresent()) spawn.setLore(notSet);
+        if (!jump.getStart().isPresent()) start.setLore(notSet);
+        if (!jump.getEnd().isPresent())   end.setLore(notSet);
 
-        spawn.setItemMeta(spawnMeta);
-        start.setItemMeta(startMeta);
-        end.setItemMeta(endMeta);
-        fall.setItemMeta(fallMeta);
 
-        inventory.setItem(10, icon);
-        inventory.setItem(11, fall);
-        inventory.setItem(13, spawn);
-        inventory.setItem(15, start);
-        inventory.setItem(16, end);
+        inventory.setItem(10, jump.getItem().clone());
+        inventory.setItem(11, create(Material.BED)
+                .setWoolColor(DyeColor.WHITE)
+                .setDisplayName(Text.INFO_FALL_NAME)
+                .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE))
+                .build());
+        this.addClickableItem(13, spawn.build(), this::tpToSpawn);
+        this.addClickableItem(15, start.build(), this::tpToStart);
+        this.addClickableItem(16, end.build(),   this::tpToEnd);
 
         List<Location> checkpoints = jump.getCheckpoints();
         for (int i = 0; i < checkpoints.size() % checkpointsPos.size(); i++) {
             Location location = checkpoints.get(i);
-            Material material = Optional.of(location.getBlock().getRelative(BlockFace.DOWN))
-                    .map(Block::getType)
-                    .filter(m -> m != Material.AIR)
-                    .orElse(plugin.getConfigProvider().get(Key.CHECKPOINT_MATERIAL));
-            ItemStack checkpoint = new ItemStack(material);
-            ItemMeta itemMeta = checkpoint.getItemMeta();
-
-            itemMeta.setDisplayName(Text.INFO_CHECKPOINT_NAME.get());
-            itemMeta.setLore(Arrays.asList(Text.INFO_POINT_SET_LORE.get(
-                    location.getBlockX(),
-                    location.getBlockY(),
-                    location.getBlockZ()
-            ).split(StringUtils.LF)));
-            checkpoint.setItemMeta(itemMeta);
-
-            inventory.setItem(28 + i, checkpoint);
-            this.addClickableItem(checkpoint, event -> player.teleport(location));
+            this.addClickableItem(28,
+                    create(Optional.of(location.getBlock().getRelative(BlockFace.DOWN))
+                            .map(Block::getType)
+                            .filter(m -> m != Material.AIR)
+                            .orElse(config.get(Key.CHECKPOINT_MATERIAL)))
+                            .setDisplayName(Text.INFO_CHECKPOINT_NAME)
+                            .setLore(Text.INFO_POINT_SET_LORE,
+                                    location.getBlockX(),
+                                    location.getBlockY(),
+                                    location.getBlockZ())
+                            .build(),
+                    event -> player.teleport(location));
         }
 
-
-        this.addClickableItem(spawn, this::tpToSpawn);
-        this.addClickableItem(start, this::tpToStart);
-        this.addClickableItem(end,   this::tpToEnd);
         panePos.forEach(i -> inventory.setItem(i, WHITE_FILLER));
 
         // if an inventory can handle a back arrow
-        if (runnable != null) {
-            inventory.setItem(49, BACK);
-            super.addClickableItem(BACK, super::onBack);
-        }
-
-        this.setInventory(inventory);
+        super.registerBackItem(BACK, 49);
     }
 
     public void tpToSpawn(InventoryClickEvent event) {
@@ -144,5 +133,9 @@ public class InfoInventory extends AbstractInventory {
 
     public void tpToEnd(InventoryClickEvent event) {
         this.jump.getEnd().ifPresent(player::teleport);
+    }
+
+    public interface Factory {
+        InfoInventory create(Player player, Jump jump, @Nullable Gui back);
     }
 }

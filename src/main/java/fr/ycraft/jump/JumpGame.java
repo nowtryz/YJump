@@ -1,5 +1,6 @@
 package fr.ycraft.jump;
 
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
@@ -8,7 +9,7 @@ import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.PlayerManager;
-import fr.ycraft.jump.util.LocationUtil;
+import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarStyle;
@@ -41,28 +42,40 @@ public class JumpGame {
     @NotNull
     private final Location startLocation;
     private final List<Location> validated = new LinkedList<>();
-    private final JumpPlugin plugin;
     private final Jump jump;
+    private final Config config;
+    private final JumpPlayer jumpPlayer;
+    private final GameManager gameManager;
+    private final JumpPlugin plugin;
     private final Player player;
     private final boolean canFly;
-    private final BossBar bossBar;
-    private final Scoreboard originalScoreboard;
-    private final BukkitTask bukkitTask;
+    private BossBar bossBar;
+    private Scoreboard originalScoreboard;
+    private BukkitTask bukkitTask;
     private Objective objective;
     private Scoreboard scoreboard;
     private Score timer, checkpoints;
-    private JumpPlayer jumpPlayer;
-    private Config config;
     private long resetTime;
     private boolean ended = false;
     private long start;
     private Location checkpoint;
 
-    private @Inject GameManager gameManager;
-
-    public JumpGame(@NotNull JumpPlugin plugin, @NotNull Jump jump, @NotNull Player player) {
+    @Inject
+    JumpGame(Config config,
+                    PlayerManager playerManager,
+                    GameManager gameManager,
+                    JumpPlugin plugin,
+                    @Assisted Jump jump,
+                    @Assisted Player player) {
         assert jump.getStart().isPresent();
 
+        Optional<JumpPlayer> jumpPlayer = playerManager.getPlayer(player);
+        assert jumpPlayer.isPresent();
+        this.jumpPlayer = jumpPlayer.get();
+
+        this.gameManager = gameManager;
+        this.config = config;
+        this.resetTime = config.get(Key.RESET_TIME);
         this.plugin = plugin;
         this.jump = jump;
         this.player = player;
@@ -71,32 +84,6 @@ public class JumpGame {
         this.resetTime = this.plugin.getConfigProvider().get(Key.RESET_TIME);
         this.canFly = Perm.FLY.isHeldBy(player);
         this.checkpoint = this.startLocation;
-
-        this.bossBar = Bukkit.createBossBar(
-                Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
-                plugin.getConfigProvider().get(Key.BOSS_BAR_COLOR),
-                BarStyle.SOLID
-        );
-        this.bossBar.setProgress(0);
-        this.bossBar.addPlayer(player);
-
-        this.originalScoreboard = player.getScoreboard();
-
-        this.player.setScoreboard(scoreboard);
-        this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
-    }
-
-    @Inject
-    private void injectConfig(Config config) {
-        this.config = config;
-        this.resetTime = config.get(Key.RESET_TIME);
-    }
-
-    @Inject
-    private void injectPlayer(PlayerManager playerManager) {
-        Optional<JumpPlayer> player = playerManager.getPlayer(this.player);
-        assert player.isPresent();
-        this.jumpPlayer = player.get();
     }
 
     public void init() {
@@ -110,6 +97,7 @@ public class JumpGame {
                 .map(PotionEffect::getType)
                 .forEach(player::removePotionEffect);
 
+        // Init scoreboard
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         this.objective = scoreboard.registerNewObjective("Sidebar", "dummy");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -122,6 +110,21 @@ public class JumpGame {
         this.timer.setScore(TIMER_VALUE_POS);
         this.checkpoints = this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_VALUE.get(0, this.jump.getCheckpoints().size()));
         this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
+
+        this.originalScoreboard = player.getScoreboard();
+        this.player.setScoreboard(scoreboard);
+
+        // Init bossbar
+        this.bossBar = Bukkit.createBossBar(
+                Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
+                plugin.getConfigProvider().get(Key.BOSS_BAR_COLOR),
+                BarStyle.SOLID
+        );
+        this.bossBar.setProgress(0);
+        this.bossBar.addPlayer(player);
+
+        // setup timer
+        this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
     }
 
     public void updateTimer() {

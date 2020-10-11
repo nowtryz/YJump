@@ -14,17 +14,26 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Singleton
 public class JumpsCommand extends PluginCommandExecutor implements PlayerCommand {
     private final PlayerManager playerManager;
+    private final ListInventory.Factory listInventoryFactory;
+    private final JumpInventory.Factory jumpInventoryFactory;
 
     @Inject
-    public JumpsCommand(@NotNull JumpPlugin plugin, PlayerManager playerManager) {
+    public JumpsCommand(@NotNull JumpPlugin plugin,
+                        PlayerManager playerManager,
+                        ListInventory.Factory listInventoryFactory,
+                        JumpInventory.Factory jumpInventoryFactory) {
         super(plugin, CommandSpec.JUMPS, args -> args.length <= 1);
         this.playerManager = playerManager;
+        this.listInventoryFactory = listInventoryFactory;
+        this.jumpInventoryFactory = jumpInventoryFactory;
     }
 
     @Override
@@ -32,10 +41,10 @@ public class JumpsCommand extends PluginCommandExecutor implements PlayerCommand
         Optional<JumpPlayer> jumpPlayer = this.playerManager.getPlayer(player);
         if (!jumpPlayer.isPresent()) return false;
 
-        if (args.length == 0) new ListInventory(this.plugin, jumpPlayer.get(), player);
+        if (args.length == 0) this.listInventoryFactory.create(jumpPlayer.get(), player).open();
         else if (args.length == 1) {
             Optional<Jump> jump = plugin.getJumpManager().getJump(args[0]);
-            if (jump.isPresent()) new JumpInventory(plugin, player, jumpPlayer.get(), jump.get());
+            if (jump.isPresent()) this.jumpInventoryFactory.create(player, jumpPlayer.get(), jump.get(), null).open();
             else Text.JUMP_NOT_EXISTS.send(player);
         } else return false;
         return true;

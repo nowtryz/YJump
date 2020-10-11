@@ -3,20 +3,20 @@ package fr.ycraft.jump.injection;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+import fr.ycraft.jump.factories.JumpEditorFactory;
+import fr.ycraft.jump.factories.JumpGameFactory;
 import fr.ycraft.jump.JumpPlugin;
+import fr.ycraft.jump.inventories.InfoInventory;
+import fr.ycraft.jump.inventories.JumpInventory;
+import fr.ycraft.jump.inventories.ListInventory;
 import fr.ycraft.jump.storage.StorageFactory;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 public class JumpModule extends AbstractModule {
@@ -24,34 +24,11 @@ public class JumpModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(Plugin.class).to(JumpPlugin.class);
-        bind(JavaPlugin.class).to(JumpPlugin.class);
-        bind(JumpPlugin.class).toInstance(this.plugin);
-    }
-
-    @Provides
-    @PluginLogger
-    Logger provideLogger() {
-        return this.plugin.getLogger();
-    }
-
-    @Provides
-    @DefaultConfig
-    Configuration providePluginConfiguration() {
-        return this.providePluginFileConfiguration();
-    }
-
-    @Provides
-    @DefaultConfig
-    FileConfiguration providePluginFileConfiguration() {
-        return this.plugin.getConfig();
-    }
-
-    @Provides
-    @Singleton
-    @DataFolder
-    File provideDataFolder() {
-        return this.plugin.getDataFolder();
+        install(new FactoryModuleBuilder().build(JumpGameFactory.class));
+        install(new FactoryModuleBuilder().build(JumpEditorFactory.class));
+        install(new FactoryModuleBuilder().build(InfoInventory.Factory.class));
+        install(new FactoryModuleBuilder().build(JumpInventory.Factory.class));
+        install(new FactoryModuleBuilder().build(ListInventory.Factory.class));
     }
 
     @Provides

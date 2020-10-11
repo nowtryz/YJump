@@ -9,7 +9,7 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.JumpManager;
-import fr.ycraft.jump.util.LocationUtil;
+import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,8 +17,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
+@Singleton
 public class PlatesProtectionListener extends AbstractListener {
     private @Inject EditorsManager editorsManager;
     private @Inject JumpManager jumpManager;

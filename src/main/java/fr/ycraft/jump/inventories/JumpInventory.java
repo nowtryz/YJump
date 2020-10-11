@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.utility.MinecraftReflection;
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.commands.Perm;
@@ -11,31 +12,34 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
-import fr.ycraft.jump.util.ItemStackUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.nowtryz.mcutils.ItemStackUtil;
+import net.nowtryz.mcutils.api.Gui;
+import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.inventory.AbstractGui;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.SkullType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static fr.ycraft.jump.util.ItemLibrary.WHITE_FILLER;
 import static fr.ycraft.jump.util.ItemLibrary.BACK;
+import static fr.ycraft.jump.util.ItemLibrary.WHITE_FILLER;
 
 /**
  * This gui show information about the selected jump: best scores, a tp button and a settings button
  */
-public class JumpInventory  extends AbstractInventory {
+public class JumpInventory  extends AbstractGui<JumpPlugin> {
     private static final int INVENTORY_SIZE = 54;
     private static final List<Integer> panePos = Stream.iterate(0, i->i+1)
             .limit(INVENTORY_SIZE)
@@ -55,57 +59,45 @@ public class JumpInventory  extends AbstractInventory {
 
     private final Jump jump;
     private final JumpPlayer jumpPlayer;
+    private final InfoInventory.Factory factory;
 
-    public JumpInventory(JumpPlugin plugin, Player player, JumpPlayer jumpPlayer, Jump jump) {
-        this(plugin, player, jumpPlayer, jump, null);
-    }
-
-    public JumpInventory(JumpPlugin plugin, Player player, JumpPlayer jumpPlayer, Jump jump, Runnable backAction) {
-        super(plugin, player, backAction);
+    @Inject
+    JumpInventory(JumpPlugin plugin,
+                         InfoInventory.Factory factory,
+                         @Assisted Player player,
+                         @Assisted JumpPlayer jumpPlayer,
+                         @Assisted Jump jump,
+                         @Assisted @Nullable Gui back) {
+        super(plugin, player, back);
+        this.factory = factory;
         this.jumpPlayer = jumpPlayer;
         this.jump = jump;
 
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal());
-        SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        meta.setOwningPlayer(player);
-        meta.setDisplayName(Text.JUMP_INVENTORY_SELF.get());
-        skull.setItemMeta(meta);
+        ItemStack skull = ItemBuilder.skullForPlayer(player)
+                .setDisplayName(Text.JUMP_INVENTORY_SELF.get())
+                .build();
 
 
         Inventory inventory = Bukkit.createInventory(player, INVENTORY_SIZE, Text.JUMP_INVENTORY.get(jump.getName()));
+        this.setInventory(inventory);
         panePos.forEach(i -> inventory.setItem(i, WHITE_FILLER));
-        inventory.setItem(TOP_POS, TOP);
-        inventory.setItem(SKULL_POS, skull);
-        inventory.setItem(TP_POS, TP);
-
-        super.addClickableItem(TP, this::onTp);
-        super.addClickableItem(TOP, this::onTop);
-        // get skull from inventory to grab updated item meta
-        super.addClickableItem(inventory.getItem(SKULL_POS), this::onPlayerBestScores);
+        super.addClickableItem(TOP_POS, TOP, this::onTop);
+        super.addClickableItem(SKULL_POS, skull, this::onPlayerBestScores);
+        super.addClickableItem(TP_POS, TP, this::onTp);
 
         // if admin
-        if (Perm.EDIT.isHeldBy(player)) {
-            inventory.setItem(SETTINGS_POS, SETTINGS);
-            super.addClickableItem(SETTINGS, this::onSettings);
-        }
+        if (Perm.EDIT.isHeldBy(player)) super.addClickableItem(SETTINGS_POS, SETTINGS, this::onSettings);
 
         // if an inventory can handle a back arrow
-        if (backAction != null) {
-            inventory.setItem(49, BACK);
-            super.addClickableItem(BACK, super::onBack);
-        }
-
-        this.setInventory(inventory);
+        super.registerBackItem(BACK, 49);
     }
 
     public void onTop(Event event) {
-        new BestScoresInventory(this.plugin, this.player, this.jump,
-                () -> new JumpInventory(this.plugin, this.player, this.jumpPlayer, this.jump, super.backAction));
+        new BestScoresInventory(this.plugin, this.player, this.jump, this).open();
     }
 
     public void onSettings(Event event) {
-        new InfoInventory(this.plugin, this.player, this.jump,
-                () -> new JumpInventory(this.plugin, this.player, this.jumpPlayer, this.jump, super.backAction));
+        this.factory.create(this.player, this.jump, this).open();
     }
 
     public void onTp(Event event) {
@@ -154,5 +146,9 @@ public class JumpInventory  extends AbstractInventory {
         }
 
         this.player.getInventory().setItem(slot, old);
+    }
+
+    public interface Factory {
+        JumpInventory create(Player player, JumpPlayer jumpPlayer, Jump jump, @Nullable Gui back);
     }
 }
