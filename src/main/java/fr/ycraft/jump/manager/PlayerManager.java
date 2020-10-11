@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class PlayerManager extends AbstractManager {
@@ -40,5 +41,12 @@ public class PlayerManager extends AbstractManager {
             this.storage.storePlayer(jumpPlayer);
             this.players.remove(player, jumpPlayer);
         });
+    }
+
+    public void save() {
+        CompletableFuture.allOf(this.players.values()
+                .parallelStream()
+                .map(this.storage::storePlayer)
+                .toArray(CompletableFuture[]::new)).join();
     }
 }

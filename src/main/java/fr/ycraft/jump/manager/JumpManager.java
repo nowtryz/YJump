@@ -114,6 +114,5 @@ public class JumpManager extends AbstractManager {
                 .map(this.storage::storeJump)
                 .toArray(CompletableFuture[]::new);
         CompletableFuture.allOf(completableFutures).join();
-
     }
 }

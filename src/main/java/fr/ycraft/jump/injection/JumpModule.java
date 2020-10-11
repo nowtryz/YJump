@@ -10,6 +10,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.inventories.InfoInventory;
 import fr.ycraft.jump.inventories.JumpInventory;
 import fr.ycraft.jump.inventories.ListInventory;
+import fr.ycraft.jump.listeners.GameListener;
 import fr.ycraft.jump.storage.StorageFactory;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class JumpModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(InfoInventory.Factory.class));
         install(new FactoryModuleBuilder().build(JumpInventory.Factory.class));
         install(new FactoryModuleBuilder().build(ListInventory.Factory.class));
+        install(new FactoryModuleBuilder().build(GameListener.Factory.class));
     }
 
     @Provides

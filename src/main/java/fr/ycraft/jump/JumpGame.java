@@ -9,6 +9,7 @@ import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.PlayerManager;
+import fr.ycraft.jump.storage.Storage;
 import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -44,9 +45,10 @@ public class JumpGame {
     private final List<Location> validated = new LinkedList<>();
     private final Jump jump;
     private final Config config;
+    private final JumpPlugin plugin;
     private final JumpPlayer jumpPlayer;
     private final GameManager gameManager;
-    private final JumpPlugin plugin;
+    private final Storage storage;
     private final Player player;
     private final boolean canFly;
     private BossBar bossBar;
@@ -64,16 +66,18 @@ public class JumpGame {
     JumpGame(Config config,
                     PlayerManager playerManager,
                     GameManager gameManager,
+                    Storage storage,
                     JumpPlugin plugin,
                     @Assisted Jump jump,
                     @Assisted Player player) {
-        assert jump.getStart().isPresent();
 
         Optional<JumpPlayer> jumpPlayer = playerManager.getPlayer(player);
+        assert jump.getStart().isPresent();
         assert jumpPlayer.isPresent();
-        this.jumpPlayer = jumpPlayer.get();
 
+        this.jumpPlayer = jumpPlayer.get();
         this.gameManager = gameManager;
+        this.storage = storage;
         this.config = config;
         this.resetTime = config.get(Key.RESET_TIME);
         this.plugin = plugin;
@@ -81,7 +85,7 @@ public class JumpGame {
         this.player = player;
         this.startLocation = jump.getStart().get();
         this.start = System.currentTimeMillis();
-        this.resetTime = this.plugin.getConfigProvider().get(Key.RESET_TIME);
+        this.resetTime = config.get(Key.RESET_TIME);
         this.canFly = Perm.FLY.isHeldBy(player);
         this.checkpoint = this.startLocation;
     }
@@ -198,7 +202,7 @@ public class JumpGame {
     }
 
     public void onDamage(EntityDamageEvent event) {
-        if (EntityDamageEvent.DamageCause.VOID.equals(event.getCause())) this.tpLastCheckpoint();
+        if (EntityDamageEvent.DamageCause.VOID == event.getCause()) this.tpLastCheckpoint();
         event.setCancelled(true);
     }
 
@@ -253,8 +257,9 @@ public class JumpGame {
     }
 
     private void saveScore(TimeScore score) {
-        this.jump.registerScore(this.player, score.getDuration(), this.plugin.getConfigProvider().get(Key.MAX_SCORES_PER_JUMP));
+        this.jump.registerScore(this.player, score.getDuration(), this.config.get(Key.MAX_SCORES_PER_JUMP));
         this.jumpPlayer.put(this.jump, score);
+        this.storage.storePlayer(this.jumpPlayer);
     }
 
     public void close() {

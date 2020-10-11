@@ -22,11 +22,10 @@ public class GameManager extends AbstractManager {
     private final GameListener listener;
 
     @Inject
-    public GameManager(JumpPlugin plugin, GameListener listener, JumpGameFactory factory) {
+    public GameManager(JumpPlugin plugin, GameListener.Factory listener, JumpGameFactory factory) {
         super(plugin);
         this.factory = factory;
-        this.listener = listener;
-        this.listener.setGameManager(this);
+        this.listener = listener.create(this);
     }
 
     public boolean isPlaying(Player player) {

@@ -1,11 +1,11 @@
 package fr.ycraft.jump.listeners;
 
+import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.manager.GameManager;
-import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,15 +19,21 @@ import javax.inject.Singleton;
 
 @Singleton
 public class GameListener extends AbstractListener {
-    private@Setter GameManager gameManager;
+    private final GameManager gameManager;
     private final Config config;
 
+    public interface Factory {
+        GameListener create(GameManager gameManager);
+    }
 
     @Inject
-    public GameListener(JumpPlugin plugin, Config config) {
+    public GameListener(JumpPlugin plugin, Config config, @Assisted GameManager gameManager) {
         super(plugin);
         this.config = config;
+        this.gameManager = gameManager;
     }
+
+
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
@@ -72,7 +78,9 @@ public class GameListener extends AbstractListener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPotion(PlayerItemConsumeEvent event) {
+    public void onItemConsume(PlayerItemConsumeEvent event) {
         this.gameManager.getGame(event.getPlayer()).ifPresent(game -> event.setCancelled(true));
     }
+
+    // NOTE: EntityPotionEffectEvent could be used as of 1.13
 }

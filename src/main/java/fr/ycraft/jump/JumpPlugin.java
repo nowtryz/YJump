@@ -168,9 +168,15 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     @Override
     public void onDisable() {
         this.disabling = true;
+        this.getLogger().info("Closing editors...");
         Optional.ofNullable(this.editorsManager).ifPresent(EditorsManager::close);
+        this.getLogger().info("Saving players...");
+        Optional.ofNullable(this.playerManager).ifPresent(PlayerManager::save);
+        this.getLogger().info("Saving jumps...");
         Optional.ofNullable(this.jumpManager).ifPresent(JumpManager::save);
+        this.getLogger().info("Stopping running games...");
         Optional.ofNullable(this.gameManager).ifPresent(GameManager::stopAll);
+        this.getLogger().info("Closing storage...");
         Optional.ofNullable(this.storage).ifPresent(Storage::close);
         this.disabling = false;
     }
