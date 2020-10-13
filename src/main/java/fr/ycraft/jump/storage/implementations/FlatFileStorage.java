@@ -94,8 +94,9 @@ public class FlatFileStorage implements StorageImplementation {
             }
 
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
-            return new JumpPlayer(player.getUniqueId(), player.getName(), BiStream.from(this.plugin.getJumpManager().getJumps())
+            return new JumpPlayer(player.getUniqueId(), player.getName(), BiStream.from(this.plugin.getJumpManager().getJumpsById())
                     .inverse()
+                    .mapValues(UUID::toString)
                     .mapValues(conf::getLongList)
                     .mapValues(list -> list.parallelStream()
                             .map(TimeScore::new)
@@ -130,7 +131,8 @@ public class FlatFileStorage implements StorageImplementation {
         try {
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
             BiStream.from(jumpPlayer)
-                    .mapKeys(Jump::getName)
+                    .mapKeys(Jump::getId)
+                    .mapKeys(UUID::toString)
                     .mapValues(scores -> scores.parallelStream()
                             .map(TimeScore::getDuration)
                             .collect(Collectors.toList()))

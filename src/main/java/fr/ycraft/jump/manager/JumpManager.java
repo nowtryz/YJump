@@ -13,10 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -31,6 +28,7 @@ public class JumpManager extends AbstractManager {
     private final Logger logger;
 
     protected Map<String, Jump> jumps;
+    protected Map<UUID, Jump> jumpsById;
     protected Map<Location, Jump> jumpStarts;
     protected List<Location> protectedLocations;
     protected List<World> protectedWorlds;
@@ -57,6 +55,7 @@ public class JumpManager extends AbstractManager {
 
     public synchronized void updateJumpList(List<Jump> jumps) {
         this.jumps = BiStream.from(jumps, Jump::getName, Function.identity()).toMap();
+        this.jumpsById = BiStream.from(jumps, Jump::getId, Function.identity()).toMap();
 
         // only keep playable jumps
         this.jumpStarts = jumps.parallelStream()

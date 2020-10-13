@@ -92,6 +92,8 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         MetricsUtils.init(this);
         Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
+
+
         this.storage.init();
         this.jumpManager.init();
         this.playerManager.init();
