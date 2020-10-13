@@ -15,9 +15,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class GameListener extends AbstractListener {
     private final GameManager gameManager;
     private final Config config;

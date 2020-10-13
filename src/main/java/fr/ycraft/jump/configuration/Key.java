@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static fr.ycraft.jump.configuration.KeyFactory.*;
@@ -48,6 +50,10 @@ public final class Key<T> implements Comparable<Key<?>> {
     public static final Key<String> DATABASE_NAME = stringKey("storage.database.name", null);
     public static final Key<String> DATABASE_USER = stringKey("storage.database.user", null);
     public static final Key<String> DATABASE_PASSWORD = stringKey("storage.database.password", null);
+    // other settings
+    public static final Key<Locale> LOCALE = key(c -> Optional.ofNullable(c.getString("locale"))
+            .map(Locale::new)
+            .orElseGet(Locale::getDefault));
 
     static final int UNKNOWN_KEY = -1;
     private static final List<Key<?>> VALUES;

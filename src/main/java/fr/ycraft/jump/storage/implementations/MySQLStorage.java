@@ -100,17 +100,17 @@ public class MySQLStorage implements StorageImplementation {
 
     @Override
     public JumpPlayer loadPlayer(OfflinePlayer player) throws SQLException {
-        return this.loadPlayer(player.getUniqueId(), this.config.get(Key.MAX_SCORES_PER_PLAYER));
+        return this.loadPlayer(player.getUniqueId(), player.getName(), this.config.get(Key.MAX_SCORES_PER_PLAYER));
     }
 
-    public JumpPlayer loadPlayer(UUID playerId, int limite) throws SQLException {
+    public JumpPlayer loadPlayer(UUID playerId, String name, int limite) throws SQLException {
         String query = limite > 0 ? SELECT_SCORES:  SELECT_ALL_SCORES;
         @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(query);
         preparedStatement.setString(1, playerId.toString());
         if (limite > 0 ) preparedStatement.setInt(2, limite);
 
         @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
-        JumpPlayer jumpPlayer = new JumpPlayer(playerId);
+        JumpPlayer jumpPlayer = new JumpPlayer(playerId, name);
 
         while (resultSet.next()) {
             String jumpName = resultSet.getString("jump_name");
@@ -125,11 +125,13 @@ public class MySQLStorage implements StorageImplementation {
     public List<JumpPlayer> loadAllPlayers() {
         // fetch all player uuid from score table
         // load each player
+        // TODO todo
         throw new NotImplementedException("Load all players from the database");
     }
 
     @Override
     public void storePlayer(JumpPlayer jumpPlayer) throws SQLException {
+        // TODO Store name in a `player` table
         @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement(UPSERT_SCORES);
 
         ImmutableList<ImmutablePair<TimeScore, Jump>> collect = BiStream.from(jumpPlayer)
@@ -264,7 +266,7 @@ public class MySQLStorage implements StorageImplementation {
     private Location fetchLocation(int hashCode) throws SQLException {
         if (hashCode == 0) return null; // 0 stands for null value
 
-        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT world, x, y, z, pitch, yaw FROM `jump_location` WHERE hash = ?");
+        @Cleanup PreparedStatement preparedStatement = this.connection.prepareStatement("SELECT world, x, y, z, pitch, yaw FROM `jump_location` WHERE hash = ?"); // TODO put in final static
         preparedStatement.setLong(1, hashCode);
         @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -352,17 +354,18 @@ public class MySQLStorage implements StorageImplementation {
     }
 
     private Jump readJump(ResultSet resultSet, long id) throws SQLException {
-        return new Jump(
-                UUIDUtils.fromBytes(resultSet.getBytes("id")),
-                resultSet.getString("name"),
-                resultSet.getString("description"),
-                this.fetchLocation(resultSet.getInt("spawn")),
-                this.fetchLocation(resultSet.getInt("start")),
-                this.fetchLocation(resultSet.getInt("end")),
-                this.extractCheckpoints(id),
-                this.extractScores(id),
-                readItem(resultSet)
-        );
+        return Jump.builder()
+                .id(UUIDUtils.fromBytes(resultSet.getBytes("id")))
+                .name(resultSet.getString("name"))
+                .description(resultSet.getString("description"))
+                // TODO use position instead of location
+                .spawn(this.fetchLocation(resultSet.getInt("spawn")))
+                .start(this.fetchLocation(resultSet.getInt("start")))
+                .end(this.fetchLocation(resultSet.getInt("end")))
+//                .checkpoints(this.extractCheckpoints(id))
+                .bestScores(this.extractScores(id))
+                .item(readItem(resultSet))
+                .build();
     }
 
     private static ItemStack readItem(ResultSet resultSet) throws SQLException {

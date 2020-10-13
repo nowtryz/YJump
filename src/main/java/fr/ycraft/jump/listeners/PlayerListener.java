@@ -22,7 +22,6 @@ public class PlayerListener extends AbstractListener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         this.playerManager.load(event.getPlayer());
-        System.out.println(this.plugin.getJumpManager());
     }
 
     @EventHandler

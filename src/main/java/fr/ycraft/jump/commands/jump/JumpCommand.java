@@ -35,7 +35,8 @@ public class JumpCommand extends PluginCommandExecutor {
                        SetEndCommand setEndCommand,
                        SetItemCommand setItemCommand,
                        SetSpawnCommand setSpawnCommand,
-                       SetStartCommand setStartCommand
+                       SetStartCommand setStartCommand,
+                       SetWorldCommand setWorldCommand
     ) {
         super(plugin, CommandSpec.JUMP, any -> true, // allow any arguments to show help message
                 addCheckPointCommand,
@@ -53,7 +54,8 @@ public class JumpCommand extends PluginCommandExecutor {
                 setEndCommand,
                 setItemCommand,
                 setSpawnCommand,
-                setStartCommand);
+                setStartCommand,
+                setWorldCommand);
     }
 
     @Override

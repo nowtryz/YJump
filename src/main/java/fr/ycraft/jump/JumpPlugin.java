@@ -11,6 +11,7 @@ import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
+import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.inventories.JumpInventory;
@@ -35,6 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -50,6 +52,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             JumpPlugin.class.getClassLoader().loadClass(Jump.class.getName());
             JumpPlugin.class.getClassLoader().loadClass(PlayerScore.class.getName());
             JumpPlugin.class.getClassLoader().loadClass(Driver.class.getName());
+            JumpPlugin.class.getClassLoader().loadClass(Position.class.getName());
         } catch (ClassNotFoundException e) {
             Bukkit.getLogger().severe("[YJump] Unable to preload classes for Yaml deserialization");
         }
@@ -73,7 +76,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     public void onEnable() {
         this.enabling = true;
         super.saveDefaultConfig();
-        this.exportDefaultResource("fr-FR.yml");
+        this.exportDefaultResource(Text.LOCALES_FOLDER);
 
         this.prod = !this.getDescription().getVersion().contains("SNAPSHOT");
         // This will created the injector and inject all required objects to the plugin
@@ -90,24 +93,20 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
         this.storage.init();
-        this.playerManager.init();
         this.jumpManager.init();
+        this.playerManager.init();
 
-        String[] jumps = this.jumpManager
-                .getJumps()
-                .keySet()
-                .toArray(new String[0]);
-        if (jumps.length == 0) this.getLogger().warning("No jump loaded");
-        else this.getLogger().info(String.format(
-                "Loaded the following jumps: %s",
-                String.join(", ", jumps)
-        ));
+        this.showJumpList();
         this.replacePlates();
         this.getLogger().info(String.format("%s enabled!", this.getName()));
+        this.enabling = false;
     }
 
     /**
      * Register all Jump plugin commands
+     * @param jumpCommand /jump
+     * @param jumpsCommand /jumps
+     * @param checkpointCommand /checkpoint
      */
     @Inject
     private void registerCommands(
@@ -119,6 +118,12 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         checkpointCommand.register();
     }
 
+    /**
+     * Register permanent plugin listeners
+     * @param plateListener game trigger
+     * @param playerListener player join/quit
+     * @param platesProtectionListener plates protection
+     */
     @Inject
     private void registerListeners(
             PlateListener plateListener,
@@ -129,7 +134,30 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         platesProtectionListener.register();
     }
 
-    private void replacePlates() {
+    private void showJumpList() {
+        String[] jumps = this.jumpManager
+                .getJumps()
+                .keySet()
+                .toArray(new String[0]);
+        if (jumps.length == 0) this.getLogger().warning("No jump loaded");
+        else this.getLogger().info(String.format(
+                "Loaded the following jumps: %s",
+                String.join(", ", jumps)
+        ));
+
+        this.jumpManager
+                .getJumps()
+                .values()
+                .parallelStream()
+                .filter(jump -> jump.getWorld() == null)
+                .forEach(jump -> this.getLogger().warning(String.format(
+                        "The world of `%1$s` is not set or have changed, " +
+                                "please update it with `/jump setworld %1$s <world>`",
+                        jump.getName()
+                )));
+    }
+
+    public void replacePlates() {
         this.jumpManager.getJumps().values().forEach(jump -> {
             // Place blocks bellow plates
             jump.getStart()
@@ -179,6 +207,10 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         this.getLogger().info("Closing storage...");
         Optional.ofNullable(this.storage).ifPresent(Storage::close);
         this.disabling = false;
+    }
+
+    private void exportLocales() {
+        for (Locale locale : Text.AVAILABLE_LOCALES) this.exportDefaultResource(Text.localeToFileName(locale));
     }
 
     /**

@@ -136,6 +136,17 @@
             <version>1.18.12</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Dependency injection -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
+            <version>4.2.3</version>
+        </dependency>
         <!-- Dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -153,17 +164,7 @@
             <artifactId>mug</artifactId>
             <version>4.5</version>
         </dependency>
-        <dependency>
-            <!-- Dependency injection -->
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>4.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-assistedinject</artifactId>
-            <version>4.2.3</version>
-        </dependency>
+
         <dependency>
             <!-- Optimized local database -->
             <groupId>org.dizitart</groupId>

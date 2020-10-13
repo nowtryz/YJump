@@ -29,6 +29,9 @@ only_editor_action: "§6Jump Editor §e» §cVous devez être dans un éditeur p
 only_editor_command: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "§cSeul un joueur peut exécuter cette commande"
 unknown_command: "§cCommande inconnue ! Faites §o/jump help §r§c pour recevoir de l'aide."
+unknown_world: |-
+  §cIl n'existe aucun monde §3'%s'
+  §cLes mondes disponibles sont §7%s§c.
 help:
   header: "§e§m=  §r§e» §6§lYJump §m §r §6Aide §r§e«§m  ="
   command:
@@ -40,6 +43,7 @@ cmd:
     edit: "/jump edit <nom du jump>"
     create: "/jump create <nom du jump>"
     rename: "/jump rename <nouveau nom>"
+    setworld: "/jump setworld <nom du jump> <nom du monde>"
     #setdesc: "" ## Même qu'en anglais
   description:
     addcheckpoint: "Ajoute un checkpoit au jump en cours d'éditon"
@@ -61,6 +65,9 @@ cmd:
     setitem:       "Définit l'item en main comme 'logo' du jump"
     setspawn:      "Définit le spawn du jump"
     setstart:      "Définit le bloc de départ du jump"
+    setworld:      "Change le monde dans lequel est enregistré le jump"
+  success:
+    setworld: "§6Jump Editor §e» §7§oLe jump §f%s§7§o est désormais sur le monde §f%s§7§o !"
 editor:
   header: "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="
   title: "§aVous êtes en train d'éditer §e%s§a."
@@ -100,27 +107,36 @@ inventory:
   info:
     title: "§e§lInformation » §8%s"
     name:
+      icon: "§b§l» §r§6Icône"
       checkpoint: "§b§l» §r§6Checkpoint"
       spawn: "§b§l» §r§6Point de spawn"
       start: "§b§l» §r§6Point de départ"
       end: "§b§l» §r§6Point d'arrivée"
       fall: "§b§l» §r§6Distance de chute"
+      world: "§b§l» §r§6Monde"
     lore:
       fall: "§e%dm"
+      world: "§e%s"
+      icon: "§e%s"
+      world_not_set: |-
+        §cLe monde n'a pas été définit
+
+        §7Vous pouvez utiliser §f§o/jump setword
+        §f§o%s <monde>§r §7pour corriger cela
+
       not_set: "§c ce point n'a pas été définit."
-      set:
-        - ""
-        - "§aPoint définit."
-        - ""
-        - "§7§m                                       "
-        - ""
-        - " §f§l» §eX §7: §6§l%d"
-        - " §f§l» §eY §7: §6§l%d"
-        - " §f§l» §eZ §7: §6§l%d"
-        - ""
-        - "§eCliquez pour vous y téléporter"
-        - ""
-        - "§7§m                                       "
+      set: |-
+        §aPoint définit.
+
+        §7§m                                       §r
+
+        §f§l» §eX §7: §6§l%d
+        §f§l» §eY §7: §6§l%d
+        §f§l» §eZ §7: §6§l%d
+
+        §eCliquez pour vous y téléporter
+
+        §7§m                                       §r
 
   list:
     title: "Liste des Jumps"

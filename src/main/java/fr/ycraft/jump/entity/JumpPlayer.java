@@ -6,17 +6,21 @@ import lombok.Getter;
 import java.util.*;
 
 
+@Getter
 public class JumpPlayer extends HashMap<Jump, List<TimeScore>> {
-    @Getter
     private final UUID id;
+    private final String name;
 
-    public JumpPlayer(UUID id) {
+    public JumpPlayer(UUID id, String name) {
+        super();
         this.id = id;
+        this.name = name;
     }
 
-    public JumpPlayer(UUID id, Map<? extends Jump, ? extends List<TimeScore>> scores) {
+    public JumpPlayer(UUID id, String name, Map<? extends Jump, ? extends List<TimeScore>> scores) {
         super(scores);
         this.id = id;
+        this.name = name;
     }
 
     @Override

@@ -94,7 +94,7 @@ public class FlatFileStorage implements StorageImplementation {
             }
 
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
-            return new JumpPlayer(player.getUniqueId(), BiStream.from(this.plugin.getJumpManager().getJumps())
+            return new JumpPlayer(player.getUniqueId(), player.getName(), BiStream.from(this.plugin.getJumpManager().getJumps())
                     .inverse()
                     .mapValues(conf::getLongList)
                     .mapValues(list -> list.parallelStream()

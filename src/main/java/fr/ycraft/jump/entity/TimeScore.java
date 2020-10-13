@@ -10,9 +10,14 @@ import org.bukkit.command.CommandSender;
 @ToString
 @EqualsAndHashCode(exclude = {"millis", "seconds", "minutes"})
 public class TimeScore {
-    private final long duration, millis, seconds, minutes;
+    private final long duration, millis, seconds, minutes, date;
 
     public TimeScore(long duration) {
+        this(duration, System.currentTimeMillis());
+    }
+
+    public TimeScore(long duration, long date) {
+        this.date = date;
         this.duration = duration;
         this.millis = duration % 1000;
         this.seconds = (duration / 1000) % 60;

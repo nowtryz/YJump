@@ -61,10 +61,11 @@ parkour:
 # Storages properties
 storage:
   # Implementation to use, either:
-  #  - yaml (fallback if not recognized)
-  #  - mysql
+  #  - nitrite: A powerful NoSQL database using the H2's storage engine (fallback if not recognized)
+  #  - yaml:    The ugly yaml files you all know
+  #  - mysql:   Another ugly storage but well... it's a remote one
   #  - ... (more coming soon)
-  implementation: "yml"
+  implementation: "no2"
   # Server properties if the implementation is a remote database
   remote:
     # IP of the server
@@ -78,3 +79,8 @@ storage:
     user: "root"
     # User's password
     pass: ""
+
+# Language, keep commented to use System's language
+# > this settings available in case you would need to override system configuration
+# > generally, you don't
+#locale: fr-FR

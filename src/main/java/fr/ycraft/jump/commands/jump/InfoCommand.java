@@ -5,7 +5,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.AbstractCommandImpl;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.EditorCommand;
-import fr.ycraft.jump.inventories.InfoInventory;
+import fr.ycraft.jump.inventories.InfoAdminInventory;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,10 +13,10 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class InfoCommand extends AbstractCommandImpl implements EditorCommand {
-    private final InfoInventory.Factory factory;
+    private final InfoAdminInventory.Factory factory;
 
     @Inject
-    InfoCommand(InfoInventory.Factory factory) {
+    InfoCommand(InfoAdminInventory.Factory factory) {
         super(CommandSpec.INFO);
         this.factory = factory;
     }

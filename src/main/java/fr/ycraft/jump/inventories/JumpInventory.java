@@ -12,6 +12,7 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.injection.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.nowtryz.mcutils.ItemStackUtil;
@@ -26,7 +27,6 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -59,15 +59,15 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
 
     private final Jump jump;
     private final JumpPlayer jumpPlayer;
-    private final InfoInventory.Factory factory;
+    private final InfoAdminInventory.Factory factory;
 
     @Inject
     JumpInventory(JumpPlugin plugin,
-                         InfoInventory.Factory factory,
-                         @Assisted Player player,
-                         @Assisted JumpPlayer jumpPlayer,
-                         @Assisted Jump jump,
-                         @Assisted @Nullable Gui back) {
+                  InfoAdminInventory.Factory factory,
+                  @Assisted Player player,
+                  @Assisted JumpPlayer jumpPlayer,
+                  @Assisted Jump jump,
+                  @Assisted @Nullable Gui back) {
         super(plugin, player, back);
         this.factory = factory;
         this.jumpPlayer = jumpPlayer;

@@ -2,6 +2,7 @@ package fr.ycraft.jump.storage;
 
 import fr.ycraft.jump.storage.implementations.FlatFileStorage;
 import fr.ycraft.jump.storage.implementations.MySQLStorage;
+import fr.ycraft.jump.storage.implementations.NitriteStorage;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,9 +14,10 @@ import java.util.Arrays;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public enum StorageType {
     YAML(FlatFileStorage.class, "YAML flat files", "YAML", "YML", "flatfile", "flat", "file"),
-    MYSQL(MySQLStorage.class, "MYSQL database", "mysql", "sql");
+    MYSQL(MySQLStorage.class, "MYSQL database", "mysql", "sql"),
+    NITRITE(NitriteStorage.class, "Nitrite Database", "nitrite", "nitrite-database", "nitrite-java", "noo", "no2");
 
-    public static final StorageType DEFAULT = YAML;
+    public static final StorageType DEFAULT = NITRITE;
 
     String name;
     String[] keyWords;

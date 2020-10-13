@@ -1,6 +1,7 @@
 package fr.ycraft.jump;
 
 import com.google.common.base.Charsets;
+import fr.ycraft.jump.configuration.Key;
 import net.nowtryz.mcutils.api.Translation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -27,11 +29,14 @@ public enum Text implements Translation {
     CHECKPOINT_VALIDATED("game.checkpoint", "Checkpoint validated"),
     GAME_MISSING_CHECKPOINT("game.missing_checkpoint", "You must validate all checkpoints"),
     CHRONO_RESET("game.reset", "The chrono has been reset"),
+    UNKNOWN_WORLD("unknown_world", "There isn't any world with the name '%s'\n available worlds are %s"),
     CLICK("click", "Click to execute"),
     COMMAND_ERROR("command_error", "Unable to execute command"),
+    SUCCESS_WORLD_SET("cmd.success.setworld", "World of %s has been set to %s!"),
     CREATE_USAGE("cmd.usage.create", "/jump create <name>"),
     DELETED("deleted", "%s deleted"),
     DELETE_USAGE("cmd.usage.delete", "/jump delete <name>"),
+    SET_WORLD_USAGE("cmd.usage.setworld", "/jump setworld <jump> <world name>"),
     DESCRIPTION_UPDATED("editor.updated.description", "Description updated"),
     DESC_ADD_CHECKPOINT("cmd.description.addcheckpoint", "Adds a checkpoint to the jump currentmy edited"),
     DESC_CHECKPOINT("cmd.description.checkpoint", "Teleport to last checkpoint"),
@@ -47,6 +52,7 @@ public enum Text implements Translation {
     DESC_RELOAD("cmd.description.reload", "Reload jump configurations and files"),
     DESC_RENAME("cmd.description.rename", "Rename the jump currently edited"),
     DESC_SAVE("cmd.description.save", "Saves jump and stops the edit mode"),
+    DESC_SET_WORLD("cmd.description.setworld", "Change the world in which is registered the specified jump"),
     DESC_SET_DESCRIPTION("cmd.description.setdesc", "Change the jump description"),
     DESC_SET_END("cmd.description.setend", "Sets the end location of the currently edited jump"),
     DESC_SET_ITEM("cmd.description.setitem", "Sets the item you're holding as the 'logo' of the currently edited jump"),
@@ -73,8 +79,13 @@ public enum Text implements Translation {
     HELP_HEADER("help.header", "Jump help:"),
     INFO_CHECKPOINT_NAME("inventory.info.name.checkpoint", "Checkpoint"),
     INFO_END_NAME("inventory.info.name.end", "spawn"),
+    INFO_ICON_NAME("inventory.info.name.icon", "icon"),
+    INFO_ICON_LORE("inventory.info.lore.icon", "%s"),
     INFO_FALL_LORE("inventory.info.lore.fall", "%dm"),
     INFO_FALL_NAME("inventory.info.name.fall", "spawn"),
+    INFO_WORLD_NAME("inventory.info.name.world", "world"),
+    INFO_WORLD_LORE("inventory.info.lore.world", "%s"),
+    INFO_WORLD_NOT_SET("inventory.info.lore.world_not_set", "Not set\nUse /jump setworld %s <world>"),
     INFO_POINT_NOT_SET_LORE("inventory.info.lore.not_set", "Point not set"),
     INFO_POINT_SET_LORE("inventory.info.lore.set", "Position set\nX=%.2f\nY=%.2f\nZ=%.2f"),
     INFO_SPAWN_NAME("inventory.info.name.spawn", "spawn"),
@@ -127,18 +138,38 @@ public enum Text implements Translation {
     USAGE("usage", ChatColor.RED + "Usage: %s");
 
 
-    private static final String DEFAULT_LANG = "fr-FR"; // may be change in config later
+    public static final Locale DEFAULT_LANG = Locale.FRANCE; // may be change in config later
+    public static final Locale[] AVAILABLE_LOCALES = {Locale.FRANCE};
+    public static final String LOCALES_FOLDER = "locales";
+
+    public static String localeToFileName(Locale locale) {
+        return LOCALES_FOLDER + "/" + locale.getLanguage() + "-" + locale.getCountry() + ".yml";
+    }
+
+    private static File localeToFile(JumpPlugin plugin, Locale locale) {
+       return new File(plugin.getDataFolder(), localeToFileName(locale));
+    }
 
     /**
      * Initialize the translator base on the default language of the plugin
      * @param plugin the Bukkit plugin to get resources from
      */
     static void init(JumpPlugin plugin) {
-        String fileName = DEFAULT_LANG + ".yml";
+        Locale configuredLocale = plugin.getConfigProvider().get(Key.LOCALE);
+        boolean available = Arrays.asList(AVAILABLE_LOCALES).contains(configuredLocale);
+
+        if (!available) plugin.getLogger().warning(
+                configuredLocale.getDisplayLanguage(Locale.ENGLISH) +
+                "is not available, switching to " +
+                DEFAULT_LANG.getDisplayLanguage(Locale.ENGLISH));
+        else plugin.getLogger().info("Using translations for " + configuredLocale.getDisplayLanguage(Locale.ENGLISH));
+
+        Locale locale = available ? configuredLocale : DEFAULT_LANG;
+        String fileName =localeToFileName(locale);
 
         try (InputStream resource = plugin.getResource(fileName)) {
             File file = new File(plugin.getDataFolder(), fileName);
-            Validate.notNull(resource, String.format("Unable to find language file for '%s'", DEFAULT_LANG));
+            Validate.notNull(resource, String.format("Unable to find language file for '%s'", locale));
             FileConfiguration lang = YamlConfiguration.loadConfiguration(file);
             lang.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
             Arrays.stream(Text.values()).forEach(text -> text.init(lang));

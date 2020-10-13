@@ -14,6 +14,7 @@ public enum CommandSpec {
     DELETE(JUMP, "delete", Perm.EDIT, Text.DESC_DELETE, Text.DELETE_USAGE),
     HELP(JUMP, "help", Perm.HELP, Text.DESC_HELP),
     SAVE(JUMP, "save", Perm.EDIT, Text.DESC_SAVE, Text.SAVE_USAGE),
+    SET_WORLD(JUMP, "setworld", Perm.EDIT, Text.DESC_SET_WORLD, Text.SET_WORLD_USAGE),
     LIST(JUMP, "list", Perm.ADMIN_LIST, Text.DESC_LIST, Text.LIST_USAGE),
     LEAVE(JUMP, "leave", Perm.PLAY, Text.DESC_LEAVE, Text.LEAVE_USAGE),
     SET_SPAWN(JUMP, "setspawn", Perm.EDIT, Text.DESC_SET_SPAWN),

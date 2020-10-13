@@ -95,7 +95,9 @@ public class JumpManager extends AbstractManager {
     }
 
     public Jump createAndSave(String name) {
-        Jump jump = new Jump(name);
+        Jump jump =Jump.builder()
+                .name(name)
+                .build();
         this.storage.storeJump(jump);
         this.jumps.put(name, jump);
         return jump;

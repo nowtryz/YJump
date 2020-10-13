@@ -64,12 +64,12 @@ public class JumpGame {
 
     @Inject
     JumpGame(Config config,
-                    PlayerManager playerManager,
-                    GameManager gameManager,
-                    Storage storage,
-                    JumpPlugin plugin,
-                    @Assisted Jump jump,
-                    @Assisted Player player) {
+             PlayerManager playerManager,
+             GameManager gameManager,
+             Storage storage,
+             JumpPlugin plugin,
+             @Assisted Jump jump,
+             @Assisted Player player) {
 
         Optional<JumpPlayer> jumpPlayer = playerManager.getPlayer(player);
         assert jump.getStart().isPresent();
