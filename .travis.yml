@@ -7,7 +7,8 @@ cache:
 deploy:
   provider: releases
   file_glob: true
-  file: "target/Enforcer-*.jar"
+  file: "target/YJump-*.jar"
+
   cleanup: false
   edge: true
   draft: true

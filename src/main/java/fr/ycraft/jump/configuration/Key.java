@@ -32,6 +32,7 @@ public final class Key<T> implements Comparable<Key<?>> {
     // game settings
     public static final Key<Long> RESET_TIME = longKey("game.reset time");
     public static final Key<Integer> MAX_FALL_DISTANCE = intKey("game.max fall distance");
+    public static final Key<Boolean> DISABLE_COLLISIONS = booleanKey("game.disable collisions", false);
     public static final Key<Boolean> RESET_ENCHANTS = booleanKey("game.reset enchants");
     public static final Key<BarColor> BOSS_BAR_COLOR = barColorKey("game.bossbar", BarColor.GREEN);
     public static final Key<List<String>> ALLOWED_COMMANDS = stringListKey("game.allowed commands");

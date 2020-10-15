@@ -22,6 +22,9 @@ game:
   reset time: 1000
   # Max fall distance before teleport the player to its last checkpoint (-1 to disable)
   max fall distance: 5
+  # Weather or not the plugin must disable collisions between player on the same parkour
+  # Note: still collides with other entities and players
+  disable collisions: no
   # Reset enchantments when a player begin a jump
   reset enchants: yes
   # color of the bossbar (possible values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)

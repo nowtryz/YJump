@@ -58,7 +58,7 @@ public class JumpGame {
     private Scoreboard scoreboard;
     private Score timer, checkpoints;
     private long resetTime;
-    private boolean ended = false;
+    private boolean ended = false, wasCollidable = true;
     private long start;
     private Location checkpoint;
 
@@ -94,6 +94,8 @@ public class JumpGame {
         assert Bukkit.isPrimaryThread();
         Text.ENTER_GAME.send(player, jump.getName());
 
+        this.wasCollidable = this.player.isCollidable();
+        if (this.config.get(Key.DISABLE_COLLISIONS)) this.player.setCollidable(false);
         if (!this.canFly) player.setFlying(false);
         if (this.config.get(Key.RESET_ENCHANTS)) player
                 .getActivePotionEffects()
@@ -269,10 +271,12 @@ public class JumpGame {
 
     public void stop() {
         if (!this.ended) Text.LEFT_JUMP.send(this.player);
+        this.player.setCollidable(this.wasCollidable);
         this.bossBar.removeAll();
         this.player.setScoreboard(this.originalScoreboard);
         this.objective.unregister();
         this.bukkitTask.cancel();
+
 //        this.bossBar = null;
     }
 }
