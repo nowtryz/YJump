@@ -27,16 +27,12 @@ public enum Text implements Translation {
     CHECKPOINT_ADDED("editor.updated.checkpoint", "Checkpoint added for %s"),
     CHECKPOINT_DELETED("editor.delete_checkpoint", "Checkpoint deleted"),
     CHECKPOINT_VALIDATED("game.checkpoint", "Checkpoint validated"),
-    GAME_MISSING_CHECKPOINT("game.missing_checkpoint", "You must validate all checkpoints"),
     CHRONO_RESET("game.reset", "The chrono has been reset"),
-    UNKNOWN_WORLD("unknown_world", "There isn't any world with the name '%s'\n available worlds are %s"),
     CLICK("click", "Click to execute"),
     COMMAND_ERROR("command_error", "Unable to execute command"),
-    SUCCESS_WORLD_SET("cmd.success.setworld", "World of %s has been set to %s!"),
     CREATE_USAGE("cmd.usage.create", "/jump create <name>"),
     DELETED("deleted", "%s deleted"),
     DELETE_USAGE("cmd.usage.delete", "/jump delete <name>"),
-    SET_WORLD_USAGE("cmd.usage.setworld", "/jump setworld <jump> <world name>"),
     DESCRIPTION_UPDATED("editor.updated.description", "Description updated"),
     DESC_ADD_CHECKPOINT("cmd.description.addcheckpoint", "Adds a checkpoint to the jump currentmy edited"),
     DESC_CHECKPOINT("cmd.description.checkpoint", "Teleport to last checkpoint"),
@@ -52,12 +48,12 @@ public enum Text implements Translation {
     DESC_RELOAD("cmd.description.reload", "Reload jump configurations and files"),
     DESC_RENAME("cmd.description.rename", "Rename the jump currently edited"),
     DESC_SAVE("cmd.description.save", "Saves jump and stops the edit mode"),
-    DESC_SET_WORLD("cmd.description.setworld", "Change the world in which is registered the specified jump"),
     DESC_SET_DESCRIPTION("cmd.description.setdesc", "Change the jump description"),
     DESC_SET_END("cmd.description.setend", "Sets the end location of the currently edited jump"),
     DESC_SET_ITEM("cmd.description.setitem", "Sets the item you're holding as the 'logo' of the currently edited jump"),
     DESC_SET_SPAWN("cmd.description.setspawn", "Sets the spawn of the jump currently edited jump"),
     DESC_SET_START("cmd.description.setstart", "Sets the start block of the currently edited jump"),
+    DESC_SET_WORLD("cmd.description.setworld", "Change the world in which is registered the specified jump"),
     EDITOR_NO_GAME("editor.cannot_start_game", "You cannot start a jump while in editor"),
     EDITOR_ONLY_ACTION("only_editor_action", "You must be in an editor to perform this action"),
     EDITOR_ONLY_COMMAND("only_editor_command", "You must be in an editor to perform this command"),
@@ -74,23 +70,24 @@ public enum Text implements Translation {
     ENTER_EDITOR_INFO_SPAWN("editor.enter.spawn", "To set the spawn, do ") /* usage */,
     ENTER_GAME("game.enter", "You've stated the jump %s"),
     GAME_BOSSBAR("game.bossbar", "Jump %s > %d/%d"),
+    GAME_MISSING_CHECKPOINT("game.missing_checkpoint", "You must validate all checkpoints"),
     HEADER_EDITOR("editor.header", "===== Jump Editor ====="),
     HELP_COMMAND("help.command", "%s\n  %s"),
     HELP_HEADER("help.header", "Jump help:"),
     INFO_CHECKPOINT_NAME("inventory.info.name.checkpoint", "Checkpoint"),
     INFO_END_NAME("inventory.info.name.end", "spawn"),
-    INFO_ICON_NAME("inventory.info.name.icon", "icon"),
-    INFO_ICON_LORE("inventory.info.lore.icon", "%s"),
     INFO_FALL_LORE("inventory.info.lore.fall", "%dm"),
     INFO_FALL_NAME("inventory.info.name.fall", "spawn"),
-    INFO_WORLD_NAME("inventory.info.name.world", "world"),
-    INFO_WORLD_LORE("inventory.info.lore.world", "%s"),
-    INFO_WORLD_NOT_SET("inventory.info.lore.world_not_set", "Not set\nUse /jump setworld %s <world>"),
+    INFO_ICON_LORE("inventory.info.lore.icon", "%s"),
+    INFO_ICON_NAME("inventory.info.name.icon", "icon"),
     INFO_POINT_NOT_SET_LORE("inventory.info.lore.not_set", "Point not set"),
     INFO_POINT_SET_LORE("inventory.info.lore.set", "Position set\nX=%.2f\nY=%.2f\nZ=%.2f"),
     INFO_SPAWN_NAME("inventory.info.name.spawn", "spawn"),
     INFO_START_NAME("inventory.info.name.start", "spawn"),
     INFO_TITLE("inventory.info.title", "Information: %s"),
+    INFO_WORLD_LORE("inventory.info.lore.world", "%s"),
+    INFO_WORLD_NAME("inventory.info.name.world", "world"),
+    INFO_WORLD_NOT_SET("inventory.info.lore.world_not_set", "Not set\nUse /jump setworld %s <world>"),
     ITEM_AIR("editor.set_air_item", "Seriously?"),
     ITEM_UPDATED("editor.updated.item", "Item updated to %s"),
     JUMP_ALREADY_EXISTS("already_exists", "This jump already exist"),
@@ -112,12 +109,15 @@ public enum Text implements Translation {
     LEFT_JUMP("game.left_command", "You left the jump"),
     LEFT_JUMP_ERROR("game.left", "You left the jump: %s"),
     LIST_USAGE("/jump list"),
+    NAME_UPDATED("editor.updated.name", "Jump renamed to %s"),
+    NEXT_PAGE("inventory.next", "Next page (%d/%d)"),
     NO_COMMANDS("game.no_command", "no commands"),
     NO_FLY("game.no_flight", "no flight allowed"),
     NO_PERM("noperm", "§cYou don't have de permission to execute this command"),
     NO_SPAWN("editor.nospawn", "This jump has no spawn location yet"),
     ONLY_GAME_COMMAND("only_game_command", "You must be on a jump to performe this command"),
     ONLY_PLAYER_COMMAND("only_player_command", "Only players can execute tis command"),
+    PREVIOUS_PAGE("inventory.previous", "Previous page (%d/%d)"),
     QUIT_EDITOR("editor.quit", "you left the editor"),
     RELOADED("reloaded", "Plugin reloaded"),
     RENAME_USAGE("cmd.usage.rename", "/jump rename <new name>"),
@@ -128,13 +128,15 @@ public enum Text implements Translation {
     SCOREBOARD_TIMER_HEADER("game.scoreboard.timer.header", "Time:"),
     SCOREBOARD_TIMER_VALUE("game.scoreboard.timer.value", "  %02d'%02d''%02d"),
     SET_DESCRIPTION_USAGE("cmd.usage.setdesc", "/jump setdesc <description>"),
+    SET_WORLD_USAGE("cmd.usage.setworld", "/jump setworld <jump> <world name>"),
     SPAWN_UPDATED("editor.updated.spawn", "Spawn updated for %s"),
     START_UPDATED("editor.updated.start", "Start position updated for %s"),
-    NAME_UPDATED("editor.updated.name", "Jump renamed to %s"),
+    SUCCESS_WORLD_SET("cmd.success.setworld", "World of %s has been set to %s!"),
     TOP_INVENTORY_TITLE("inventory.top.name", "TOP 10"),
     TOP_SCORE_LORE("inventory.top.score.lore", "%1$s\n%3$02d'%4$02d''%5$03d"),
     TOP_SCORE_TITLE("inventory.top.score.name", "TOP %2$d"),
     UNKNOWN_COMMAND("unknown_command", ChatColor.RED + "Unknown Command"),
+    UNKNOWN_WORLD("unknown_world", "There isn't any world with the name '%s'\n available worlds are %s"),
     USAGE("usage", ChatColor.RED + "Usage: %s");
 
 
@@ -147,7 +149,7 @@ public enum Text implements Translation {
     }
 
     private static File localeToFile(JumpPlugin plugin, Locale locale) {
-       return new File(plugin.getDataFolder(), localeToFileName(locale));
+        return new File(plugin.getDataFolder(), localeToFileName(locale));
     }
 
     /**
@@ -160,12 +162,12 @@ public enum Text implements Translation {
 
         if (!available) plugin.getLogger().warning(
                 configuredLocale.getDisplayLanguage(Locale.ENGLISH) +
-                "is not available, switching to " +
-                DEFAULT_LANG.getDisplayLanguage(Locale.ENGLISH));
+                        "is not available, switching to " +
+                        DEFAULT_LANG.getDisplayLanguage(Locale.ENGLISH));
         else plugin.getLogger().info("Using translations for " + configuredLocale.getDisplayLanguage(Locale.ENGLISH));
 
         Locale locale = available ? configuredLocale : DEFAULT_LANG;
-        String fileName =localeToFileName(locale);
+        String fileName = localeToFileName(locale);
 
         try (InputStream resource = plugin.getResource(fileName)) {
             File file = new File(plugin.getDataFolder(), fileName);

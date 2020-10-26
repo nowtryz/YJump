@@ -14,7 +14,7 @@ import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
-import fr.ycraft.jump.inventories.JumpInventory;
+import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
 import fr.ycraft.jump.listeners.PlatesProtectionListener;
 import fr.ycraft.jump.listeners.PlayerListener;
@@ -23,6 +23,7 @@ import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
+import fr.ycraft.jump.templates.Patterns;
 import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
@@ -36,6 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -76,23 +78,26 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     public void onEnable() {
         this.enabling = true;
         super.saveDefaultConfig();
-        this.exportDefaultResource(Text.LOCALES_FOLDER);
+        Arrays.stream(Text.AVAILABLE_LOCALES).map(Text::localeToFileName).forEach(this::exportDefaultResource);
+        Arrays.stream(Patterns.values())
+                .map(Patterns::getFileName)
+                .map(s -> Patterns.FOLDER_NAME + '/' + s)
+                .forEach(this::exportDefaultResource);
 
         this.prod = !this.getDescription().getVersion().contains("SNAPSHOT");
         // This will created the injector and inject all required objects to the plugin
         this.injector = Guice.createInjector(
                 isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
                 new JumpModule(this),
-                new BukkitModule<>(this, JumpPlugin.class)
+                new BukkitModule<>(this, JumpPlugin.class),
+                new TemplatesModule(this)
         );
 
         Text.init(this);
         ItemLibrary.init();
-        JumpInventory.init(this);
+//        JumpInventory.init(this);
         MetricsUtils.init(this);
         Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
-
-
 
         this.storage.init();
         this.jumpManager.init();

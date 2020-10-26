@@ -189,7 +189,7 @@ public class NitriteStorage implements StorageImplementation {
                 .spawn(document.get(Jump.SPAWN, Position.class))
                 .start(document.get(Jump.START, Position.class))
                 .end(document.get(Jump.END, Position.class))
-                .checkpoints((List<Position>) document.get(Jump.CHECKPOINTS, List.class))
+                .checkpoints(new ArrayList<>((List<Position>) document.get(Jump.CHECKPOINTS, List.class)))
                 .bestScores(playerScores)
                 .item(ItemStack.deserialize((Map<String, Object>) document.get(Jump.ITEM, Map.class)))
                 .build();

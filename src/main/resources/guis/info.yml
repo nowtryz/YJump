@@ -1,0 +1,45 @@
+# A list of single-character keys used to describe a pattern for inventory guis.
+# Each row in the inventory is one string in this list containing 9 keys.
+pattern:
+  - "# # # # # # # # #"
+  - "# # _ _ _ _ _ # #"
+  - "# _ _ T _ P _ _ #"
+  - "# _ _ _ J _ _ _ #"
+  - "# # S _ _ _ _ # #"
+  - "# # # # ^ # # # #"
+
+# All keys used for this inventory gui.
+keys:
+  # Fillers
+  '#': &filler
+    material: stained glass pane
+    color: white
+    name: "&f"
+  # Air
+  '_': &void
+    material: air
+  # Top ten
+  'T':
+    material: watch
+  # Settings
+  'S':
+    material: command
+    fallback: *void
+  # Back
+  '^':
+    material: arrow
+    fallback: *filler
+  # Personnal scores
+  'P':
+    # The item do not matter, it will be overridden
+    material: air
+  # Teleport to parkour
+  'J':
+    material: compass
+
+hooks:
+  top 10:   'T'
+  player:   'P'
+  tp:       'J'
+  back:     '^'
+  settings: 'S'

@@ -1,0 +1,71 @@
+pattern:
+  - '# # # # # # # # #'
+  - '# I F W # S B E #'
+  - '# # # # # # # # #'
+  - '# - - - - - - - #'
+  - '# - - - - - - - #'
+  - '# # < # ^ # > # #'
+
+keys:
+  # Fillers
+  '#': &filler
+    material: stained glass pane
+    color: white
+    name: "&f"
+  # Previous page
+  '<':
+    skull:
+      data:
+        eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNj
+        llYTFkODYyNDdmNGFmMzUxZWQxODY2YmNhNmEzMDQwYTA2YzY4MTc3Yzc4ZTQyMzE2YTEwOThlNjBmYjdkMyJ9fX0=
+    fallback: *filler
+  # Next page
+  '>':
+    skull:
+      data:
+        eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOD
+        I3MWE0NzEwNDQ5NWUzNTdjM2U4ZTgwZjUxMWE5ZjEwMmIwNzAwY2E5Yjg4ZTg4Yjc5NWQzM2ZmMjAxMDVlYiJ9fX0=
+    fallback: *filler
+  # Back
+  '^':
+    material: arrow
+  # Checkpoints
+  # We need to give which item to display if there is no checkpoints
+  '-':
+    material: air
+  # Icon - do not matter
+  'I':
+    material: air
+  # Falling distance
+  'F':
+    material: bed
+    color: red
+  # World - do not matter
+  # Overridden based on world type
+  'W':
+    material: air
+    fallback:
+      material: barrier
+  # Spawn
+  'S':
+    material: compass
+  # Start - do not matter
+  # Ovverridden to start plate material
+  'B':
+    material: air
+  # End - do not matter
+  # Ovverridden to end plate material
+  'E':
+    material: air
+
+hooks:
+  icon: 'I'
+  fall distance: 'F'
+  world: 'W'
+  spawn: 'S'
+  start: 'B'
+  end: 'E'
+  previous: '<'
+  next: '>'
+  back: '^'
+  checkpoints: '-'

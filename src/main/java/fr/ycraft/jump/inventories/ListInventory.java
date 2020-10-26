@@ -7,58 +7,47 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
-import net.nowtryz.mcutils.inventory.AbstractGui;
+import fr.ycraft.jump.manager.JumpManager;
+import fr.ycraft.jump.templates.Pattern;
+import fr.ycraft.jump.templates.TemplatedPaginatedGui;
+import net.nowtryz.mcutils.builders.ItemBuilder;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import javax.inject.Named;
 import java.util.List;
 
-public class ListInventory extends AbstractGui<JumpPlugin> {
+public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     private final JumpPlayer jumpPlayer;
     private final JumpInventory.Factory factory;
 
     @Inject
     ListInventory(JumpPlugin plugin,
+                  JumpManager manager,
                   JumpInventory.Factory factory,
+                  @Named("LIST") Pattern pattern,
                   @Assisted JumpPlayer jumpPlayer,
                   @Assisted Player player) {
-        super(plugin, player);
+        super(plugin, player, null, pattern, Text.JUMP_LIST_INVENTORY.get());
         this.jumpPlayer = jumpPlayer;
         this.factory = factory;
 
-        int jumpCount = plugin.getJumpManager().getJumps().size();
-        int size = jumpCount - jumpCount % 9 + 9;
-        Inventory inventory = Bukkit.createInventory(player, size, Text.JUMP_LIST_INVENTORY.get());
-        plugin.getJumpManager()
-                .getJumps()
-                .values()
-                .stream()
-                .filter(jump -> jump.getStart().isPresent())
-                .map(this::jumpToItem)
-                .peek(pair -> registerJump(pair.getRight(), pair.getLeft()))
-                .map(Pair::getRight)
-                .forEach(inventory::addItem);
-
-        this.setInventory(inventory);
+        // Pagination
+        super.setHooks("next", "previous", "jumps");
+        super.setValues(manager.getJumps().values());
     }
 
-    private Pair<Jump, ItemStack> jumpToItem(Jump jump) {
+    @Override
+    protected @NotNull ItemStack createItemForObject(ItemBuilder<?> ignored, Jump jump) {
         List<TimeScore> scores = this.jumpPlayer.get(jump);
-        ItemStack itemStack = jump.getItem().clone();
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        itemMeta.setDisplayName(Text.JUMP_LIST_HEADER.get(jump.getName()));
+        ItemBuilder<ItemMeta> builder = ItemBuilder.from(jump.getItem())
+                .setDisplayName(Text.JUMP_LIST_HEADER, jump.getName());
 
         String description = jump.getDescription()
                 .map(desc -> WordUtils.wrap(
@@ -75,27 +64,39 @@ public class ListInventory extends AbstractGui<JumpPlugin> {
                 .orElse(0d);
 
         if (scores.isEmpty()) {
-            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_NEVER_DONE_LORE.get(description, distance).split(StringUtils.LF)));
+            builder.setLore(Text.JUMP_LIST_NEVER_DONE_LORE, description, distance);
         } else {
             TimeScore score = scores.get(0);
-            itemMeta.setLore(Arrays.asList(Text.JUMP_LIST_DONE_LORE.get(
-                description,
-                distance,
-                score.getMinutes(),
-                score.getSeconds(),
-                score.getMillis()
-            ).split(StringUtils.LF)));
-            itemMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
-            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            builder.setLore(
+                        Text.JUMP_LIST_DONE_LORE,
+                        description,
+                        distance,
+                        score.getMinutes(),
+                        score.getSeconds(),
+                        score.getMillis())
+                    .setGlowing();
         }
 
-        itemStack.setItemMeta(itemMeta);
-        return new ImmutablePair<>(jump, itemStack);
+        return builder.build();
     }
 
-    private void registerJump(ItemStack itemStack, Jump jump) {
-        super.addClickableItem(itemStack, event ->
-                this.factory.create(this.player, this.jumpPlayer, jump, this).open());
+    @Override
+    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder<?> builder) {
+        return builder
+                .setDisplayName(Text.PREVIOUS_PAGE, this.getPage(), this.getCount())
+                .build();
+    }
+
+    @Override
+    protected @NotNull ItemStack buildNextIcon(ItemBuilder<?> builder) {
+        return builder
+                .setDisplayName(Text.NEXT_PAGE, this.getPage() + 2, this.getCount())
+                .build();
+    }
+
+    @Override
+    protected void onClick(InventoryClickEvent event, Jump jump) {
+        this.factory.create(this.player, this.jumpPlayer, jump, this).open();
     }
 
     public interface Factory {

@@ -8,39 +8,30 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.injection.Nullable;
+import fr.ycraft.jump.templates.*;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
-import net.nowtryz.mcutils.inventory.AbstractGui;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static fr.ycraft.jump.util.ItemLibrary.BACK;
-import static fr.ycraft.jump.util.ItemLibrary.WHITE_FILLER;
 import static net.nowtryz.mcutils.builders.ItemBuilder.create;
 
-public class InfoAdminInventory extends AbstractGui<JumpPlugin> {
-    private static final int INVENTORY_SIZE = 54;
-    private static final List<Integer> panePos = Stream.iterate(0, i->i+1)
-            .limit(INVENTORY_SIZE)
-            .filter(i -> i/9 == 0 || i/9 == 2 || i/9 == 5 || i%9 == 0 || i%9 == 8 || i == 13)
-            .collect(Collectors.toList());
-    private static final List<Integer> checkpointsPos = Stream.iterate(3*9, i->i+1)
-            .limit(5*9)
-            .filter(i -> i%9 != 0 && i%9 != 8)
-            .collect(Collectors.toList());
-
+public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Position> {
     private static Material getIcon(World world) {
         if (world == null) return Material.BARRIER;
         switch (world.getEnvironment()) {
@@ -53,22 +44,28 @@ public class InfoAdminInventory extends AbstractGui<JumpPlugin> {
     }
 
     private final Jump jump;
+    private final Config config;
 
     @Inject
     InfoAdminInventory(JumpPlugin plugin,
                        Config config,
+                       @Named("ADMIN") Pattern pattern,
                        @Assisted Player player,
                        @Assisted Jump jump,
                        @Assisted @Nullable Gui back) {
 
-        super(plugin, player, back);
+        super(plugin, player, back, pattern, Text.INFO_TITLE.get(jump.getName()));
+        this.config = config;
         this.jump = jump;
 
-        Inventory inventory = Bukkit.createInventory(player, INVENTORY_SIZE, Text.INFO_TITLE.get(jump.getName()));
-        this.setInventory(inventory);
-
+        // Basic gui
         List<String> notSet = Arrays.asList(Text.INFO_POINT_NOT_SET_LORE.get().split(StringUtils.LF));
-        ItemBuilder<?> spawn = create(Material.COMPASS)
+
+        @SuppressWarnings("unchecked")
+        ItemBuilder<?> spawn = pattern.getHook("spawn")
+                .map(PatternKey::builder)
+                .map(b -> (ItemBuilder<ItemMeta>) b)
+                .orElseGet(() -> create(Material.COMPASS))
                 .setDisplayName(Text.INFO_SPAWN_NAME);
         ItemBuilder<?> start = create(config.get(Key.START_MATERIAL))
                 .setDisplayName(Text.INFO_START_NAME);
@@ -98,55 +95,33 @@ public class InfoAdminInventory extends AbstractGui<JumpPlugin> {
         if (!jump.getStartPos().isPresent()) start.setLore(notSet);
         if (!jump.getEndPos().isPresent())   end.setLore(notSet);
 
+        this.builder
+                .hookBack("back",  b -> b.setDisplayName(Text.BACK))
+                .hook("icon", ItemBuilder.from(jump.getItem().clone())
+                        .setDisplayName(Text.INFO_ICON_NAME)
+                        .setLore(Text.INFO_ICON_LORE,
+                                jump.getItem().hasItemMeta() && jump.getItem().getItemMeta().getDisplayName() != null ?
+                                        jump.getItem().getItemMeta().getDisplayName() :
+                                        jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
+                        .addAllItemFlags()
+                        .build())
+                .hook("fall distance", (ItemProvider) b -> b
+                        .setDisplayName(Text.INFO_FALL_NAME)
+                        .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE)))
+                .hook("world", create(getIcon(jump.getWorld()))
+                        .setDisplayName(Text.INFO_WORLD_NAME)
+                        .setLore(Text.INFO_WORLD_LORE, Optional
+                                .ofNullable(jump.getWorld())
+                                .map(World::getName)
+                                .orElseGet(() -> Text.INFO_WORLD_NOT_SET.get(jump.getName()))
+                        ).build())
+                .hook("spawn", this::tpToSpawn, spawn.build())
+                .hook("start", this::tpToStart, start.build())
+                .hook("end",   this::tpToEnd,   end.build());
 
-        inventory.setItem(10, ItemBuilder.from(jump.getItem().clone())
-                .setDisplayName(Text.INFO_ICON_NAME)
-                .setLore(Text.INFO_ICON_LORE,
-                        jump.getItem().hasItemMeta() && jump.getItem().getItemMeta().getDisplayName() != null ?
-                        jump.getItem().getItemMeta().getDisplayName() :
-                        jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
-                .addAllItemFlags()
-                .build());
-        inventory.setItem(11, create(Material.BED)
-                .setWoolColor(DyeColor.WHITE)
-                .setDisplayName(Text.INFO_FALL_NAME)
-                .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE))
-                .build());
-        inventory.setItem(12, create(getIcon(jump.getWorld()))
-                .setDisplayName(Text.INFO_WORLD_NAME)
-                .setLore(Text.INFO_WORLD_LORE, Optional
-                    .ofNullable(jump.getWorld())
-                    .map(World::getName)
-                    .orElseGet(() -> Text.INFO_WORLD_NOT_SET.get(jump.getName()))
-                ).build());
-        this.addClickableItem(14, spawn.build(), this::tpToSpawn);
-        this.addClickableItem(15, start.build(), this::tpToStart);
-        this.addClickableItem(16, end.build(),   this::tpToEnd);
-
-        List<Position> checkpoints = jump.getCheckpointsPositions();
-        for (int i = 0; i < checkpoints.size() % checkpointsPos.size(); i++) {
-            Position position = checkpoints.get(i);
-            this.addClickableItem(checkpointsPos.get(i),
-                    create(Optional.ofNullable(jump.getWorld())
-                            .map(position::toLocation)
-                            .map(Location::getBlock)
-                            .map(block -> block.getRelative(BlockFace.DOWN))
-                            .map(Block::getType)
-                            .filter(m -> m != Material.AIR)
-                            .orElse(config.get(Key.CHECKPOINT_MATERIAL)))
-                            .setDisplayName(Text.INFO_CHECKPOINT_NAME)
-                            .setLore(Text.INFO_POINT_SET_LORE,
-                                    position.getX(),
-                                    position.getY(),
-                                    position.getZ())
-                            .build(),
-                    event -> this.teleport(position));
-        }
-
-        panePos.forEach(i -> inventory.setItem(i, WHITE_FILLER));
-
-        // if an inventory can handle a back arrow
-        super.registerBackItem(BACK, 49);
+        // Pagination
+        super.setHooks("next", "previous", "checkpoints");
+        super.setValues(jump.getCheckpointsPositions());
     }
 
     public void teleport(Position checkpoint) {
@@ -163,6 +138,42 @@ public class InfoAdminInventory extends AbstractGui<JumpPlugin> {
 
     public void tpToEnd(InventoryClickEvent event) {
         this.jump.getEnd().ifPresent(player::teleport);
+    }
+
+    @Override
+    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder<?> builder) {
+        return builder
+                .setDisplayName(Text.PREVIOUS_PAGE, this.getPage(), this.getCount())
+                .build();
+    }
+
+    @Override
+    protected @NotNull ItemStack buildNextIcon(ItemBuilder<?> builder) {
+        return builder
+                .setDisplayName(Text.NEXT_PAGE, this.getPage() + 2, this.getCount())
+                .build();
+    }
+
+    @Override
+    protected @NotNull ItemStack createItemForObject(ItemBuilder<?> builder, Position position) {
+        return create(Optional.ofNullable(jump.getWorld())
+                .map(position::toLocation)
+                .map(Location::getBlock)
+                .map(block -> block.getRelative(BlockFace.DOWN))
+                .map(Block::getType)
+                .filter(m -> m != Material.AIR)
+                .orElse(this.config.get(Key.CHECKPOINT_MATERIAL)))
+                .setDisplayName(Text.INFO_CHECKPOINT_NAME)
+                .setLore(Text.INFO_POINT_SET_LORE,
+                        position.getX(),
+                        position.getY(),
+                        position.getZ())
+                .build();
+    }
+
+    @Override
+    protected void onClick(InventoryClickEvent event, Position position) {
+        this.teleport(position);
     }
 
     public interface Factory {

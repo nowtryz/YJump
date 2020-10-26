@@ -104,6 +104,8 @@ editor:
     description: "§6Jump Editor §e» §7§oLa description a été mise à jour"
     name: "§6Jump Editor §e» §7§oLe jump a été renommé en %s."
 inventory:
+  previous: "§6§l» Page précédente §r§8(§7%d§8/§7%d§8)"
+  next: "§6§l» Page suivante §r§8(§7%d§8/§7%d§8)"
   info:
     title: "§e§lInformation » §8%s"
     name:

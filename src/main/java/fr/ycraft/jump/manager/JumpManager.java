@@ -1,5 +1,6 @@
 package fr.ycraft.jump.manager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.mu.util.stream.BiStream;
@@ -82,11 +83,12 @@ public class JumpManager extends AbstractManager {
 
         this.protectedLocations = protectedLocations.parallelStream()
                 .map(LocationUtil::toBlock)
-                .collect(Collectors.toList());
-        this.protectedWorlds = this.protectedLocations.parallelStream()
-                .map(Location::getWorld)
+                .collect(ImmutableList.toImmutableList());
+        this.protectedWorlds = jumps.parallelStream()
+                .map(Jump::getWorld)
+                .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(ImmutableList.toImmutableList());
     }
 
     public Optional<Jump> getJump(String name) {
