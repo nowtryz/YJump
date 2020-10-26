@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Jump</name>
-
+    <url>ycraft.fr</url>
     <description>Le Plugin de Jump d'YCraft</description>
 
     <properties>
@@ -19,7 +19,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <url>ycraft.fr</url>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -41,24 +40,8 @@
                     <minimizeJar>true</minimizeJar>
                     <relocations>
                         <relocation>
-                            <pattern>fr.mrmicky.fastboard</pattern>
-                            <shadedPattern>fr.ycraft.jump.fastboard</shadedPattern>
-                        </relocation>
-<!--                        <relocation>-->
-<!--                            <pattern>org.apache.commons</pattern>-->
-<!--                            <shadedPattern>fr.ycraft.jump</shadedPattern>-->
-<!--                        </relocation>-->
-                        <relocation>
-                            <pattern>com.mysql</pattern>
-                            <shadedPattern>fr.ycraft.jump.mysql</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>ccom.google.mug</pattern>
-                            <shadedPattern>fr.ycraft.jump.mug</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>fr.ycraft.jump</shadedPattern>
+                            <shadedPattern>${groupId}.jump</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -71,6 +54,55 @@
             </resource>
         </resources>
     </build>
+
+    <profiles>
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>env.CI</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.bstats</pattern>
+                                    <shadedPattern>${groupId}.jump</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>fr.mrmicky.fastboard</pattern>
+                                    <shadedPattern>${groupId}.jump.fastboard</shadedPattern>
+                                </relocation>
+                                <!--                        <relocation>-->
+                                <!--                            <pattern>org.apache.commons</pattern>-->
+                                <!--                            <shadedPattern>${groupId}.jump</shadedPattern>-->
+                                <!--                        </relocation>-->
+                                <relocation>
+                                    <pattern>org.dizitart.no2</pattern>
+                                    <shadedPattern>${groupId}.jump.no2</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.mysql</pattern>
+                                    <shadedPattern>${groupId}.jump.mysql</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.mug</pattern>
+                                    <shadedPattern>${groupId}.jump.mug</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>

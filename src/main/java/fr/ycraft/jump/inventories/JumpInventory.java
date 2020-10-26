@@ -38,23 +38,6 @@ import java.util.stream.Stream;
  * This gui show information about the selected jump: best scores, a tp button and a settings button
  */
 public class JumpInventory  extends AbstractGui<JumpPlugin> {
-//    private static final int INVENTORY_SIZE = 54;
-//    private static final List<Integer> panePos = Stream.iterate(0, i->i+1)
-//            .limit(INVENTORY_SIZE)
-//            .filter(i -> i/9 == 0 || i/9 == 5 || i%9 == 0 || i%9 == 8 || i == 10 || i == 16 || i == 37 || i == 43)
-//            .collect(Collectors.toList());
-
-//    private static final ItemStack TOP = new ItemStack(Material.WATCH);
-//    private static final ItemStack TP = new ItemStack(Material.COMPASS);
-//    private static final ItemStack SETTINGS = new ItemStack(Material.COMMAND);
-//    private static final int TOP_POS = 21, SKULL_POS = 23, TP_POS = 31, SETTINGS_POS = 38;
-
-//    public static void init(JumpPlugin plugin) {
-//        ItemStackUtil.setName(TP, Text.JUMP_INVENTORY_TP.get());
-//        ItemStackUtil.setName(SETTINGS, Text.JUMP_INVENTORY_SETTINGS.get());
-//        ItemStackUtil.setName(TOP, Text.JUMP_INVENTORY_TOP.get(plugin.getConfigProvider().get(Key.MAX_SCORES_PER_JUMP)));
-//    }
-
     private final Jump jump;
     private final JumpPlayer jumpPlayer;
     private final InfoAdminInventory.Factory infoFactory;

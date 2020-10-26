@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     private final JumpPlayer jumpPlayer;
@@ -40,7 +41,13 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
 
         // Pagination
         super.setHooks("next", "previous", "jumps");
-        super.setValues(manager.getJumps().values());
+        super.setValues(manager
+                .getJumps()
+                .values()
+                .stream()
+                .filter(jump -> jump.getStart().isPresent())
+                .filter(jump -> jump.getEnd().isPresent())
+                .collect(Collectors.toList()));
     }
 
     @Override

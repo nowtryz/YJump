@@ -117,9 +117,8 @@ public abstract class TemplatedPaginatedGui<P extends Plugin, V> extends Abstrac
     protected final void setValues(Collection<V> values) {
         this.values = new ArrayList<>(values);
 
-        float pages = (float) this.values.size() / this.availablePos.length;
-        this.count = (int) (((int) pages == pages) ? pages : pages + 1);
-        this.setPage(this.page); // update pag to fit the count
+        this.count = Math.max((int) Math.ceil((double) this.values.size() / this.availablePos.length), 1);
+        this.setPage(this.page); // update page to fit the count
     }
 
     private ItemStack getItem(V object) {
