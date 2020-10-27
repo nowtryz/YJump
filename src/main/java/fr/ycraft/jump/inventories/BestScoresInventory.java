@@ -38,7 +38,7 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
         LinkedList<PlayerScore> bestScores = new LinkedList<>(jump.getBestScores());
         for (int i = 0; i < 10; i++) if (i < bestScores.size()) {
             PlayerScore score = bestScores.get(i);
-            builder.hook("place" + (i + 1), ItemBuilder.skullForPlayer(score.getPlayer())
+            builder.hookItem("place" + (i + 1), ItemBuilder.skullForPlayer(score.getPlayer())
                     .setDisplayName(Text.TOP_SCORE_TITLE,
                             score.getPlayer().getName(),
                             i + 1,
@@ -52,6 +52,8 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
                             score.getScore().getSeconds(),
                             score.getScore().getMillis())
                     .build());
+        } else {
+            builder.hookProvider("place" + (i + 1), b -> b.setDisplayName(Text.EMPTY_SCORE.get()));
         }
     }
 

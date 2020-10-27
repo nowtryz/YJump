@@ -20,40 +20,40 @@ public class TemplatedGuiBuilder {
         return this;
     }
 
-    public final TemplatedGuiBuilder hook(String name, Consumer<? super InventoryClickEvent> action, ItemProvider provider) {
+    public final TemplatedGuiBuilder hookAction(String name, Consumer<? super InventoryClickEvent> action, ItemProvider provider) {
         this.pattern.getHook(name).ifPresent(hook -> {
             ItemStack item = provider.build(hook.builder()).build();
-            this.hook(hook, action, item);
+            this.hookAction(hook, action, item);
         });
 
         return this;
     }
 
-    public final TemplatedGuiBuilder hook(String name, ItemStack item) {
-        this.pattern.getHook(name).ifPresent(hook -> this.hook(hook, item));
+    public final TemplatedGuiBuilder hookItem(String name, ItemStack item) {
+        this.pattern.getHook(name).ifPresent(hook -> this.hookItem(hook, item));
         return this;
     }
 
-    public final TemplatedGuiBuilder hook(String name, ItemProvider provider) {
+    public final TemplatedGuiBuilder hookProvider(String name, ItemProvider provider) {
         this.pattern.getHook(name).ifPresent(hook -> {
             ItemStack item = provider.build(hook.builder()).build();
-            this.hook(hook, item);
+            this.hookItem(hook, item);
         });
 
         return this;
     }
 
-    public final TemplatedGuiBuilder hook(String name, Consumer<? super InventoryClickEvent> action, ItemStack item) {
-        this.pattern.getHook(name).ifPresent(hook -> this.hook(hook, action, item));
+    public final TemplatedGuiBuilder hookAction(String name, Consumer<? super InventoryClickEvent> action, ItemStack item) {
+        this.pattern.getHook(name).ifPresent(hook -> this.hookAction(hook, action, item));
         return this;
     }
 
-    public final TemplatedGuiBuilder hook(String name, Consumer<? super InventoryClickEvent> action) {
-        this.pattern.getHook(name).ifPresent(hook -> this.hook(hook, action, hook.getItem()));
+    public final TemplatedGuiBuilder hookAction(String name, Consumer<? super InventoryClickEvent> action) {
+        this.pattern.getHook(name).ifPresent(hook -> this.hookAction(hook, action, hook.getItem()));
         return this;
     }
 
-    public TemplatedGuiBuilder hook(PatternKey hook, Consumer<? super InventoryClickEvent> action, ItemStack item) {
+    public TemplatedGuiBuilder hookAction(PatternKey hook, Consumer<? super InventoryClickEvent> action, ItemStack item) {
         if (hook.getPositions().length == 0) return this;
         Inventory inventory = this.gui.getInventory();
 
@@ -63,7 +63,7 @@ public class TemplatedGuiBuilder {
         return this;
     }
 
-    public TemplatedGuiBuilder hook(PatternKey hook, ItemStack item) {
+    public TemplatedGuiBuilder hookItem(PatternKey hook, ItemStack item) {
         if (hook.getPositions().length == 0) return this;
         for (int pos : hook.getPositions()) gui.getInventory().setItem(pos, item);
         return this;
@@ -77,7 +77,7 @@ public class TemplatedGuiBuilder {
      * @return this builder
      */
     public final TemplatedGuiBuilder hookBack(String hookName, ItemProvider provider) {
-        if (this.gui.hasPrevious()) this.hook(hookName, this.gui::onBack, provider);
+        if (this.gui.hasPrevious()) this.hookAction(hookName, this.gui::onBack, provider);
         return this;
     }
 
@@ -88,7 +88,7 @@ public class TemplatedGuiBuilder {
      * @return this builder
      */
     public final TemplatedGuiBuilder hookBack(String hookName) {
-        if (gui.hasPrevious())this.hook(hookName, gui::onBack);
+        if (gui.hasPrevious())this.hookAction(hookName, gui::onBack);
         return this;
     }
 

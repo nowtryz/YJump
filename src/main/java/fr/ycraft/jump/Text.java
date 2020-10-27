@@ -2,6 +2,7 @@ package fr.ycraft.jump;
 
 import com.google.common.base.Charsets;
 import fr.ycraft.jump.configuration.Key;
+import fr.ycraft.jump.exceptions.LocaleInitializationException;
 import net.nowtryz.mcutils.api.Translation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -144,19 +145,24 @@ public enum Text implements Translation {
     public static final Locale[] AVAILABLE_LOCALES = {Locale.FRANCE};
     public static final String LOCALES_FOLDER = "locales";
 
-    public static String localeToFileName(Locale locale) {
-        return LOCALES_FOLDER + "/" + locale.getLanguage() + "-" + locale.getCountry() + ".yml";
-    }
-
-    private static File localeToFile(JumpPlugin plugin, Locale locale) {
-        return new File(plugin.getDataFolder(), localeToFileName(locale));
-    }
+    /**
+     * The key to access to the message in the translations file
+     */
+    private final String key;
+    /**
+     * The default message to use if no translation is available in the file
+     */
+    private final String defaultMessage;
+    /**
+     * The translated message extracted from the translation file
+     */
+    private String translatedMessage = null;
 
     /**
      * Initialize the translator base on the default language of the plugin
      * @param plugin the Bukkit plugin to get resources from
      */
-    static void init(JumpPlugin plugin) {
+    static void init(JumpPlugin plugin) throws LocaleInitializationException {
         Locale configuredLocale = plugin.getConfigProvider().get(Key.LOCALE);
         boolean available = Arrays.asList(AVAILABLE_LOCALES).contains(configuredLocale);
 
@@ -176,23 +182,9 @@ public enum Text implements Translation {
             lang.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
             Arrays.stream(Text.values()).forEach(text -> text.init(lang));
         } catch (Exception exception) {
-            throw new RuntimeException("Unable to correctly load the language file", exception);
+            throw new LocaleInitializationException(locale, exception);
         }
-
     }
-
-    /**
-     * The key to access to the message in the translations file
-     */
-    private final String key;
-    /**
-     * The default message to use if no translation is available in the file
-     */
-    private final String defaultMessage;
-    /**
-     * The translated message extracted from the translation file
-     */
-    private String translatedMessage = null;
 
     /**
      * Create a new text message with information to retrieve the translation from the file
@@ -237,5 +229,17 @@ public enum Text implements Translation {
     @Override
     public String toString() {
         return this.get();
+    }
+
+    /*
+     * Static methods
+     */
+
+    public static String localeToFileName(Locale locale) {
+        return LOCALES_FOLDER + "/" + locale.getLanguage() + "-" + locale.getCountry() + ".yml";
+    }
+
+    private static File localeToFile(JumpPlugin plugin, Locale locale) {
+        return new File(plugin.getDataFolder(), localeToFileName(locale));
     }
 }

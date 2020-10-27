@@ -7,6 +7,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.exceptions.StreamException;
 import fr.ycraft.jump.injection.DataFolder;
 import fr.ycraft.jump.injection.PluginLogger;
 import fr.ycraft.jump.util.JumpCollector;
@@ -58,6 +59,9 @@ public class FlatFileStorage implements StorageImplementation {
         }
     }
 
+    /**
+     * There isn't any connection to close or anything, so the method doesn't do anything
+     */
     @Override
     public void close() {
 
@@ -84,7 +88,7 @@ public class FlatFileStorage implements StorageImplementation {
     }
 
     @Override
-    public JumpPlayer loadPlayer(OfflinePlayer player) {
+    public JumpPlayer loadPlayer(OfflinePlayer player) throws IOException {
         this.getPlayerLock(player.getUniqueId()).lock();
         File file = this.getPlayerFile(player);
 
@@ -104,23 +108,27 @@ public class FlatFileStorage implements StorageImplementation {
                     .toMap());
         } catch (IOException exception) {
             plugin.getLogger().log(Level.SEVERE, "Unable to load scores file", exception);
-            throw new RuntimeException("Unable to process score pipeline", exception);
+            throw exception;
         } finally {
             this.getPlayerLock(player.getUniqueId()).unlock();
         }
     }
 
     @Override
-    public List<JumpPlayer> loadAllPlayers() {
+    public List<JumpPlayer> loadAllPlayers() throws Exception {
         if (!this.playersFolder.exists() || this.playersFolder.list().length == 0) return new ArrayList<>();
-        return Arrays.stream(this.playersFolder.list())
-                .parallel()
-                .filter(s -> s.endsWith(".yml"))
-                .map(s -> s.substring(0, s.lastIndexOf('.')))
-                .map(UUID::fromString)
-                .map(Bukkit::getOfflinePlayer)
-                .map(this::loadPlayer)
-                .collect(Collectors.toList());
+        try {
+            return Arrays.stream(this.playersFolder.list())
+                    .parallel()
+                    .filter(s -> s.endsWith(".yml"))
+                    .map(s -> s.substring(0, s.lastIndexOf('.')))
+                    .map(UUID::fromString)
+                    .map(Bukkit::getOfflinePlayer)
+                    .map(StreamException.warp(this::loadPlayer))
+                    .collect(Collectors.toList());
+        } catch (StreamException exception) {
+            throw exception.getCause();
+        }
     }
 
     @Override

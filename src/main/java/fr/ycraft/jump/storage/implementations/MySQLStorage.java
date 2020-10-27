@@ -197,7 +197,9 @@ public class MySQLStorage implements StorageImplementation {
         @Cleanup
         PreparedStatement preparedStatement = this.connection.prepareStatement(INSERT_JUMP, RETURN_GENERATED_KEYS);
         writeJump(preparedStatement, jump);
-        preparedStatement.execute();
+        boolean result = preparedStatement.execute();
+
+        if (!result) throw new SQLException("Unable to insert jump in the database");
 
         // get id
         @Cleanup ResultSet generatedKeys = preparedStatement.getGeneratedKeys();

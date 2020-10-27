@@ -68,12 +68,12 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
                 // if an inventory can handle a back arrow
                 .hookBack("back", b -> b.setDisplayName(Text.BACK))
                 // other hooks
-                .hook("player", this::onPlayerBestScores, skull)
-                .hook("tp", this::onTp, b -> b.setDisplayName(Text.JUMP_INVENTORY_TP))
-                .hook("top 10", this::onTop, b -> b.setDisplayName(Text.JUMP_INVENTORY_TOP, config.get(Key.MAX_SCORES_PER_JUMP)))
+                .hookAction("player", this::onPlayerBestScores, skull)
+                .hookAction("tp", this::onTp, b -> b.setDisplayName(Text.JUMP_INVENTORY_TP))
+                .hookAction("top 10", this::onTop, b -> b.setDisplayName(Text.JUMP_INVENTORY_TOP, config.get(Key.MAX_SCORES_PER_JUMP)))
                 // if admin
                 .hookIf(Perm.EDIT.isHeldBy(player), builder ->
-                        builder.hook("settings", this::onSettings, b -> b.setDisplayName(Text.JUMP_INVENTORY_SETTINGS))
+                        builder.hookAction("settings", this::onSettings, b -> b.setDisplayName(Text.JUMP_INVENTORY_SETTINGS))
                 );
     }
 

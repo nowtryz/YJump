@@ -9,7 +9,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.util.NumberConversions;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class Position implements Cloneable, ConfigurationSerializable, Serializable {
     private static final long serialVersionUID = -3140111461271073006L;
-    private static final String X = "x", Y = "y", Z = "z", PITCH = "pitch", YAW = "yaw";
+    private static final String X = "x";
+    private static final String Y = "y";
+    private static final String Z = "z";
+    private static final String PITCH = "pitch";
+    private static final String YAW = "yaw";
 
     /**
      * The x-coordinate of this position
@@ -97,11 +100,13 @@ public class Position implements Cloneable, ConfigurationSerializable, Serializa
      * @return a clone of this position
      */
     @Override
-    public Vector clone() {
+    public Position clone() {
         try {
-            return (Vector) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new Error(e);
+            return (Position) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            // clone is supported, but just in case we log it
+            exception.printStackTrace();
+            return this;
         }
     }
 

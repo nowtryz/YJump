@@ -49,11 +49,10 @@ public class Storage {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return supplier.call();
-            } catch (Exception e) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new CompletionException(e);
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (Exception exception) {
+                throw new CompletionException(exception);
             }
         }, this.executor);
     }
@@ -62,11 +61,10 @@ public class Storage {
         return CompletableFuture.runAsync(() -> {
             try {
                 runnable.run();
-            } catch (Exception e) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new CompletionException(e);
+            } catch (RuntimeException exception) {
+                throw exception;
+            } catch (Exception exception) {
+                throw new CompletionException(exception);
             }
         }, this.executor);
     }

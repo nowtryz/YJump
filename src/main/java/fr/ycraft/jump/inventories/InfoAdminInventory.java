@@ -32,17 +32,6 @@ import java.util.Optional;
 import static net.nowtryz.mcutils.builders.ItemBuilder.create;
 
 public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Position> {
-    private static Material getIcon(World world) {
-        if (world == null) return Material.BARRIER;
-        switch (world.getEnvironment()) {
-            case NETHER: return Material.NETHERRACK;
-            case THE_END: return Material.ENDER_STONE;
-            case NORMAL:
-            default:
-                return Material.GRASS;
-        }
-    }
-
     private final Jump jump;
     private final Config config;
 
@@ -97,7 +86,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
 
         this.builder
                 .hookBack("back",  b -> b.setDisplayName(Text.BACK))
-                .hook("icon", ItemBuilder.from(jump.getItem().clone())
+                .hookItem("icon", ItemBuilder.from(jump.getItem().clone())
                         .setDisplayName(Text.INFO_ICON_NAME)
                         .setLore(Text.INFO_ICON_LORE,
                                 jump.getItem().hasItemMeta() && jump.getItem().getItemMeta().getDisplayName() != null ?
@@ -105,19 +94,19 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
                                         jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
                         .addAllItemFlags()
                         .build())
-                .hook("fall distance", (ItemProvider) b -> b
+                .hookProvider("fall distance", (ItemProvider) b -> b
                         .setDisplayName(Text.INFO_FALL_NAME)
                         .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE)))
-                .hook("world", create(getIcon(jump.getWorld()))
+                .hookItem("world", create(getIcon(jump.getWorld()))
                         .setDisplayName(Text.INFO_WORLD_NAME)
                         .setLore(Text.INFO_WORLD_LORE, Optional
                                 .ofNullable(jump.getWorld())
                                 .map(World::getName)
                                 .orElseGet(() -> Text.INFO_WORLD_NOT_SET.get(jump.getName()))
                         ).build())
-                .hook("spawn", this::tpToSpawn, spawn.build())
-                .hook("start", this::tpToStart, start.build())
-                .hook("end",   this::tpToEnd,   end.build());
+                .hookAction("spawn", this::tpToSpawn, spawn.build())
+                .hookAction("start", this::tpToStart, start.build())
+                .hookAction("end",   this::tpToEnd,   end.build());
 
         // Pagination
         super.setHooks("next", "previous", "checkpoints");
@@ -178,5 +167,20 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
 
     public interface Factory {
         InfoAdminInventory create(Player player, Jump jump, @Nullable Gui back);
+    }
+
+    /*
+     * Static methods
+     */
+
+    private static Material getIcon(World world) {
+        if (world == null) return Material.BARRIER;
+        switch (world.getEnvironment()) {
+            case NETHER: return Material.NETHERRACK;
+            case THE_END: return Material.ENDER_STONE;
+            case NORMAL:
+            default:
+                return Material.GRASS;
+        }
     }
 }

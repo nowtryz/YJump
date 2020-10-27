@@ -38,11 +38,7 @@ keys:
     material: iron block
     name: '&7&o#&l3'
 
-  '0':
-    material: air
-    fallback:
-      material: gold block
-
+  '0': *place
   '1': *place
   '2': *place
   '3': *place

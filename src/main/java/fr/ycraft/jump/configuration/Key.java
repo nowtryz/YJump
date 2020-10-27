@@ -1,6 +1,7 @@
 package fr.ycraft.jump.configuration;
 
 import com.google.common.collect.ImmutableList;
+import fr.ycraft.jump.exceptions.ConfigurationInitializationException;
 import fr.ycraft.jump.storage.StorageType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -56,12 +57,8 @@ public final class Key<T> implements Comparable<Key<?>> {
             .map(Locale::new)
             .orElseGet(Locale::getDefault));
 
-    static final int UNKNOWN_KEY = -1;
+    public static final int UNKNOWN_KEY = -1;
     private static final List<Key<?>> VALUES;
-
-    public static List<Key<?>> values() {
-        return Key.VALUES;
-    }
 
     static {
         // get a list of all keys
@@ -74,7 +71,7 @@ public final class Key<T> implements Comparable<Key<?>> {
             try {
                 return (Key<?>) f.get(null);
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new ConfigurationInitializationException(e);
             }
         }).collect(ImmutableList.toImmutableList());
 
@@ -112,5 +109,13 @@ public final class Key<T> implements Comparable<Key<?>> {
 
     public final int hashCode() {
         return super.hashCode();
+    }
+
+    /*
+     * Static methods
+     */
+
+    public static List<Key<?>> values() {
+        return Key.VALUES;
     }
 }

@@ -19,7 +19,9 @@ import static org.bukkit.util.NumberConversions.toLong;
 @ToString
 @SerializableAs("score")
 public class PlayerScore implements ConfigurationSerializable {
-    private static final String PLAYER = "player", SCORE = "score", DATE = "date";
+    private static final String PLAYER = "player";
+    private static final String SCORE = "score";
+    private static final String DATE = "date";
     private final OfflinePlayer player;
     private final TimeScore score;
 

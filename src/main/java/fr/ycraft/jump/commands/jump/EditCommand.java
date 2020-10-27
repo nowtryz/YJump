@@ -6,7 +6,6 @@ import fr.ycraft.jump.commands.AbstractCommandImpl;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.PlayerCommand;
 import fr.ycraft.jump.entity.Jump;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;

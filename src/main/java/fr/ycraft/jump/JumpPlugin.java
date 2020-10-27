@@ -12,6 +12,7 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.entity.Position;
+import fr.ycraft.jump.exceptions.ParkourException;
 import fr.ycraft.jump.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
@@ -38,7 +39,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -69,44 +69,52 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     private @Inject JumpManager jumpManager;
     private @Inject PlayerManager playerManager;
 
-    @Getter
-    private Injector injector;
-    @Getter
-    private boolean enabling = false, disabling = false, prod;
+    private @Getter Injector injector;
+    private @Getter boolean enabling = false;
+    private @Getter boolean disabling = false;
+    private @Getter boolean prod;
 
     @Override
     public void onEnable() {
         this.enabling = true;
-        super.saveDefaultConfig();
-        Arrays.stream(Text.AVAILABLE_LOCALES).map(Text::localeToFileName).forEach(this::exportDefaultResource);
-        Arrays.stream(Patterns.values())
-                .map(Patterns::getFileName)
-                .map(s -> Patterns.FOLDER_NAME + '/' + s)
-                .forEach(this::exportDefaultResource);
-
         this.prod = !this.getDescription().getVersion().contains("SNAPSHOT");
-        // This will created the injector and inject all required objects to the plugin
-        this.injector = Guice.createInjector(
-                isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
-                new JumpModule(this),
-                new BukkitModule<>(this, JumpPlugin.class),
-                new TemplatesModule(this)
-        );
 
-        Text.init(this);
-        ItemLibrary.init();
+        try {
+            super.saveDefaultConfig();
+            this.exportResources();
+
+            // This will created the injector and inject all required objects to the plugin
+            this.injector = Guice.createInjector(
+                    isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
+                    new JumpModule(this),
+                    new BukkitModule<>(this, JumpPlugin.class),
+                    new TemplatesModule(this)
+            );
+
+            Text.init(this);
+            ItemLibrary.init();
 //        JumpInventory.init(this);
-        MetricsUtils.init(this);
-        Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
+            MetricsUtils.init(this);
+            Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
-        this.storage.init();
-        this.jumpManager.init();
-        this.playerManager.init();
+            this.storage.init();
+            this.jumpManager.init();
+            this.playerManager.init();
 
-        this.showJumpList();
-        this.replacePlates();
-        this.getLogger().info(String.format("%s enabled!", this.getName()));
-        this.enabling = false;
+            this.showJumpList();
+            this.replacePlates();
+            this.getLogger().info(String.format("%s enabled!", this.getName()));
+            this.enabling = false;
+
+        } catch (RuntimeException | ParkourException exception) {
+            this.enabling = false;
+            this.getLogger().severe("Unable to enable the plugin:" + exception.getMessage());
+            if (!this.prod) exception.printStackTrace();
+            this.getLogger().warning("Disabling...");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+
+
     }
 
     /**
@@ -116,7 +124,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
      * @param checkpointCommand /checkpoint
      */
     @Inject
-    private void registerCommands(
+    public void registerCommands(
             JumpCommand jumpCommand,
             JumpsCommand jumpsCommand,
             CheckpointCommand checkpointCommand) {
@@ -132,7 +140,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
      * @param platesProtectionListener plates protection
      */
     @Inject
-    private void registerListeners(
+    public void registerListeners(
             PlateListener plateListener,
             PlayerListener playerListener,
             PlatesProtectionListener platesProtectionListener) {
@@ -216,8 +224,12 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         this.disabling = false;
     }
 
-    private void exportLocales() {
-        for (Locale locale : Text.AVAILABLE_LOCALES) this.exportDefaultResource(Text.localeToFileName(locale));
+    private void exportResources() {
+        Arrays.stream(Text.AVAILABLE_LOCALES).map(Text::localeToFileName).forEach(this::exportDefaultResource);
+        Arrays.stream(Patterns.values())
+                .map(Patterns::getFileName)
+                .map(s -> Patterns.FOLDER_NAME + '/' + s)
+                .forEach(this::exportDefaultResource);
     }
 
     /**

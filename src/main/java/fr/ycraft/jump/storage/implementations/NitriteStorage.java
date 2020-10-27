@@ -30,14 +30,22 @@ public class NitriteStorage implements StorageImplementation {
     private static final String JUMPS_COLLECTION = "jumps";
     private static final String SCORES_COLLECTION = "scores";
     private static final String PLAYERS_COLLECTION = "players";
-    private static final String PLAYER = "player", JUMP = "jump", DURATION = "duration", DATE = "date", NAME = "name", ID = "uuid";
+    private static final String PLAYER = "player";
+    private static final String JUMP = "jump";
+    private static final String DURATION = "duration";
+    private static final String DATE = "date";
+    private static final String NAME = "name";
+    private static final String ID = "uuid";
+
     private final Provider<JumpManager> jumpManager;
     private final File pluginFolder;
     private final Config config;
     private final Logger logger;
 
     private Nitrite database = null;
-    private NitriteCollection jumps = null, scores = null, players = null;
+    private NitriteCollection jumps = null;
+    private NitriteCollection scores = null;
+    private NitriteCollection players = null;
 
     @Inject
     NitriteStorage(@DataFolder File dataFolder, Provider<JumpManager> jumpManager, @PluginLogger Logger logger, Config config) {

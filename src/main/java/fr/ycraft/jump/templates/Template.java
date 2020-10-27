@@ -24,13 +24,13 @@ public class Template<T extends AbstractGui<?>> {
     }
 
     public void hook(TemplateAction<T> action) {
-        if (action.key != null) {
+        if (action.getKey() != null) {
             this.actions.add(action);
-            PatternKey key = action.key;
+            PatternKey key = action.getKey();
 
-            if (action.update != null && key.getItem() != null && key.isPresent()) {
+            if (action.getUpdate() != null && key.getItem() != null && key.isPresent()) {
                 ItemBuilder<?> builder = ItemBuilder.from(key.getItem());
-                ItemStack newItem = action.update.build(builder).build();
+                ItemStack newItem = action.getUpdate().build(builder).build();
                 for (int i : key.getPositions()) this.inventory[i] = newItem;
             }
         }

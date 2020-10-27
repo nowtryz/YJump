@@ -20,25 +20,28 @@ import static lombok.Builder.Default;
  * Represents a parkour
  */
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 @SerializableAs("Jump")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Jump implements ConfigurationSerializable {
-    public static final String
-            ID = "id", NAME = "name", SPAWN = "spawn", START = "start", END = "end",
-            CHECKPOINTS = "checkpoints", BEST_SCORES = "best scores", ITEM = "item",
-            DESCRIPTION = "description", WORLD = "world";
     protected static Material DEFAULT_MATERIAL = Material.SLIME_BLOCK;
+    public static final String ID = "id";
+    public static final String NAME = "name";
+    public static final String END = "end";
+    public static final String START = "start";
+    public static final String SPAWN = "spawn";
+    public static final String ITEM = "item";
+    public static final String CHECKPOINTS = "checkpoints";
+    public static final String BEST_SCORES = "best scores";
+    public static final String DESCRIPTION = "description";
+    public static final String WORLD = "world";
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
             Material.GOLD_PLATE,
             Material.IRON_PLATE,
             Material.STONE_PLATE,
             Material.WOOD_PLATE
     ));
-
-    public static void setDefaultMaterial(@NonNull Material material) {
-        DEFAULT_MATERIAL = material;
-    }
 
     @Include @NonNull @Default
     private final UUID id = UUID.randomUUID();
@@ -59,8 +62,14 @@ public class Jump implements ConfigurationSerializable {
     private ItemStack item = new ItemStack(DEFAULT_MATERIAL);
 
     private String description;
-    private Position spawn, start, end;
+    private Position spawn;
+    private Position start;
+    private Position end;
 
+
+    public static void setDefaultMaterial(@NonNull Material material) {
+        DEFAULT_MATERIAL = material;
+    }
 
     public static class JumpBuilder {
         public JumpBuilder spawn(Position spawn) {

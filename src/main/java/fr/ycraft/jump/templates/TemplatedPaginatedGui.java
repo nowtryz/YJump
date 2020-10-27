@@ -16,13 +16,16 @@ import java.util.*;
 public abstract class TemplatedPaginatedGui<P extends Plugin, V> extends AbstractGui<P> {
     private final Pattern pattern;
     protected final TemplatedGuiBuilder builder;
-    private ItemStack previous, next;
-    private PatternKey previousKey, nextKey;
+    private final Map<V,ItemStack> items = new HashMap<>();
+    private ItemStack previous;
+    private ItemStack next;
+    private PatternKey previousKey;
+    private PatternKey nextKey;
     private PatternKey paginatedKey;
-    @Getter private int page = 0, count;
+    @Getter private int page = 0;
+    @Getter private int count;
     private int[] availablePos;
     private List<V> values;
-    private Map<V,ItemStack> items = new HashMap<>();
 
 //    public TemplatedPaginatedGui(P plugin, Player player, Collection<V> values, int previousPos, int nextPos) {
 //        super(plugin, player);
@@ -72,16 +75,16 @@ public abstract class TemplatedPaginatedGui<P extends Plugin, V> extends Abstrac
 
         if (this.page > 0) {
             this.previous = this.buildPreviousIcon(this.previousKey.builder());
-            this.builder.hook(this.previousKey, event -> this.setPage(this.page - 1), this.previous);
+            this.builder.hookAction(this.previousKey, event -> this.setPage(this.page - 1), this.previous);
         } else {
-            this.builder.hook(this.previousKey, this.previousKey.getFallback());
+            this.builder.hookItem(this.previousKey, this.previousKey.getFallback());
         }
 
         if (this.page < this.count - 1) {
             this.next = this.buildNextIcon(this.nextKey.builder());
-            this.builder.hook(this.nextKey, event -> this.setPage(this.page + 1), this.next);
+            this.builder.hookAction(this.nextKey, event -> this.setPage(this.page + 1), this.next);
         } else {
-            this.builder.hook(this.nextKey, this.nextKey.getFallback());
+            this.builder.hookItem(this.nextKey, this.nextKey.getFallback());
         }
     }
 

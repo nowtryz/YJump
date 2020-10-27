@@ -1,9 +1,5 @@
 package fr.ycraft.jump.commands;
 
-import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;

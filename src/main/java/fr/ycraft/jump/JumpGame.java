@@ -56,9 +56,11 @@ public class JumpGame {
     private BukkitTask bukkitTask;
     private Objective objective;
     private Scoreboard scoreboard;
-    private Score timer, checkpoints;
+    private Score timer;
+    private Score checkpoints;
     private long resetTime;
-    private boolean ended = false, wasCollidable = true;
+    private boolean ended = false;
+    private boolean wasCollidable = true;
     private long start;
     private Location checkpoint;
 
