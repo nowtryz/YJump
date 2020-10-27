@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f88c2b4884cf4f9185f1fb1a51c1d806)](https://app.codacy.com/gh/nowtryz/YJump?utm_source=github.com&utm_medium=referral&utm_content=nowtryz/YJump&utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/nowtryz/YJump.svg?branch=master)](https://travis-ci.org/nowtryz/YJump)
 
 YJump plugin
