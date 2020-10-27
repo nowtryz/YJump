@@ -141,6 +141,9 @@ public class Jump implements ConfigurationSerializable {
                 .collect(ImmutableList.toImmutableList());
     }
 
+    public @NonNull ItemStack getItem() {
+        return this.item.clone();
+    }
 
     public void setSpawn(@NonNull Location spawn) {
         this.world = spawn.getWorld();

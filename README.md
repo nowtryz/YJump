@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/nowtryz/YJump.svg?branch=master)](https://travis-ci.org/nowtryz/YJump)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/69fdc3865c054cc6836073e5458ce419)](https://www.codacy.com/gh/nowtryz/YJump/dashboard)
 
 YJump plugin
 ============
