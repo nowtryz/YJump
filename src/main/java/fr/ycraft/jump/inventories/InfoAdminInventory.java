@@ -7,10 +7,12 @@ import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.Position;
-import fr.ycraft.jump.injection.Nullable;
-import fr.ycraft.jump.templates.*;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.injection.Nullable;
+import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
+import net.nowtryz.mcutils.templating.Pattern;
+import net.nowtryz.mcutils.templating.PatternKey;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -94,7 +96,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
                                         jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
                         .addAllItemFlags()
                         .build())
-                .hookProvider("fall distance", (ItemProvider) b -> b
+                .hookProvider("fall distance", b -> b
                         .setDisplayName(Text.INFO_FALL_NAME)
                         .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE)))
                 .hookItem("world", create(getIcon(jump.getWorld()))

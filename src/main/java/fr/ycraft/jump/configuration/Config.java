@@ -1,7 +1,7 @@
 package fr.ycraft.jump.configuration;
 
 import com.google.inject.Inject;
-import fr.ycraft.jump.injection.DefaultConfig;
+import net.nowtryz.mcutils.injection.DefaultConfig;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.configuration.Configuration;

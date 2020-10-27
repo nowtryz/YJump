@@ -3,7 +3,7 @@ package fr.ycraft.jump.storage;
 import com.google.inject.Inject;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
-import fr.ycraft.jump.injection.BukkitExecutor;
+import net.nowtryz.mcutils.injection.BukkitExecutor;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

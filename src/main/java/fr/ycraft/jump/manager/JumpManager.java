@@ -6,7 +6,7 @@ import com.google.inject.Singleton;
 import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
-import fr.ycraft.jump.injection.PluginLogger;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import fr.ycraft.jump.storage.Storage;
 import lombok.Getter;
 import net.nowtryz.mcutils.LocationUtil;

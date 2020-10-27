@@ -13,7 +13,7 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.exceptions.ParkourException;
-import fr.ycraft.jump.injection.BukkitModule;
+import net.nowtryz.mcutils.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
@@ -24,7 +24,7 @@ import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
-import fr.ycraft.jump.templates.Patterns;
+import net.nowtryz.mcutils.templating.Patterns;
 import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
@@ -86,7 +86,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             // This will created the injector and inject all required objects to the plugin
             this.injector = Guice.createInjector(
                     isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
-                    new JumpModule(this),
+                    new JumpModule(),
                     new BukkitModule<>(this, JumpPlugin.class),
                     new TemplatesModule(this)
             );

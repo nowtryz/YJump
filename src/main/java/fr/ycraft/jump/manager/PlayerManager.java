@@ -2,7 +2,7 @@ package fr.ycraft.jump.manager;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.JumpPlayer;
-import fr.ycraft.jump.injection.PluginLogger;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import fr.ycraft.jump.storage.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

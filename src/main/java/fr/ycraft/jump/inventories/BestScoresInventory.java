@@ -6,12 +6,12 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
-import fr.ycraft.jump.injection.Nullable;
-import fr.ycraft.jump.templates.Pattern;
-import fr.ycraft.jump.templates.TemplatedGuiBuilder;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
+import net.nowtryz.mcutils.templating.Pattern;
+import net.nowtryz.mcutils.templating.TemplatedGuiBuilder;
 import org.bukkit.entity.Player;
 
 import javax.inject.Named;
@@ -53,7 +53,7 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
                             score.getScore().getMillis())
                     .build());
         } else {
-            builder.hookProvider("place" + (i + 1), b -> b.setDisplayName(Text.EMPTY_SCORE.get()));
+            builder.fallback("place" + (i + 1), b -> b.setDisplayName(Text.EMPTY_SCORE.get()));
         }
     }
 

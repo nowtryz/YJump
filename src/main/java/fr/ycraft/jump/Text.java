@@ -208,8 +208,10 @@ public enum Text implements Translation {
         if (this.key == null) this.translatedMessage = this.defaultMessage;
         else if (lang.isList(this.key)) this.translatedMessage = Optional.ofNullable(lang.getStringList(this.key))
                 .map(strings -> String.join(StringUtils.LF, strings))
+                .map(s -> ChatColor.translateAlternateColorCodes('&', s))
                 .orElse(this.defaultMessage);
         else this.translatedMessage = Optional.ofNullable(lang.getString(this.key))
+                    .map(s -> ChatColor.translateAlternateColorCodes('&', s))
                     .orElse(this.defaultMessage);
     }
 

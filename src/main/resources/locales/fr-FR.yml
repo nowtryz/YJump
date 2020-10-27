@@ -15,28 +15,28 @@
 #  - %2$s = affichage du deuxième paramètre en tant que chaine de caractères
 
 
-noperm: "§cVous n'avez pas la permission pour exécuter cette commande"
-back: "§l» §r§cRetour"
-usage: "§cUsage : %s"
-command_error: "6Jump §e» §cUne erreur est survenue ! Impossible d'executer la command."
-deleted: "§6Jump Editor §e» §f%s §7a été supprimé."
-reloaded: "§6Jump §e» §aLes configurations du plugin ont été rechargée."
-click: "§9Cliquez pour exécuter"
-already_exists: "§6Jump Editor §e» §cCe Jump existe déjà"
-not_exists: "§6Jump Editor §e» §cCe jump n'existe pas"
-only_game_command: "§6Jump §e» §cVous devez être sur un jump pour exécuter cette command."
-only_editor_action: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette action"
-only_editor_command: "§6Jump Editor §e» §cVous devez être dans un éditeur pour effectuer cette commande"
-only_player_command: "§cSeul un joueur peut exécuter cette commande"
-unknown_command: "§cCommande inconnue ! Faites §o/jump help §r§c pour recevoir de l'aide."
+noperm: "&cVous n'avez pas la permission pour exécuter cette commande"
+back: "&l» &r&cRetour"
+usage: "&cUsage : %s"
+command_error: "6Jump &e» &cUne erreur est survenue ! Impossible d'executer la command."
+deleted: "&6Jump Editor &e» &f%s &7a été supprimé."
+reloaded: "&6Jump &e» &aLes configurations du plugin ont été rechargée."
+click: "&9Cliquez pour exécuter"
+already_exists: "&6Jump Editor &e» &cCe Jump existe déjà"
+not_exists: "&6Jump Editor &e» &cCe jump n'existe pas"
+only_game_command: "&6Jump &e» &cVous devez être sur un jump pour exécuter cette command."
+only_editor_action: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette action"
+only_editor_command: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette commande"
+only_player_command: "&cSeul un joueur peut exécuter cette commande"
+unknown_command: "&cCommande inconnue ! Faites &o/jump help &r&c pour recevoir de l'aide."
 unknown_world: |-
-  §cIl n'existe aucun monde §3'%s'
-  §cLes mondes disponibles sont §7%s§c.
+  &cIl n'existe aucun monde &3'%s'
+  &cLes mondes disponibles sont &7%s&c.
 help:
-  header: "§e§m=  §r§e» §6§lYJump §m §r §6Aide §r§e«§m  ="
+  header: "&e&m=  &r&e» &6&lYJump &m &r &6Aide &r&e«&m  ="
   command:
-    - "§a%s"
-    - "  §7§o%s"
+    - "&a%s"
+    - "  &7&o%s"
 cmd:
   usage:
     delete: "/jump delete <nom du jump>"
@@ -67,113 +67,113 @@ cmd:
     setstart:      "Définit le bloc de départ du jump"
     setworld:      "Change le monde dans lequel est enregistré le jump"
   success:
-    setworld: "§6Jump Editor §e» §7§oLe jump §f%s§7§o est désormais sur le monde §f%s§7§o !"
+    setworld: "&6Jump Editor &e» &7&oLe jump &f%s&7&o est désormais sur le monde &f%s&7&o !"
 editor:
-  header: "§e§m=  §r§e» §6§lJump Editor §r§e«§m  ="
-  title: "§aVous êtes en train d'éditer §e%s§a."
-  nospawn: "§6Jump Editor §e» §cCe jump n'a pas encore de spawn"
-  delete_checkpoint: "§6Jump Editor §e» §aCheckpoint supprimé"
-  cannot_start_game: "§6Jump Editor §e» §cVous ne pouvez pas commencer de jump lorsque vous êtes dans un éditeur."
+  header: "&e&m=  &r&e» &6&lJump Editor &r&e«&m  ="
+  title: "&aVous êtes en train d'éditer &e%s&a."
+  nospawn: "&6Jump Editor &e» &cCe jump n'a pas encore de spawn"
+  delete_checkpoint: "&6Jump Editor &e» &aCheckpoint supprimé"
+  cannot_start_game: "&6Jump Editor &e» &cVous ne pouvez pas commencer de jump lorsque vous êtes dans un éditeur."
   set_air_item: >
-    §6Jump Editor §e» §cTu m'as pris pour qui ? T'as cru j'étais Fuizzy ?
+    &6Jump Editor &e» &cTu m'as pris pour qui ? T'as cru j'étais Fuizzy ?
     Je vais pas remplacer l'item du jump par de l'air !
-  quit: "§6Jump Editor §e» §9Vous avez quitté l'éditeur"
+  quit: "&6Jump Editor &e» &9Vous avez quitté l'éditeur"
   # Attention : cette section est particulière car elle utilise les composants text de Minecraft
   # Plus d'infos : https://minecraft.gamepedia.com/Raw_JSON_text_format (les clefs ci-dessous ne supportent pas le JSON)
   enter:
     # Message simple
-    info: "§7Vous êtes désormais dans l'éditeur du jump §f%s§7."
+    info: "&7Vous êtes désormais dans l'éditeur du jump &f%s&7."
     # Prefix devant la commande
-    leave: "§7Pour quitter, faites "
+    leave: "&7Pour quitter, faites "
     # Prefix devant la commande
-    spawn: "§7Pour définir le spawn faites "
+    spawn: "&7Pour définir le spawn faites "
     # Prefix devant la commande '/jump setstart'
-    blocks: "§7Pour définir la fin et le début faites "
+    blocks: "&7Pour définir la fin et le début faites "
     # Texte entre les deux commandes
-    blocks_btw: "§7 ou "
+    blocks_btw: "&7 ou "
     # Prefix devant l'outil
     checkpoint:
-      prefix: "§7Pour ajouter un checkpoint, faites "
-      suffix: "§7. Pour en supprimer cassez simplement les plaques."
+      prefix: "&7Pour ajouter un checkpoint, faites "
+      suffix: "&7. Pour en supprimer cassez simplement les plaques."
   updated:
-    checkpoint: "§6Jump Editor §e» §7§oUn checkpoint a été ajouté pour le jump §f%s§7§o."
-    end: "§6Jump Editor §e» §7§oLe block d'arrivé du jump §f%s§7§o a été mis à jour"
-    item: "§6Jump Editor §e» §7§oLe logo du jump est désormais §f%s§7§o."
-    spawn: "§6Jump Editor §e» §7§oLe spawn de §f%s§7§o a été mis à jour"
-    start: "§6Jump Editor §e» §7§oLe block de départ du jump §f%s§7§o a été mis à jour"
-    description: "§6Jump Editor §e» §7§oLa description a été mise à jour"
-    name: "§6Jump Editor §e» §7§oLe jump a été renommé en %s."
+    checkpoint: "&6Jump Editor &e» &7&oUn checkpoint a été ajouté pour le jump &f%s&7&o."
+    end: "&6Jump Editor &e» &7&oLe block d'arrivé du jump &f%s&7&o a été mis à jour"
+    item: "&6Jump Editor &e» &7&oLe logo du jump est désormais &f%s&7&o."
+    spawn: "&6Jump Editor &e» &7&oLe spawn de &f%s&7&o a été mis à jour"
+    start: "&6Jump Editor &e» &7&oLe block de départ du jump &f%s&7&o a été mis à jour"
+    description: "&6Jump Editor &e» &7&oLa description a été mise à jour"
+    name: "&6Jump Editor &e» &7&oLe jump a été renommé en %s."
 inventory:
-  previous: "§6§l» Page précédente §r§8(§7%d§8/§7%d§8)"
-  next: "§6§l» Page suivante §r§8(§7%d§8/§7%d§8)"
+  previous: "&6&l» Page précédente &r&8(&7%d&8/&7%d&8)"
+  next: "&6&l» Page suivante &r&8(&7%d&8/&7%d&8)"
   info:
-    title: "§e§lInformation » §8%s"
+    title: "&e&lInformation » &8%s"
     name:
-      icon: "§b§l» §r§6Icône"
-      checkpoint: "§b§l» §r§6Checkpoint"
-      spawn: "§b§l» §r§6Point de spawn"
-      start: "§b§l» §r§6Point de départ"
-      end: "§b§l» §r§6Point d'arrivée"
-      fall: "§b§l» §r§6Distance de chute"
-      world: "§b§l» §r§6Monde"
+      icon: "&b&l» &r&6Icône"
+      checkpoint: "&b&l» &r&6Checkpoint"
+      spawn: "&b&l» &r&6Point de spawn"
+      start: "&b&l» &r&6Point de départ"
+      end: "&b&l» &r&6Point d'arrivée"
+      fall: "&b&l» &r&6Distance de chute"
+      world: "&b&l» &r&6Monde"
     lore:
-      fall: "§e%dm"
-      world: "§e%s"
-      icon: "§e%s"
+      fall: "&e%dm"
+      world: "&e%s"
+      icon: "&e%s"
       world_not_set: |-
-        §cLe monde n'a pas été définit
+        &cLe monde n'a pas été définit
 
-        §7Vous pouvez utiliser §f§o/jump setword
-        §f§o%s <monde>§r §7pour corriger cela
+        &7Vous pouvez utiliser &f&o/jump setword
+        &f&o%s <monde>&r &7pour corriger cela
 
-      not_set: "§c ce point n'a pas été définit."
+      not_set: "&c ce point n'a pas été définit."
       set: |-
-        §aPoint définit.
+        &aPoint définit.
 
-        §7§m                                       §r
+        &7&m                                       &r
 
-        §f§l» §eX §7: §6§l%d
-        §f§l» §eY §7: §6§l%d
-        §f§l» §eZ §7: §6§l%d
+        &f&l» &eX &7: &6&l%d
+        &f&l» &eY &7: &6&l%d
+        &f&l» &eZ &7: &6&l%d
 
-        §eCliquez pour vous y téléporter
+        &eCliquez pour vous y téléporter
 
-        §7§m                                       §r
+        &7&m                                       &r
 
   list:
     title: "Liste des Jumps"
-    header: "§b§l» §r§6%s"
+    header: "&b&l» &r&6%s"
     # var 1 : distance (en m)
     # var 2,3,4 : score
     lore:
       done:
         - "%s" # Les espaces avant et après la description sont généré si la description n'est pas nulle
-        - "§7§m                                                  "
+        - "&7&m                                                  "
         - ""
-        - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
-        - " §f§l» §eMon meilleur temp §7: §6%02d'%02d''%03d"
+        - " &f&l» &eDistance &7: &6&l%.2f&r&6m"
+        - " &f&l» &eMon meilleur temp &7: &6%02d'%02d''%03d"
         - ""
-        - " §aVous avez fait ce jump"
+        - " &aVous avez fait ce jump"
         - ""
-        - "§7§m                                                  "
+        - "&7&m                                                  "
       never_done:
         - "%s" # Les espaces avant et après la description sont générés si la description n'est pas nulle
-        - "§7§m                                                  "
+        - "&7&m                                                  "
         - ""
-        - " §f§l» §eDistance §7: §6§l%.2f§r§6m"
+        - " &f&l» &eDistance &7: &6&l%.2f&r&6m"
         - ""
         - ""
-        - " §cVous n'avez jamais fait ce jump"
+        - " &cVous n'avez jamais fait ce jump"
         - ""
-        - "§7§m                                                  "
+        - "&7&m                                                  "
   jump:
-    title: "§6§lJump » §r§e%s"
-    tp: "§r§eTéléportation au §6jump"
-    top: "§r§eVoir le §6top %d §epour ce jump"
-    self: "§r§eVoir mes §6meilleurs scores"
-    settings: "§r§eParamètre du §6jump"
+    title: "&6&lJump » &r&e%s"
+    tp: "&r&eTéléportation au &6jump"
+    top: "&r&eVoir le &6top %d &epour ce jump"
+    self: "&r&eVoir mes &6meilleurs scores"
+    settings: "&r&eParamètre du &6jump"
   top:
-    name: "§6§l%s » §r§eTOP 10"
+    name: "&6&l%s » &r&eTOP 10"
     empty: "Vide"
     # var 1 : nom du joueur
     # var 2 : position
@@ -181,44 +181,44 @@ inventory:
     # var 4 : secondes
     # var 5 : millisecondes
     score:
-      name: "§b§l»§r §6TOP §l§e%2$d"
+      name: "&b&l»&r &6TOP &l&e%2$d"
       lore:
         - ""
-        - "§7§m                               "
+        - "&7&m                               "
         - ""
-        - "§f§l» §eJoueur §7: §6§l%1$s"
-        - "§f§l» §eTemps §7:  §6%3$02d'%4$02d''%5$03d"
+        - "&f&l» &eJoueur &7: &6&l%1$s"
+        - "&f&l» &eTemps &7:  &6%3$02d'%4$02d''%5$03d"
         - ""
-        - "§7§m                               "
+        - "&7&m                               "
   player:
     # var 1 : nom du joueur
     # var 2 : nombre de scores (max)
-    header: "§0Tes §6%2$d §r§0Meilleurs scores"
-    line: "§6§l%d) §r§8%02d'%02d''%03d"
+    header: "&0Tes &6%2$d &r&0Meilleurs scores"
+    line: "&6&l%d) &r&8%02d'%02d''%03d"
 game:
   # header: == Jump ==
   scoreboard:
-    displayname: "§6Y§eJump §f> §a%s"
+    displayname: "&6Y&eJump &f> &a%s"
     timer:
       header: "Temps"
-      value: "  §9%1$02d'%2$02d''%3$02d§7"
+      value: "  &9%1$02d'%2$02d''%3$02d&7"
     checkpoint:
       header: "Checkpoint"
       value: "  %d / %d"
   enter:
-    - "§e§m=  §r§e» §6§lYJump §r§e«§m  ="
-    - "§7Vous avez commencé le jump §a%s§7."
-    - "§7Vous pouvez faire §a/cp§7 à tout moment pour retourner au dernier checkpoint, et §a/jump§7 pour quitter le jump"
+    - "&e&m=  &r&e» &6&lYJump &r&e«&m  ="
+    - "&7Vous avez commencé le jump &a%s&7."
+    - "&7Vous pouvez faire &a/cp&7 à tout moment pour retourner au dernier checkpoint, et &a/jump&7 pour quitter le jump"
   end:
-    message: "§6Jump §e» §7Vous avez fini le jump §a%1$s§7 en §9%2$02d'%3$02d''%4$03d§7s."
-    title: "§o§6Jump terminé"
-    subtitle: "§aTemps : §2%02d'%02d''%03ds"
-  bossbar: "§eJump %s §6§m=  §r§6»§r§a Checkpoint %d/%d"
-  left: "§6Jump §e» §cVous avez quitté le jump : §o%s"
-  left_command: "§6Jump §e» §7§oVous avez quitté le jump"
+    message: "&6Jump &e» &7Vous avez fini le jump &a%1$s&7 en &9%2$02d'%3$02d''%4$03d&7s."
+    title: "&o&6Jump terminé"
+    subtitle: "&aTemps : &2%02d'%02d''%03ds"
+  bossbar: "&eJump %s &6&m=  &r&6»&r&a Checkpoint %d/%d"
+  left: "&6Jump &e» &cVous avez quitté le jump : &o%s"
+  left_command: "&6Jump &e» &7&oVous avez quitté le jump"
   no_command: "l'usage de commandes n'est pas autorisé"
-  no_flight: "§6Jump §e» §cl'usage du fly n'est pas autorisé"
-  reset: "§6Jump §e»  §7Le chrono a été réinitialisé à §a0§7."
-  checkpoint: "§6Jump §e»  §7Vous avez validé un checkpoint."
-  checkpoint_tp: "§6Jump §e»  §7Vous avez téléporté au dernier checkpoint."
-  missing_checkpoint: "§6Jump §e»  §cVous devez valider tous les checkpoints."
+  no_flight: "&6Jump &e» &cl'usage du fly n'est pas autorisé"
+  reset: "&6Jump &e»  &7Le chrono a été réinitialisé à &a0&7."
+  checkpoint: "&6Jump &e»  &7Vous avez validé un checkpoint."
+  checkpoint_tp: "&6Jump &e»  &7Vous avez téléporté au dernier checkpoint."
+  missing_checkpoint: "&6Jump &e»  &cVous devez valider tous les checkpoints."

@@ -4,9 +4,9 @@ import com.google.common.base.Charsets;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.google.mu.util.stream.BiStream;
-import fr.ycraft.jump.templates.Pattern;
-import fr.ycraft.jump.templates.PatternFactory;
-import fr.ycraft.jump.templates.Patterns;
+import net.nowtryz.mcutils.templating.Pattern;
+import net.nowtryz.mcutils.templating.PatternFactory;
+import net.nowtryz.mcutils.templating.Patterns;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.EnumMap;
 
-import static fr.ycraft.jump.templates.Patterns.FOLDER_NAME;
+import static net.nowtryz.mcutils.templating.Patterns.FOLDER_NAME;
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

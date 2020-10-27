@@ -3,7 +3,7 @@ package fr.ycraft.jump.storage;
 import com.google.inject.Injector;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
-import fr.ycraft.jump.injection.PluginLogger;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.experimental.FieldDefaults;
 

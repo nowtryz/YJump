@@ -10,7 +10,7 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.PlayerScore;
 import fr.ycraft.jump.entity.TimeScore;
-import fr.ycraft.jump.injection.PluginLogger;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import fr.ycraft.jump.util.DatabaseUtil;
 import lombok.AccessLevel;
 import lombok.Cleanup;
