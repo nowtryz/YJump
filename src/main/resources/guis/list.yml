@@ -21,7 +21,7 @@ keys:
   '-':
     material: stained glass pane
     color: black
-    #name: coming soon...
+    #name: coming soon... (for example)
     name: '&f'
   '<':
     skull:

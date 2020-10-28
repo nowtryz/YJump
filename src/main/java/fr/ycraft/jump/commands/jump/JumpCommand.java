@@ -1,8 +1,8 @@
 package fr.ycraft.jump.commands.jump;
 
-import fr.ycraft.jump.JumpGame;
+import fr.ycraft.jump.sessions.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.PluginCommandExecutor;
 import fr.ycraft.jump.manager.EditorsManager;

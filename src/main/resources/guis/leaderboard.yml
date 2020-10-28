@@ -9,8 +9,6 @@ pattern:
 
 classment place: &place
   material: air
-  fallback:
-    material: skull item
 
 keys:
   '#':
@@ -38,16 +36,46 @@ keys:
     material: iron block
     name: '&7&o#&l3'
 
-  '0': *place
-  '1': *place
-  '2': *place
-  '3': *place
-  '4': *place
-  '5': *place
-  '6': *place
-  '7': *place
-  '8': *place
-  '9': *place
+  '0':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/af3034d24a85da31d67932c33e5f1821e219d5dcd9c2ba4f2559df48deea}
+  '1':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/dc61b04e12a879767b3b72d69627f29a83bdeb6220f5dc7bea2eb2529d5b097}
+  '2':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/6823f77558ca6060b6dc6a4d4b1d86c1a5bee7081677bbc336ccb92fbd3ee}
+  '3':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/f2a3d53898141c58d5acbcfc87469a87d48c5c1fc82fb4e72f7015a3648058}
+  '4':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/d1fe36c4104247c87ebfd358ae6ca7809b61affd6245fa984069275d1cba763}
+  '5':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/3ab4da2358b7b0e8980d03bdb64399efb4418763aaf89afb0434535637f0a1}
+  '6':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/297712ba32496c9e82b20cc7d16e168b035b6f89f3df014324e4d7c365db3fb}
+  '7':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/abc0fda9fa1d9847a3b146454ad6737ad1be48bdaa94324426eca0918512d}
+  '8':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/d6abc61dcaefbd52d9689c0697c24c7ec4bc1afb56b8b3755e6154b24a5d8ba}
+  '9':
+    <<: *place
+    fallback:
+      skull: {url: http://textures.minecraft.net/texture/7af3fd473a648b847ccda1d2074479bb7672771dc435223468ed9ff7}b76cb3
 
 hooks:
   place1:  '0'

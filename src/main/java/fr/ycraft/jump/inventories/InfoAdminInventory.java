@@ -2,7 +2,7 @@ package fr.ycraft.jump.inventories;
 
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
@@ -20,6 +20,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -34,18 +35,21 @@ import java.util.Optional;
 import static net.nowtryz.mcutils.builders.ItemBuilder.create;
 
 public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Position> {
-    private final Jump jump;
+    private final FallDistanceInventory.Factory factory;
     private final Config config;
+    private final Jump jump;
 
     @Inject
     InfoAdminInventory(JumpPlugin plugin,
                        Config config,
+                       FallDistanceInventory.Factory factory,
                        @Named("ADMIN") Pattern pattern,
                        @Assisted Player player,
                        @Assisted Jump jump,
                        @Assisted @Nullable Gui back) {
 
         super(plugin, player, back, pattern, Text.INFO_TITLE.get(jump.getName()));
+        this.factory = factory;
         this.config = config;
         this.jump = jump;
 
@@ -96,9 +100,6 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
                                         jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
                         .addAllItemFlags()
                         .build())
-                .hookProvider("fall distance", b -> b
-                        .setDisplayName(Text.INFO_FALL_NAME)
-                        .setLore(Text.INFO_FALL_LORE, config.get(Key.MAX_FALL_DISTANCE)))
                 .hookItem("world", create(getIcon(jump.getWorld()))
                         .setDisplayName(Text.INFO_WORLD_NAME)
                         .setLore(Text.INFO_WORLD_LORE, Optional
@@ -113,6 +114,19 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         // Pagination
         super.setHooks("next", "previous", "checkpoints");
         super.setValues(jump.getCheckpointsPositions());
+    }
+
+    @Override
+    public void onOpen() {
+        super.onOpen();
+        if (this.jump.getFallDistance() > 0) this.builder
+                .hookAction("fall distance", this::onFallDistance, b -> b
+                .setDisplayName(Text.INFO_FALL_NAME)
+                .setAmount(jump.getFallDistance() > 64 ? 1 : jump.getFallDistance())
+                .setLore(Text.INFO_FALL_LORE, jump.getFallDistance()));
+        else this.builder.fallback("fall distance", this::onFallDistance, b -> b
+                .setDisplayName(Text.INFO_FALL_NAME)
+                .setLore(Text.INFO_FALL_DISABLED));
     }
 
     public void teleport(Position checkpoint) {
@@ -165,6 +179,10 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
     @Override
     protected void onClick(InventoryClickEvent event, Position position) {
         this.teleport(position);
+    }
+
+    private void onFallDistance(Event event) {
+        this.factory.create(this.jump, this.player, this).open();
     }
 
     public interface Factory {

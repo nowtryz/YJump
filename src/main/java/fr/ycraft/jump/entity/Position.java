@@ -95,6 +95,17 @@ public class Position implements Cloneable, ConfigurationSerializable, Serializa
     }
 
     /**
+     * Checks if this position and the given location are the same block
+     * @param location the location to check
+     * @return true if it is the case
+     */
+    public boolean isBlock(@NonNull Location location) {
+        return this.x == location.getBlockX()
+                && this.y == location.getBlockY()
+                && this.z == location.getBlockZ();
+    }
+
+    /**
      * Get a new position.
      *
      * @return a clone of this position

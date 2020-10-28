@@ -1,8 +1,8 @@
 package fr.ycraft.jump.listeners;
 
-import fr.ycraft.jump.JumpEditor;
+import fr.ycraft.jump.sessions.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
@@ -10,6 +10,7 @@ import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.manager.JumpManager;
 import net.nowtryz.mcutils.LocationUtil;
+import net.nowtryz.mcutils.listener.AbstractListener;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

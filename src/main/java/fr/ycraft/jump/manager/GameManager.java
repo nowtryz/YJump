@@ -2,7 +2,7 @@ package fr.ycraft.jump.manager;
 
 import com.google.inject.Inject;
 import fr.ycraft.jump.factories.JumpGameFactory;
-import fr.ycraft.jump.JumpGame;
+import fr.ycraft.jump.sessions.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.listeners.GameListener;
@@ -51,7 +51,7 @@ public class GameManager extends AbstractManager {
 
     public void remove(Player player, JumpGame game) {
         this.runningGames.remove(player, game);
-        if (this.runningGames.isEmpty()) this.listener.unRegister();
+        if (this.runningGames.isEmpty()) this.listener.unregister();
     }
 
     public void stopAll() {

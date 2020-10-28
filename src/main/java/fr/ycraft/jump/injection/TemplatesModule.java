@@ -6,7 +6,7 @@ import com.google.inject.name.Names;
 import com.google.mu.util.stream.BiStream;
 import net.nowtryz.mcutils.templating.Pattern;
 import net.nowtryz.mcutils.templating.PatternFactory;
-import net.nowtryz.mcutils.templating.Patterns;
+import fr.ycraft.jump.enums.Patterns;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.EnumMap;
 
-import static net.nowtryz.mcutils.templating.Patterns.FOLDER_NAME;
+import static fr.ycraft.jump.enums.Patterns.FOLDER_NAME;
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

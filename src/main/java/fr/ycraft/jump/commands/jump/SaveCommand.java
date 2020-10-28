@@ -1,6 +1,6 @@
 package fr.ycraft.jump.commands.jump;
 
-import fr.ycraft.jump.JumpEditor;
+import fr.ycraft.jump.sessions.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.AbstractCommandImpl;
 import fr.ycraft.jump.commands.CommandSpec;

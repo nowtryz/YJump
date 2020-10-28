@@ -20,8 +20,12 @@ plates:
 game:
   # Time wait until enable players to reset their chrono (millis)
   reset time: 1000
-  # Max fall distance before teleport the player to its last checkpoint (-1 to disable)
+  # Max fall distance before teleport the player to its last checkpoint (0 to disable)
+  # It's is the default value but can be overridden with a different value on each parkour
   max fall distance: 5
+  # Avoid teleportation if a checkpoint is lower than the previous and that the drop to access this
+  # checkpoint is deeper than the max fall distance for this parkour
+  intelligent fall distance: yes
   # Weather or not the plugin must disable collisions between player on the same parkour
   # Note: still collides with other entities and players
   disable collisions: no

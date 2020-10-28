@@ -1,6 +1,6 @@
 package fr.ycraft.jump.commands.misc;
 
-import fr.ycraft.jump.JumpGame;
+import fr.ycraft.jump.sessions.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.GameCommand;

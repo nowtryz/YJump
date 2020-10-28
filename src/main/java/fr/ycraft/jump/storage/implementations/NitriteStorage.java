@@ -178,6 +178,7 @@ public class NitriteStorage implements StorageImplementation {
     private static Document jumpToDocument(Jump jump) {
         return createDocument(Jump.ID, jump.getId())
                 .put(Jump.NAME, jump.getName())
+                .put(Jump.FALL_DISTANCE, jump.getFallDistance())
                 .put(Jump.DESCRIPTION, jump.getDescription().orElse(null))
                 .put(Jump.WORLD, Optional.ofNullable(jump.getWorld()).map(World::getName).orElse(null))
                 .put(Jump.SPAWN, jump.getSpawnPos().orElse(null))
@@ -192,6 +193,7 @@ public class NitriteStorage implements StorageImplementation {
         return Jump.builder()
                 .id(document.get(Jump.ID, UUID.class))
                 .name(document.get(Jump.NAME, String.class))
+                .fallDistance(document.get(Jump.FALL_DISTANCE, Integer.class))
                 .description(document.get(Jump.DESCRIPTION, String.class))
                 .world(Optional.ofNullable(document.get(Jump.WORLD, String.class)).map(Bukkit::getWorld).orElse(null))
                 .spawn(document.get(Jump.SPAWN, Position.class))

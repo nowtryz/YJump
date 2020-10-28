@@ -1,8 +1,8 @@
 package fr.ycraft.jump.commands;
 
-import fr.ycraft.jump.JumpEditor;
+import fr.ycraft.jump.sessions.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

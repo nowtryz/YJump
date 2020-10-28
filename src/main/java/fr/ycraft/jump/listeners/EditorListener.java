@@ -5,6 +5,7 @@ import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.manager.EditorsManager;
+import net.nowtryz.mcutils.listener.AbstractListener;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

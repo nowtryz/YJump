@@ -1,6 +1,6 @@
 package fr.ycraft.jump.entity;
 
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

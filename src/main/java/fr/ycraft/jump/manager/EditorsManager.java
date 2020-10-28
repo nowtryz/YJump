@@ -1,8 +1,8 @@
 package fr.ycraft.jump.manager;
 
 import com.google.inject.Inject;
-import fr.ycraft.jump.JumpEditor;
-import fr.ycraft.jump.JumpGame;
+import fr.ycraft.jump.sessions.JumpEditor;
+import fr.ycraft.jump.sessions.JumpGame;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.entity.Jump;
@@ -58,7 +58,7 @@ public class EditorsManager extends AbstractManager {
             this.editors.remove(editor.getJump(), editor);
         }
 
-        if (this.editors.isEmpty()) this.listener.unRegister();
+        if (this.editors.isEmpty()) this.listener.unregister();
     }
 
     public Optional<JumpEditor> getEditor(Jump jump) {

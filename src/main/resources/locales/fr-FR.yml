@@ -18,7 +18,7 @@
 noperm: "&cVous n'avez pas la permission pour exécuter cette commande"
 back: "&l» &r&cRetour"
 usage: "&cUsage : %s"
-command_error: "6Jump &e» &cUne erreur est survenue ! Impossible d'executer la command."
+command_error: "6Jump &e» &cUne erreur est survenue ! Impossible d'exécuter la commande."
 deleted: "&6Jump Editor &e» &f%s &7a été supprimé."
 reloaded: "&6Jump &e» &aLes configurations du plugin ont été rechargée."
 click: "&9Cliquez pour exécuter"
@@ -29,6 +29,8 @@ only_editor_action: "&6Jump Editor &e» &cVous devez être dans un éditeur pour
 only_editor_command: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "&cSeul un joueur peut exécuter cette commande"
 unknown_command: "&cCommande inconnue ! Faites &o/jump help &r&c pour recevoir de l'aide."
+saved: "&6Jump Editor &e» &aModification sauvegardée"
+error: "&6Jump Editor &e» &cUne erreur est survenue !"
 unknown_world: |-
   &cIl n'existe aucun monde &3'%s'
   &cLes mondes disponibles sont &7%s&c.
@@ -72,6 +74,7 @@ editor:
   header: "&e&m=  &r&e» &6&lJump Editor &r&e«&m  ="
   title: "&aVous êtes en train d'éditer &e%s&a."
   nospawn: "&6Jump Editor &e» &cCe jump n'a pas encore de spawn"
+  checkpoint_exists: "&6Jump Editor &e» &cCe checkpoint existe déjà"
   delete_checkpoint: "&6Jump Editor &e» &aCheckpoint supprimé"
   cannot_start_game: "&6Jump Editor &e» &cVous ne pouvez pas commencer de jump lorsque vous êtes dans un éditeur."
   set_air_item: >
@@ -120,6 +123,7 @@ inventory:
       fall: "&e%dm"
       world: "&e%s"
       icon: "&e%s"
+      disabled: "&cDésactivé"
       world_not_set: |-
         &cLe monde n'a pas été définit
 
@@ -166,6 +170,33 @@ inventory:
         - " &cVous n'avez jamais fait ce jump"
         - ""
         - "&7&m                                                  "
+  fall_distance:
+    title: "&e&lModifier la &6Distance de chute"
+    decrease: "&r&eDiminuer de 1"
+    increase: "&r&eAugmenter de 1"
+    decrease10: "&r&eDiminuer de 10"
+    increase10: "&r&eAugmenter de 10"
+    icon: "&b&l» &r&6Distance de chute"
+    lore:
+      - ""
+      - " &f&l» &eLa distance actuelle est de &7: &6&l%d&r&em"
+      - ""
+      - "&7&m                                                  "
+      - ""
+      - "&eCliquez pour réinitialiser à &f%dm&e."
+      - ""
+      - "&7&m                                                  "
+    disabled:
+      - ""
+      - "&f&l» &cLa distance  de chute est"
+      - "&c   actuellement désactivée pour ce"
+      - "&c  parcours"
+      - ""
+      - "&7&m                                                  "
+      - ""
+      - "&eCliquez pour réinitialiser à &f%dm&e."
+      - ""
+      - "&7&m                                                  "
   jump:
     title: "&6&lJump » &r&e%s"
     tp: "&r&eTéléportation au &6jump"
@@ -217,6 +248,7 @@ game:
   left: "&6Jump &e» &cVous avez quitté le jump : &o%s"
   left_command: "&6Jump &e» &7&oVous avez quitté le jump"
   no_command: "l'usage de commandes n'est pas autorisé"
+  no_teleport: "l'usage de téléportations n'est pas autorisé"
   no_flight: "&6Jump &e» &cl'usage du fly n'est pas autorisé"
   reset: "&6Jump &e»  &7Le chrono a été réinitialisé à &a0&7."
   checkpoint: "&6Jump &e»  &7Vous avez validé un checkpoint."

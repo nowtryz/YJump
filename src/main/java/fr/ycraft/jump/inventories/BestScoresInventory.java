@@ -3,7 +3,7 @@ package fr.ycraft.jump.inventories;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
 import net.nowtryz.mcutils.api.Gui;

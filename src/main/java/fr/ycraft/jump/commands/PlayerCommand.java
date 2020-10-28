@@ -1,7 +1,7 @@
 package fr.ycraft.jump.commands;
 
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

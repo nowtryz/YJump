@@ -29,7 +29,7 @@ keys:
   '^':
     material: arrow
     fallback: *filler
-  # Personnal scores
+  # Personal scores
   'P':
     # The item do not matter, it will be overridden
     material: air

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.*;
 import lombok.EqualsAndHashCode.Include;
 import net.nowtryz.mcutils.ItemStackUtil;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -32,6 +33,7 @@ public class Jump implements ConfigurationSerializable {
     public static final String START = "start";
     public static final String SPAWN = "spawn";
     public static final String ITEM = "item";
+    public static final String FALL_DISTANCE = "fall distance";
     public static final String CHECKPOINTS = "checkpoints";
     public static final String BEST_SCORES = "best scores";
     public static final String DESCRIPTION = "description";
@@ -46,11 +48,6 @@ public class Jump implements ConfigurationSerializable {
     @Include @NonNull @Default
     private final UUID id = UUID.randomUUID();
 
-    @Setter @NonNull
-    private String name;
-
-    @Getter @Setter
-    private World world;
 
     @NonNull @Default
     private final List<Position> checkpoints = new ArrayList<>();
@@ -61,6 +58,9 @@ public class Jump implements ConfigurationSerializable {
     @NonNull @Default
     private ItemStack item = new ItemStack(DEFAULT_MATERIAL);
 
+    private @NonNull String name;
+    private World world;
+    private int fallDistance;
     private String description;
     private Position spawn;
     private Position start;
@@ -201,6 +201,7 @@ public class Jump implements ConfigurationSerializable {
 
         data.put(ID, this.id.toString());
         data.put(NAME, this.name);
+        data.put(FALL_DISTANCE, this.fallDistance);
         data.put(DESCRIPTION, this.description);
         data.put(SPAWN, this.spawn);
         data.put(START, this.start);
@@ -235,6 +236,11 @@ public class Jump implements ConfigurationSerializable {
                             .description(Optional.ofNullable(args.get(DESCRIPTION))
                                     .map(Object::toString)
                                     .orElse(null))
+                            .fallDistance(Optional.ofNullable(args.get(FALL_DISTANCE))
+                                    .map(Object::toString)
+                                    .filter(NumberUtils::isCreatable)
+                                    .map(NumberUtils::createInteger)
+                                    .orElse(-1))
                             .spawn(Position.extract(args.get(SPAWN)))
                             .start(Position.extract(args.get(START)))
                             .end(Position.extract(args.get(END)))

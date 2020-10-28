@@ -1,10 +1,12 @@
-package fr.ycraft.jump;
+package fr.ycraft.jump.sessions;
 
 import com.google.inject.assistedinject.Assisted;
+import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.storage.Storage;
 import lombok.experimental.FieldDefaults;
@@ -148,7 +150,7 @@ public class JumpEditor {
     public void setSpawn(Location location) {
         this.jump.setSpawn(location);
         this.storage.storeJump(this.jump);
-        this.players.forEach(player -> Text.SPAWN_UPDATED.send(player, this.jump.getName()));
+        this.alert(Text.SPAWN_UPDATED, this.jump.getName());
     }
 
     public void setStart(Location location) {
@@ -164,7 +166,7 @@ public class JumpEditor {
             location.getBlock().setType(this.config.get(Key.START_MATERIAL));
         }
 
-        this.players.forEach(player -> Text.START_UPDATED.send(player, this.jump.getName()));
+        this.alert(Text.START_UPDATED, this.jump.getName());
     }
 
     public void ensureSafeLocation(Location location) {
@@ -185,15 +187,20 @@ public class JumpEditor {
             location.getBlock().setType(this.config.get(Key.END_MATERIAL));
         }
 
-        this.players.forEach(player -> Text.END_UPDATED.send(player, this.jump.getName()));
+        this.alert(Text.END_UPDATED, this.jump.getName());
     }
 
     public void addCheckpoint(@NotNull Location location) {
-        this.jump.addCheckpoint(location);
-        this.storage.storeJump(this.jump);
-        this.ensureSafeLocation(location);
-        location.getBlock().setType(this.config.get(Key.CHECKPOINT_MATERIAL));
-        this.players.forEach(player -> Text.CHECKPOINT_ADDED.send(player, this.jump.getName()));
+        if (this.jump.getCheckpointsPositions().stream().anyMatch(p -> p.isBlock(location))) {
+            // We do not know who used the command.. So we warn everybody in the editor
+            this.alert(Text.CHECKPOINT_ALREADY_EXIST);
+        } else {
+            this.jump.addCheckpoint(location);
+            this.storage.storeJump(this.jump);
+            this.ensureSafeLocation(location);
+            location.getBlock().setType(this.config.get(Key.CHECKPOINT_MATERIAL));
+            this.alert(Text.CHECKPOINT_ADDED, this.jump.getName());
+        }
     }
 
     public void deleteCheckpoint(@NotNull Location location) {
@@ -204,6 +211,10 @@ public class JumpEditor {
         if (this.config.get(Key.DELETE_PLATES)) {
             location.getBlock().setType(Material.AIR);
         }
+    }
+
+    private void alert(Text text, Object... arguments) {
+        this.players.forEach(player -> text.send(player, arguments));
     }
 
     public void leave(Player player) {

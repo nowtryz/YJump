@@ -1,6 +1,6 @@
 package fr.ycraft.jump.util;
 
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import net.nowtryz.mcutils.ItemStackUtil;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;

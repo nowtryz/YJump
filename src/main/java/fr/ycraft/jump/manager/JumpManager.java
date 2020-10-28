@@ -5,11 +5,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
-import net.nowtryz.mcutils.injection.PluginLogger;
 import fr.ycraft.jump.storage.Storage;
 import lombok.Getter;
 import net.nowtryz.mcutils.LocationUtil;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class JumpManager extends AbstractManager {
     private final Storage storage;
     private final Logger logger;
+    private final Config config;
 
     protected Map<String, Jump> jumps;
     protected Map<UUID, Jump> jumpsById;
@@ -35,10 +38,11 @@ public class JumpManager extends AbstractManager {
     protected List<World> protectedWorlds;
 
     @Inject
-    JumpManager(JumpPlugin plugin, Storage storage, @PluginLogger Logger logger) {
+    JumpManager(JumpPlugin plugin, Storage storage, @PluginLogger Logger logger, Config config) {
         super(plugin);
         this.storage = storage;
         this.logger = logger;
+        this.config = config;
     }
 
     public void init() {
@@ -98,6 +102,7 @@ public class JumpManager extends AbstractManager {
     public Jump createAndSave(String name) {
         Jump jump =Jump.builder()
                 .name(name)
+                .fallDistance(this.config.get(Key.MAX_FALL_DISTANCE))
                 .build();
         this.storage.storeJump(jump);
         this.jumps.put(name, jump);

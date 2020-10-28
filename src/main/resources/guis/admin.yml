@@ -39,7 +39,10 @@ keys:
   # Falling distance
   'F':
     material: bed
-    color: red
+    color: green
+    fallback:
+      material: bed
+      color: red
   # World - do not matter
   # Overridden based on world type
   'W':
@@ -50,11 +53,11 @@ keys:
   'S':
     material: compass
   # Start - do not matter
-  # Ovverridden to start plate material
+  # Overridden to start plate material
   'B':
     material: air
   # End - do not matter
-  # Ovverridden to end plate material
+  # Overridden to end plate material
   'E':
     material: air
 

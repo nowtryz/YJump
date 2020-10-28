@@ -30,4 +30,16 @@ If you want to keep V1's YAML files, follw the steps bellow:
     ```log
     The world of `%1$s` is not set or have changed, please update it with `/jump setworld name <world>`
     ```
- 5. Once you have followed these instructions, you will have your jumps ready? 
+ 5. Fall distance is now editable for each jump and has been cahnged to `-1 (disabled)` for all of your old parkour. If
+    you want to change this, ypu forst need to enter the admin panel of the desired parkours, to do this, use one of the
+    following options:
+       - Enter editor:
+           1. use `/jump edit <jump name>` to enter the editor
+           2. in the editor, use `/jump info` to show the admin panel
+       - Use the *jumps* command
+           1. use `/jumps <jump name>` to open the jump gui
+           2. click on the `settings` icon to show the admin panel (the place, and the type of the icon depend on your
+              gui configuration)
+    Once you've done this, just click on the *bed* (or whatever icon you configured the gui to use) and edit the fall
+    distance.
+ 6. Once you have followed these instructions, you will have your jumps ready? 

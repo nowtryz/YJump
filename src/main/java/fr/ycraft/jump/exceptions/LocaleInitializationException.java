@@ -1,6 +1,6 @@
 package fr.ycraft.jump.exceptions;
 
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import lombok.Getter;
 
 import java.util.Locale;

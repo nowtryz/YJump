@@ -1,6 +1,7 @@
-package fr.ycraft.jump;
+package fr.ycraft.jump.enums;
 
 import com.google.common.base.Charsets;
+import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.exceptions.LocaleInitializationException;
 import net.nowtryz.mcutils.api.Translation;
@@ -27,6 +28,7 @@ public enum Text implements Translation {
     BEST_SCORES_HEADER("inventory.player.header", "Best %2$d scores for %1$s"),
     CHECKPOINT_ADDED("editor.updated.checkpoint", "Checkpoint added for %s"),
     CHECKPOINT_DELETED("editor.delete_checkpoint", "Checkpoint deleted"),
+    CHECKPOINT_ALREADY_EXIST("editor.checkpoint_exists", "Checkpoint already exists"),
     CHECKPOINT_VALIDATED("game.checkpoint", "Checkpoint validated"),
     CHRONO_RESET("game.reset", "The chrono has been reset"),
     CLICK("click", "Click to execute"),
@@ -76,6 +78,9 @@ public enum Text implements Translation {
     HELP_COMMAND("help.command", "%s\n  %s"),
     HELP_HEADER("help.header", "Jump help:"),
     INFO_CHECKPOINT_NAME("inventory.info.name.checkpoint", "Checkpoint"),
+    SAVED("saved", "Modifications saved"),
+    ERROR("error", "An error occurred!"),
+    INFO_FALL_DISABLED("inventory.info.lore.disabled", "Disabled"),
     INFO_END_NAME("inventory.info.name.end", "spawn"),
     INFO_FALL_LORE("inventory.info.lore.fall", "%dm"),
     INFO_FALL_NAME("inventory.info.name.fall", "spawn"),
@@ -97,6 +102,14 @@ public enum Text implements Translation {
     JUMP_END_TITLE("game.end.title", "Jump end"),
     JUMP_INVENTORY("inventory.jump.title", "%s"),
     JUMP_INVENTORY_SELF("inventory.jump.self", "See my best scores"),
+    FALL_DISTANCE_INVENTORY_TITLE("inventory.fall_distance.title", "Edit fall distance"),
+    FALL_DISTANCE_INVENTORY_INCREASE("inventory.fall_distance.increase", "Increase"),
+    FALL_DISTANCE_INVENTORY_DECREASE("inventory.fall_distance.decrease", "Decrease"),
+    FALL_DISTANCE_INVENTORY_INCREASE_10("inventory.fall_distance.increase10", "Increase by 10"),
+    FALL_DISTANCE_INVENTORY_DECREASE_10("inventory.fall_distance.decrease10", "Decrease by 10"),
+    FALL_DISTANCE_INVENTORY_ICON("inventory.fall_distance.icon", "Fall distance"),
+    FALL_DISTANCE_INVENTORY_LORE("inventory.fall_distance.lore", "%dm\nClick to reset to %d"),
+    FALL_DISTANCE_INVENTORY_DISABLED("inventory.fall_distance.disabled", "%dm\nClick to reset to %d"),
     JUMP_INVENTORY_SETTINGS("inventory.jump.settings", "Jump settings"),
     JUMP_INVENTORY_TOP("inventory.jump.top", "See top %d"),
     JUMP_INVENTORY_TP("inventory.jump.tp", "Teleport to jump"),
@@ -113,6 +126,7 @@ public enum Text implements Translation {
     NAME_UPDATED("editor.updated.name", "Jump renamed to %s"),
     NEXT_PAGE("inventory.next", "Next page (%d/%d)"),
     NO_COMMANDS("game.no_command", "no commands"),
+    NO_TELEPORT("game.no_teleport", "no teleportation"),
     NO_FLY("game.no_flight", "no flight allowed"),
     NO_PERM("noperm", "§cYou don't have de permission to execute this command"),
     NO_SPAWN("editor.nospawn", "This jump has no spawn location yet"),
@@ -162,7 +176,7 @@ public enum Text implements Translation {
      * Initialize the translator base on the default language of the plugin
      * @param plugin the Bukkit plugin to get resources from
      */
-    static void init(JumpPlugin plugin) throws LocaleInitializationException {
+    public static void init(JumpPlugin plugin) throws LocaleInitializationException {
         Locale configuredLocale = plugin.getConfigProvider().get(Key.LOCALE);
         boolean available = Arrays.asList(AVAILABLE_LOCALES).contains(configuredLocale);
 

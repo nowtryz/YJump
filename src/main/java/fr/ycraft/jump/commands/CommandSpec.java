@@ -1,6 +1,6 @@
 package fr.ycraft.jump.commands;
 
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 
 import java.util.Optional;
 

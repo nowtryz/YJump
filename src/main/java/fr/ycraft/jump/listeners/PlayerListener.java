@@ -2,6 +2,7 @@ package fr.ycraft.jump.listeners;
 
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.manager.PlayerManager;
+import net.nowtryz.mcutils.listener.AbstractListener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;

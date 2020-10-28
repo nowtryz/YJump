@@ -1,7 +1,7 @@
 package fr.ycraft.jump.commands.misc;
 
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.Text;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.commands.CommandSpec;
 import fr.ycraft.jump.commands.PlayerCommand;
 import fr.ycraft.jump.commands.PluginCommandExecutor;

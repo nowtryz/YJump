@@ -1,12 +1,14 @@
-package fr.ycraft.jump;
+package fr.ycraft.jump.sessions;
 
 import com.google.inject.assistedinject.Assisted;
+import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
@@ -20,6 +22,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
@@ -42,6 +45,8 @@ public class JumpGame {
 
     @NotNull
     private final Location startLocation;
+    private final Location spawnLocation;
+    private final Location endLocation;
     private final List<Location> validated = new LinkedList<>();
     private final Jump jump;
     private final Config config;
@@ -50,6 +55,7 @@ public class JumpGame {
     private final GameManager gameManager;
     private final Storage storage;
     private final Player player;
+    private final boolean fallPrevention;
     private final boolean canFly;
     private BossBar bossBar;
     private Scoreboard originalScoreboard;
@@ -74,7 +80,12 @@ public class JumpGame {
              @Assisted Player player) {
 
         Optional<JumpPlayer> jumpPlayer = playerManager.getPlayer(player);
-        assert jump.getStart().isPresent();
+        Optional<Location> start = jump.getStart();
+        Optional<Location> spawn = jump.getSpawn();
+        Optional<Location> end = jump.getEnd();
+        assert start.isPresent();
+        assert spawn.isPresent();
+        assert end.isPresent();
         assert jumpPlayer.isPresent();
 
         this.jumpPlayer = jumpPlayer.get();
@@ -85,10 +96,13 @@ public class JumpGame {
         this.plugin = plugin;
         this.jump = jump;
         this.player = player;
-        this.startLocation = jump.getStart().get();
+        this.startLocation = start.get();
+        this.spawnLocation = spawn.get();
+        this.endLocation = end.get();
         this.start = System.currentTimeMillis();
         this.resetTime = config.get(Key.RESET_TIME);
         this.canFly = Perm.FLY.isHeldBy(player);
+        this.fallPrevention = jump.getFallDistance() > 0;
         this.checkpoint = this.startLocation;
     }
 
@@ -182,7 +196,7 @@ public class JumpGame {
         Location loc = event.getClickedBlock().getLocation();
 
         // jump end
-        if (this.jump.getEnd().map(l -> LocationUtil.isBlockLocationEqual(l, loc)).orElse(false)) {
+        if (LocationUtil.isBlockLocationEqual(this.endLocation, loc)) {
             if (this.validated.size() == this.jump.getCheckpoints().size()) this.end();
             else Text.GAME_MISSING_CHECKPOINT.send(this.player);
         }
@@ -199,7 +213,7 @@ public class JumpGame {
     }
 
     public void onMove() {
-        if (this.player.getFallDistance() > this.config.get(Key.MAX_FALL_DISTANCE)) {
+        if (this.fallPrevention && this.player.getFallDistance() > this.jump.getFallDistance()) {
             this.player.setFallDistance(0);
             this.tpLastCheckpoint();
         }
@@ -208,6 +222,13 @@ public class JumpGame {
     public void onDamage(EntityDamageEvent event) {
         if (EntityDamageEvent.DamageCause.VOID == event.getCause()) this.tpLastCheckpoint();
         event.setCancelled(true);
+    }
+
+    public void onTeleport(PlayerTeleportEvent event) {
+        if (!this.checkpoint.equals(event.getTo()) && !this.spawnLocation.equals(event.getTo())) {
+            this.close();
+            Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_TELEPORT);
+        }
     }
 
     private void updateBossbar() {
@@ -237,8 +258,8 @@ public class JumpGame {
     }
 
     public void tpLastCheckpoint() {
-        if (this.checkpoint.equals(this.startLocation) && this.jump.getSpawn().isPresent()) {
-            this.player.teleport(this.jump.getSpawn().get());
+        if (this.checkpoint.equals(this.startLocation)) {
+            this.player.teleport(this.spawnLocation);
         } else {
             this.player.teleport(this.checkpoint);
         }
