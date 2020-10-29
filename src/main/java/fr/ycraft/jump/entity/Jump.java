@@ -142,6 +142,10 @@ public class Jump implements ConfigurationSerializable {
         return ImmutableList.copyOf(checkpoints);
     }
 
+    public int getCheckpointCount() {
+        return this.checkpoints.size();
+    }
+
     public @NotNull List<Location>  getCheckpoints() {
         if (this.world == null) return Collections.emptyList();
         return checkpoints

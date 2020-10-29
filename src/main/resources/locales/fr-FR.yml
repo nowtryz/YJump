@@ -7,12 +7,14 @@
 # multi lignes:
 #   - ligne 1
 #   - ligne 2
-
+#
 # Les variables utilisent le système de place holder de `printf`
 # Plus d'infos : https://en.wikipedia.org/wiki/Printf_format_string#Format_placeholder_specification
 # Exemples :
 #  - %.2f = nombre décimal avec une précision de 2
 #  - %2$s = affichage du deuxième paramètre en tant que chaine de caractères
+#
+# Si vous souhaitez retirer un message, remplacé le par "", il ne sera alors pas envoyé aux joueurs
 
 
 noperm: "&cVous n'avez pas la permission pour exécuter cette commande"
@@ -237,9 +239,20 @@ game:
       header: "Checkpoint"
       value: "  %d / %d"
   enter:
-    - "&e&m=  &r&e» &6&lYJump &r&e«&m  ="
-    - "&7Vous avez commencé le jump &a%s&7."
-    - "&7Vous pouvez faire &a/cp&7 à tout moment pour retourner au dernier checkpoint, et &a/jump&7 pour quitter le jump"
+    message:
+      - "&e&m=  &r&e» &6&lYJump &r&e«&m  ="
+      - "&7Vous avez commencé le jump &a%s&7."
+      - "&7Vous pouvez faire &a/cp&7 à tout moment pour retourner au dernier checkpoint, et &a/jump&7 pour quitter le jump"
+    title: "&6Jump &l%s"
+    subtitle: "&eFinissez le parcours le plus vite possible"
+  checkpoint:
+    message: "&6Jump &e»  &7Vous avez validé un checkpoint."
+    title: "&o&6Checkpoint"
+    subtitle: "&7(&e%d&7/&e%d&7)"
+  reset:
+    message: "&6Jump &e»  &7Le chrono a été réinitialisé à &a0&7."
+    title: "&6Chrono réinitialisé"
+    subtitle: "&eVotre temps à été remit à 0"
   end:
     message: "&6Jump &e» &7Vous avez fini le jump &a%1$s&7 en &9%2$02d'%3$02d''%4$03d&7s."
     title: "&o&6Jump terminé"
@@ -250,7 +263,5 @@ game:
   no_command: "l'usage de commandes n'est pas autorisé"
   no_teleport: "l'usage de téléportations n'est pas autorisé"
   no_flight: "&6Jump &e» &cl'usage du fly n'est pas autorisé"
-  reset: "&6Jump &e»  &7Le chrono a été réinitialisé à &a0&7."
-  checkpoint: "&6Jump &e»  &7Vous avez validé un checkpoint."
   checkpoint_tp: "&6Jump &e»  &7Vous avez téléporté au dernier checkpoint."
   missing_checkpoint: "&6Jump &e»  &cVous devez valider tous les checkpoints."

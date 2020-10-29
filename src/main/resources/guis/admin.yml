@@ -29,6 +29,7 @@ keys:
   # Back
   '^':
     material: arrow
+    fallback: *filler
   # Checkpoints
   # We need to give which item to display if there is no checkpoints
   '-':

@@ -21,7 +21,7 @@ public class CreateCommand extends AbstractCommandImpl {
         String name = args[0];
 
         if (plugin.getJumpManager().getJumps().containsKey(name)) {
-            Text.JUMP_ALREADY_EXISTS.send(sender);
+            Text.GAME_ALREADY_EXISTS.send(sender);
             return true;
         }
 

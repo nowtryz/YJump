@@ -15,7 +15,6 @@ import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.exceptions.ParkourException;
-import net.nowtryz.mcutils.injection.BukkitModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
@@ -26,11 +25,11 @@ import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
-import fr.ycraft.jump.util.ItemLibrary;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
 import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
+import net.nowtryz.mcutils.injection.BukkitModule;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -93,8 +92,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             );
 
             Text.init(this);
-            ItemLibrary.init();
-//        JumpInventory.init(this);
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
@@ -114,8 +111,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             this.getLogger().warning("Disabling...");
             Bukkit.getPluginManager().disablePlugin(this);
         }
-
-
     }
 
     /**

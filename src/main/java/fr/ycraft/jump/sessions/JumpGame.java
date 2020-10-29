@@ -5,6 +5,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
+import fr.ycraft.jump.configuration.TitleSettings;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
@@ -12,6 +13,7 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
+import lombok.Getter;
 import net.nowtryz.mcutils.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,20 +45,25 @@ public class JumpGame {
     private static final int CHECKPOINT_HEADER_POS = 2;
     private static final int CHECKPOINT_VALUE_POS = 1;
 
-    @NotNull
-    private final Location startLocation;
-    private final Location spawnLocation;
-    private final Location endLocation;
+    private final @Getter(onMethod_={@NotNull}) Jump jump;
+    private final @NotNull Location startLocation;
+    private final @NotNull Location spawnLocation;
+    private final @NotNull Location endLocation;
     private final List<Location> validated = new LinkedList<>();
-    private final Jump jump;
     private final Config config;
     private final JumpPlugin plugin;
     private final JumpPlayer jumpPlayer;
     private final GameManager gameManager;
     private final Storage storage;
     private final Player player;
+    private final TitleSettings startTitle;
+    private final TitleSettings resetTitle;
+    private final TitleSettings checkpointTitle;
+    private final TitleSettings endTitle;
     private final boolean fallPrevention;
     private final boolean canFly;
+    private final boolean bossBarEnabled;
+    private final boolean sidebarEnabled;
     private BossBar bossBar;
     private Scoreboard originalScoreboard;
     private BukkitTask bukkitTask;
@@ -93,6 +100,12 @@ public class JumpGame {
         this.storage = storage;
         this.config = config;
         this.resetTime = config.get(Key.RESET_TIME);
+        this.bossBarEnabled = config.get(Key.BOSS_BAR_ENABLED);
+        this.sidebarEnabled = config.get(Key.SIDEBAR_ENABLED);
+        this.startTitle = config.get(Key.START_TITLE);
+        this.resetTitle = config.get(Key.RESET_TITLE);
+        this.checkpointTitle = config.get(Key.CHECKPOINT_TITLE);
+        this.endTitle = config.get(Key.END_TITLE);
         this.plugin = plugin;
         this.jump = jump;
         this.player = player;
@@ -106,9 +119,20 @@ public class JumpGame {
         this.checkpoint = this.startLocation;
     }
 
+    /**
+     * Initialize this game session and add information to the player's ATH.
+     * This method must be called on the primary thread of Bukkit
+     * @throws AssertionError if this method is not call on primary thread
+     */
     public void init() {
-        assert Bukkit.isPrimaryThread();
-        Text.ENTER_GAME.send(player, jump.getName());
+        assert Bukkit.isPrimaryThread() : "Async Parkour initialization";
+        assert false : "False is actually false, clever !";
+
+        Text.GAME_ENTER.send(player, jump.getName());
+        this.startTitle.send(player,
+                Text.GAME_ENTER_TITLE.get(this.jump.getName()),
+                Text.GAME_ENTER_SUBTITLE.get(this.jump.getName())
+        );
 
         this.wasCollidable = this.player.isCollidable();
         if (this.config.get(Key.DISABLE_COLLISIONS)) this.player.setCollidable(false);
@@ -134,7 +158,6 @@ public class JumpGame {
         this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
 
         this.originalScoreboard = player.getScoreboard();
-        this.player.setScoreboard(scoreboard);
 
         // Init bossbar
         this.bossBar = Bukkit.createBossBar(
@@ -143,31 +166,47 @@ public class JumpGame {
                 BarStyle.SOLID
         );
         this.bossBar.setProgress(0);
-        this.bossBar.addPlayer(player);
+
+        // add ATH to player
+        if (this.sidebarEnabled) this.player.setScoreboard(scoreboard);
+        if (this.bossBarEnabled) this.bossBar.addPlayer(player);
 
         // setup timer
-        this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
+        if(this.sidebarEnabled) {
+            this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
+        }
     }
 
+    /**
+     * Method called every tick by bukkit to update the sidebar
+     */
     public void updateTimer() {
         TimeScore score = new TimeScore(System.currentTimeMillis() - this.start);
 
-        this.scoreboard.resetScores(this.timer.getEntry());
-        this.timer = this.objective.getScore(score.getText(Text.SCOREBOARD_TIMER_VALUE));
-        this.timer.setScore(TIMER_VALUE_POS);
+        if (this.sidebarEnabled) {
+            this.scoreboard.resetScores(this.timer.getEntry());
+            this.timer = this.objective.getScore(score.getText(Text.SCOREBOARD_TIMER_VALUE));
+            this.timer.setScore(TIMER_VALUE_POS);
+        }
     }
 
+    /**
+     * Update the validated checkpoint count on the sidebar
+     * @param count the number of checkpoints already validated
+     */
     public void updateCheckpointsScoreboard(int count) {
+        if (!this.sidebarEnabled) return;
+
         this.scoreboard.resetScores(this.checkpoints.getEntry());
         this.checkpoints = this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_VALUE.get(count, this.jump.getCheckpoints().size()));
         this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
     }
 
-    @NotNull
-    public Jump getJump() {
-        return jump;
-    }
-
+    /**
+     * Notify the player has executed a command. Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     * @param event original event
+     */
     public void onCommand(PlayerCommandPreprocessEvent event) {
         String[] command = event.getMessage().substring(1).split(" ");
         if (command.length == 0) return;
@@ -177,6 +216,11 @@ public class JumpGame {
         Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_COMMANDS.get());
     }
 
+    /**
+     * Notify the player has tried to toggle fly. Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     * @param event original event
+     */
     public void onFly(PlayerToggleFlightEvent event) {
         if (!this.canFly) {
             event.setCancelled(true);
@@ -184,6 +228,13 @@ public class JumpGame {
         }
     }
 
+    /**
+     * Notify the player has interacted with a material. This method is able to listen when the player walk on a plate
+     * to reset the chrono, validate a checkpoint, or end the parkour.
+     * Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     * @param event original event
+     */
     public void onInteract(PlayerInteractEvent event) {
         if (!event.getAction().equals(Action.PHYSICAL)
                 || event.getClickedBlock() == null
@@ -205,13 +256,20 @@ public class JumpGame {
             long current = System.currentTimeMillis();
             if (current - this.start < this.resetTime) return;
             this.reset(current);
-        } else if (this.validated.stream().noneMatch(l -> LocationUtil.isBlockLocationEqual(l, loc))){
+        }
+        // Validate checkpoint
+        else if (this.validated.stream().noneMatch(l -> LocationUtil.isBlockLocationEqual(l, loc))){
             this.jump.getCheckpoints().stream()
                     .filter(l -> LocationUtil.isBlockLocationEqual(l, loc))
                     .findFirst().ifPresent(this::validateCheckpoint);
         }
     }
 
+    /**
+     * Notify the player moved to identity its fall distance.
+     * Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     */
     public void onMove() {
         if (this.fallPrevention && this.player.getFallDistance() > this.jump.getFallDistance()) {
             this.player.setFallDistance(0);
@@ -219,11 +277,21 @@ public class JumpGame {
         }
     }
 
+    /**
+     * Notify the player has received damages. Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     * @param event original event
+     */
     public void onDamage(EntityDamageEvent event) {
         if (EntityDamageEvent.DamageCause.VOID == event.getCause()) this.tpLastCheckpoint();
         event.setCancelled(true);
     }
 
+    /**
+     * Notify the player has been teleported. Used by the {@link fr.ycraft.jump.listeners.GameListener GameListener}
+     * @see fr.ycraft.jump.listeners.GameListener
+     * @param event original event
+     */
     public void onTeleport(PlayerTeleportEvent event) {
         if (!this.checkpoint.equals(event.getTo()) && !this.spawnLocation.equals(event.getTo())) {
             this.close();
@@ -231,7 +299,12 @@ public class JumpGame {
         }
     }
 
+    /**
+     * Update the bossbar with new validated checkpoint count
+     */
     private void updateBossbar() {
+        if (this.bossBarEnabled) return;
+
         this.bossBar.setProgress((float) this.validated.size() / this.jump.getCheckpoints().size());
         this.bossBar.setTitle(Text.GAME_BOSSBAR.get(
                 this.jump.getName(),
@@ -240,21 +313,41 @@ public class JumpGame {
         );
     }
 
+    /**
+     * Reset the timer to the given duration
+     * @param current the duration to set the timer
+     */
     public void reset(long current) {
         this.start = current;
         this.validated.clear();
         this.checkpoint = this.startLocation;
         this.updateBossbar();
         this.updateCheckpointsScoreboard(0);
-        Text.CHRONO_RESET.send(this.player);
+        Text.GAME_CHRONO_RESET.send(this.player);
+        this.resetTitle.send(
+                this.player,
+                Text.GAME_RESET_TITLE.get(),
+                Text.GAME_RESET_SUBTITLE.get()
+        );
     }
 
+    /**
+     * Validate a new checkpoint.
+     *
+     * Run checkpoint logic, notify ATH and set the given location as the last validated checkpoint
+     * @param location the location of the validated checkpoint
+     */
     public void validateCheckpoint(Location location) {
         this.checkpoint = location.clone();
         this.validated.add(location);
         this.updateBossbar();
         this.updateCheckpointsScoreboard(this.validated.size());
-        Text.CHECKPOINT_VALIDATED.send(this.player);
+        Text.GAME_CHECKPOINT.send(this.player);
+        this.checkpointTitle.send(
+                this.player,
+                Text.GAME_CHECKPOINT_TITLE.get(this.validated.size(), this.jump.getCheckpointCount()),
+                Text.GAME_CHECKPOINT_SUBTITLE.get(this.validated.size(), this.jump.getCheckpointCount())
+        );
     }
 
     public void tpLastCheckpoint() {
@@ -270,13 +363,14 @@ public class JumpGame {
     private void end() {
         this.ended = true;
         TimeScore score = new TimeScore(System.currentTimeMillis() - this.start);
-        Text.JUMP_END.send(this.player, this.jump.getName(), score.getMinutes(), score.getSeconds(), score.getMillis());
+        Text.GAME_END.send(this.player, this.jump.getName(), score.getMinutes(), score.getSeconds(), score.getMillis());
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> this.saveScore(score));
 
-        this.player.sendTitle(
-                Text.JUMP_END_TITLE.get(),
-                score.getText(Text.JUMP_END_SUBTITLE),
-                10, 60, 10);
+        this.endTitle.send(
+                this.player,
+                Text.GAME_END_TITLE.get(),
+                score.getText(Text.GAME_END_SUBTITLE)
+        );
 
         this.close();
     }

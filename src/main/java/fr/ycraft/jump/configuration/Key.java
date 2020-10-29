@@ -31,11 +31,19 @@ public final class Key<T> implements Comparable<Key<?>> {
     public static final Key<Material> END_MATERIAL = plateKey("plates.materials.end", Material.GOLD_PLATE);
     public static final Key<Material> CHECKPOINT_MATERIAL = plateKey("plates.materials.checkpoint", Material.GOLD_PLATE);
     // game settings
+    public static final Key<TitleSettings> START_TITLE = titleSettingsKey("game.title.start", false);
+    public static final Key<TitleSettings> RESET_TITLE = titleSettingsKey("game.title.reset", false);
+    public static final Key<TitleSettings> CHECKPOINT_TITLE = titleSettingsKey("game.title.checkpoint", false);
+    public static final Key<TitleSettings> END_TITLE = titleSettingsKey("game.title.end", true);
+    public static final Key<Boolean> ACTION_BAR_ENABLED = booleanKey("game.action bar", false);
+    public static final Key<Boolean> SIDEBAR_ENABLED = booleanKey("game.sidebar", true);
+    public static final Key<Boolean> BOSS_BAR_ENABLED = booleanKey("game.boss bar.enabled", true);
+    public static final Key<BarColor> BOSS_BAR_COLOR = barColorKey("game.boss bar.color", BarColor.GREEN);
     public static final Key<Long> RESET_TIME = longKey("game.reset time");
     public static final Key<Integer> MAX_FALL_DISTANCE = intKey("game.max fall distance");
+    public static final Key<Boolean> INTELLIGENT_FALL_DISTANCE = booleanKey("game.intelligent fall distance", true);
     public static final Key<Boolean> DISABLE_COLLISIONS = booleanKey("game.disable collisions", false);
     public static final Key<Boolean> RESET_ENCHANTS = booleanKey("game.reset enchants");
-    public static final Key<BarColor> BOSS_BAR_COLOR = barColorKey("game.bossbar", BarColor.GREEN);
     public static final Key<List<String>> ALLOWED_COMMANDS = stringListKey("game.allowed commands");
     // editor settings
     public static final Key<Boolean> CREATIVE_EDITOR = booleanKey("editor.creative");

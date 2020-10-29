@@ -3,6 +3,7 @@ package fr.ycraft.jump.configuration;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
 import java.util.function.Function;
@@ -66,6 +67,22 @@ public class KeyFactory {
                 return BarColor.valueOf(configuration.getString(path, "").toUpperCase());
             } catch (IllegalArgumentException ignored) {}
             return def;
+        });
+    }
+
+    static Key<TitleSettings> titleSettingsKey(String path, boolean enabledByDefault) {
+        return titleSettingsKey(path, enabledByDefault, 10, 10, 60);
+    }
+
+    static Key<TitleSettings> titleSettingsKey(String path, boolean enabledByDefault, int defFadeIn, int defFadeOut, int defStay) {
+        return key(configuration -> {
+            ConfigurationSection section = configuration.getConfigurationSection(path);
+            return TitleSettings.builder()
+                    .enabled(section.getBoolean("enabled", enabledByDefault))
+                    .fadeIn(section.getInt("fade in", defFadeIn))
+                    .fadeOut(section.getInt("fade out", defFadeOut))
+                    .stay(section.getInt("stay", defStay))
+                    .build();
         });
     }
 }

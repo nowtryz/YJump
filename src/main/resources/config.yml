@@ -4,12 +4,12 @@
 
 # Protection settings
 plates:
-  # Weather or not to delete pressure plates when a point location is changed
+  # Whether or not to delete pressure plates when a point location is changed
   auto delete: yes
   # Disallow to break plates
   # Note: Enabling this feature may impact performances if a lot of break events occur in the same world of jumps
   protect: yes
-  # Each checkpoint, start, end points need to have a pressure plate to be used by the plugin
+  # Each checkpoint, start, endpoints need to have a pressure plate to be used by the plugin
   # materials can be (case insensitive): gold, iron, stone, or wood
   materials:
     start: gold
@@ -18,22 +18,76 @@ plates:
 
 # Game settings
 game:
-  # Time wait until enable players to reset their chrono (millis)
+  # Settings related to displaying titles, messages are customizable in the language files
+  title:
+    # Title shown when the player begins a parkour
+    start:
+      # Whether to show the title or not
+      enabled: no
+      # The fade-in duration in ticks
+      fade in: 10
+      # The fade-out duration in ticks
+      fade out: 10
+      # The duration the title should stay on the screen
+      stay: 60
+    # Title shown to the player when they walk again on the start plate
+    reset:
+      # Whether to show the title or not
+      enabled: no
+      # The fade-in duration in ticks
+      fade in: 10
+      # The fade-out duration in ticks
+      fade out: 10
+      # The duration the title should stay on the screen
+      stay: 60
+    # Title shown to the player when they validate each checkpoint
+    checkpoint:
+      # Whether to show the title or not
+      enabled: no
+      # The fade-in duration in ticks
+      fade in: 10
+      # The fade-out duration in ticks
+      fade out: 10
+      # The duration the title should stay on the screen
+      stay: 60
+    # Title shown to the player when the finish the parkour
+    end:
+      # Whether to show the title or not
+      enabled: yes
+      # The fade-in duration in ticks
+      fade in: 10
+      # The fade-out duration in ticks
+      fade out: 10
+      # The duration the title should stay on the screen
+      stay: 60
+
+  # Whether the action bar is enabled or not
+  # The action bar contains the name of the parkour and the elapsed time from when the player began
+  # the parkour
+  action bar: no
+  # Display parkour information in a scoreboard's sidebar
+  sidebar: yes
+  # Settings related to the boss bar during parkours
+  boss bar:
+    # Should we display the boss bar
+    enabled: yes
+    # color of the bossbar (possible values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)
+    color: green
+
+  # Time wait until enabling players to reset their Chrono (millis)
   reset time: 1000
-  # Max fall distance before teleport the player to its last checkpoint (0 to disable)
+  # Max fall distance before teleporting the player to its last checkpoint (0 to disable)
   # It's is the default value but can be overridden with a different value on each parkour
   max fall distance: 5
   # Avoid teleportation if a checkpoint is lower than the previous and that the drop to access this
   # checkpoint is deeper than the max fall distance for this parkour
   intelligent fall distance: yes
-  # Weather or not the plugin must disable collisions between player on the same parkour
+  # Whether or not the plugin must disable collisions between players on the same parkour
   # Note: still collides with other entities and players
   disable collisions: no
-  # Reset enchantments when a player begin a jump
+  # Reset enchantments when a player begins a jump
   reset enchants: yes
-  # color of the bossbar (possible values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)
-  bossbar: green
-  # Allowed command while in jump, other commands performed by player will cause it to leave the jump
+  # Allowed commands while in jump, other commands performed by players will cause them to leave the jump
   allowed commands:
     # Jump plugin
     - jump
@@ -46,23 +100,23 @@ game:
 
 # Editor settings
 editor:
-  # Put editor in creative mode to be able to break plates, use fly and add blocks
-  # Notes: - Player will still need jump.admin.editorinteraction to break and place blocks
-  #        - Players without the permission here above cannot add item to there inventory through creative panel
+  # Put editor in creative mode to be able to break plates, use fly, and add blocks
+  # Notes: - Player will still need `jump.admin.editorinteraction` to break and place blocks
+  #        - Players without the permission here above cannot add items to their inventory through the creative panel
   creative: yes
 
 # Gui settings
 best scores:
   # Score count stored in files (does not change scores shown to players)
   per jump: 10
-  # Score count show in the book
+  # Score count shown in the book
   per player: 5
 
 # Parkour settings
 parkour:
   # Width of description in the jump list
   description wrap length: 50 # characters
-  # Default item used as icon for the jump
+  # Default item used as the icon for the jump
   default icon: SLIME_BLOCK
 
 # Storages properties
@@ -88,6 +142,6 @@ storage:
     pass: ""
 
 # Language, keep commented to use System's language
-# > this settings available in case you would need to override system configuration
+# > this setting is available in case you would need to override system configuration
 # > generally, you don't
 #locale: fr-FR
