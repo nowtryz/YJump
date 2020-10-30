@@ -3,9 +3,11 @@ package fr.ycraft.jump.inventories;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.PlayerScore;
+import fr.ycraft.jump.enums.Patterns;
+import fr.ycraft.jump.enums.Text;
+import fr.ycraft.jump.injection.Patterned;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
@@ -14,7 +16,6 @@ import net.nowtryz.mcutils.templating.Pattern;
 import net.nowtryz.mcutils.templating.TemplatedGuiBuilder;
 import org.bukkit.entity.Player;
 
-import javax.inject.Named;
 import java.util.LinkedList;
 
 
@@ -22,7 +23,7 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
     @Inject
     public BestScoresInventory(
             JumpPlugin plugin,
-            @Named("LEADERBOARD") Pattern pattern,
+            @Patterned(Patterns.LEADERBOARD) Pattern pattern,
             @Assisted Player player,
             @Assisted Jump jump,
             @Assisted Gui back) {

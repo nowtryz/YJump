@@ -2,11 +2,13 @@ package fr.ycraft.jump.inventories;
 
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.Position;
+import fr.ycraft.jump.enums.Patterns;
+import fr.ycraft.jump.enums.Text;
+import fr.ycraft.jump.injection.Patterned;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
@@ -27,7 +29,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
     InfoAdminInventory(JumpPlugin plugin,
                        Config config,
                        FallDistanceInventory.Factory factory,
-                       @Named("ADMIN") Pattern pattern,
+                       @Patterned(Patterns.ADMIN) Pattern pattern,
                        @Assisted Player player,
                        @Assisted Jump jump,
                        @Assisted @Nullable Gui back) {

@@ -1,5 +1,7 @@
 package fr.ycraft.jump.enums;
 
+import fr.ycraft.jump.injection.Patterned;
+import fr.ycraft.jump.injection.PatternedImpl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,4 +17,8 @@ public enum Patterns {
     public static final String FOLDER_NAME = "guis";
 
     private final String fileName;
+
+    public Patterned annotation() {
+        return new PatternedImpl(this);
+    }
 }

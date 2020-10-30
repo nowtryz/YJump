@@ -5,7 +5,9 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
+import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
+import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.storage.Storage;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.injection.PluginLogger;
@@ -17,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ public class FallDistanceInventory extends AbstractGui<JumpPlugin> {
     public FallDistanceInventory(JumpPlugin plugin,
                                  Storage storage,
                                  Config config,
-                                 @Named("FALL_DISTANCE") Pattern pattern,
+                                 @Patterned(Patterns.FALL_DISTANCE) Pattern pattern,
                                  @PluginLogger Logger logger,
                                  @Assisted Jump jump,
                                  @Assisted Player player,

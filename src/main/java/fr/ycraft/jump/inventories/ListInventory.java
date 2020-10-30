@@ -2,15 +2,17 @@ package fr.ycraft.jump.inventories;
 
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.enums.Patterns;
+import fr.ycraft.jump.enums.Text;
+import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.manager.JumpManager;
-import net.nowtryz.mcutils.templating.Pattern;
-import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
+import net.nowtryz.mcutils.templating.Pattern;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
@@ -20,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     ListInventory(JumpPlugin plugin,
                   JumpManager manager,
                   JumpInventory.Factory factory,
-                  @Named("LIST") Pattern pattern,
+                  @Patterned(Patterns.LIST) Pattern pattern,
                   @Assisted JumpPlayer jumpPlayer,
                   @Assisted Player player) {
         super(plugin, player, null, pattern, Text.JUMP_LIST_INVENTORY.get());

@@ -6,20 +6,22 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.commands.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import fr.ycraft.jump.entity.TimeScore;
-import net.nowtryz.mcutils.injection.Nullable;
-import net.nowtryz.mcutils.templating.Pattern;
+import fr.ycraft.jump.enums.Patterns;
+import fr.ycraft.jump.enums.Text;
+import fr.ycraft.jump.injection.Patterned;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
+import net.nowtryz.mcutils.templating.Pattern;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,7 +31,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
                   Config config,
                   InfoAdminInventory.Factory infoFactory,
                   BestScoresInventory.Factory bestScoresFactory,
-                  @Named("INFO") Pattern pattern,
+                  @Patterned(Patterns.INFO) Pattern pattern,
                   @Assisted Player player,
                   @Assisted JumpPlayer jumpPlayer,
                   @Assisted Jump jump,

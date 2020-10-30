@@ -2,13 +2,12 @@ package fr.ycraft.jump.injection;
 
 import com.google.common.base.Charsets;
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import com.google.mu.util.stream.BiStream;
-import net.nowtryz.mcutils.templating.Pattern;
-import net.nowtryz.mcutils.templating.PatternFactory;
 import fr.ycraft.jump.enums.Patterns;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import net.nowtryz.mcutils.templating.Pattern;
+import net.nowtryz.mcutils.templating.PatternFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -54,7 +53,6 @@ public class TemplatesModule extends AbstractModule {
     @Override
     protected void configure() {
         this.patterns.forEach((patterns, pattern) ->
-                bind(Pattern.class).annotatedWith(Names.named(patterns.name())).toInstance(pattern)
-        );
+                bind(Pattern.class).annotatedWith(patterns.annotation()).toInstance(pattern));
     }
 }
