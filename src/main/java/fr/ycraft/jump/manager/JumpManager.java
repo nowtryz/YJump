@@ -117,6 +117,7 @@ public class JumpManager extends AbstractManager {
     }
 
     public void save() {
+        if (this.jumps == null) return;
         CompletableFuture<?>[] completableFutures = this.jumps.values()
                 .parallelStream()
                 .map(this.storage::storeJump)

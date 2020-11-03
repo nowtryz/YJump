@@ -3,12 +3,12 @@ package fr.ycraft.jump.injection;
 import com.google.common.base.Charsets;
 import com.google.inject.AbstractModule;
 import com.google.mu.util.stream.BiStream;
+import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.enums.Patterns;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import net.nowtryz.mcutils.templating.Pattern;
 import net.nowtryz.mcutils.templating.PatternFactory;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class TemplatesModule extends AbstractModule {
     EnumMap<Patterns, Pattern> patterns;
     private final File guiFolder;
 
-    public TemplatesModule(JavaPlugin plugin) {
+    public TemplatesModule(JumpPlugin plugin) {
         this.guiFolder = new File(plugin.getDataFolder(), FOLDER_NAME);
         this.patterns = new EnumMap<>(BiStream.biStream(Arrays.asList(Patterns.values()))
                 .mapValues(Patterns::getFileName)
@@ -33,13 +33,14 @@ public class TemplatesModule extends AbstractModule {
                 .toMap());
     }
 
-    private Pattern loadPattern(String patternName, JavaPlugin plugin) {
+    private Pattern loadPattern(String patternName, JumpPlugin plugin) {
         // TODO error if file is not present or invalid
         try {
             return PatternFactory.compile(new File(guiFolder, patternName));
         } catch (Exception exception) {
             plugin.getLogger().severe("Unable to load " + patternName + " template: " + exception.getMessage());
             plugin.getLogger().severe("Falling back to default pattern");
+            if (!plugin.isProd()) exception.printStackTrace();
 
             try (InputStream resource = plugin.getResource(FOLDER_NAME + "/" + patternName)) {
                 return PatternFactory.compile(loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));

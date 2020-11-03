@@ -20,10 +20,10 @@ import static lombok.Builder.Default;
 /**
  * Represents a parkour
  */
+@Data
 @Builder
-@Getter
-@Setter
 @SerializableAs("Jump")
+@ToString(doNotUseGetters = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Jump implements ConfigurationSerializable {
     protected static Material DEFAULT_MATERIAL = Material.SLIME_BLOCK;

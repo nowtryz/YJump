@@ -3,11 +3,9 @@ package fr.ycraft.jump.entity;
 import fr.ycraft.jump.enums.Text;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import org.bukkit.command.CommandSender;
 
 @Getter
-@ToString
 @EqualsAndHashCode(exclude = {"millis", "seconds", "minutes"})
 public class TimeScore {
     private final long duration;
@@ -30,6 +28,11 @@ public class TimeScore {
 
     public void sendText(CommandSender target, Text text) {
         text.send(target, this.minutes, this.seconds, this.millis);
+    }
+
+    @Override
+    public String toString() {
+        return "TimeScore[" + duration + '@' + date + ']';
     }
 
     public String getText(Text text) {

@@ -77,6 +77,7 @@ public class NitriteStorage implements StorageImplementation {
 
     @Override
     public void close() {
+        if (database == null) return;
         this.database.compact();
         this.database.close();
     }

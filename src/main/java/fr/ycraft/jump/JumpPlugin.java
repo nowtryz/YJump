@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.mysql.jdbc.Driver;
+import fr.ycraft.jump.command.CommandManager;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
 import fr.ycraft.jump.commands.misc.JumpsCommand;
@@ -15,6 +16,7 @@ import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.exceptions.ParkourException;
+import fr.ycraft.jump.injection.CommandModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
@@ -68,6 +70,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     private @Inject Storage storage;
     private @Inject JumpManager jumpManager;
     private @Inject PlayerManager playerManager;
+    private @Inject CommandManager commandManager;
 
     private @Getter Injector injector;
     private @Getter boolean enabling = false;
@@ -87,6 +90,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             this.injector = Guice.createInjector(
                     isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
                     new JumpModule(),
+                    new CommandModule(),
                     new BukkitModule<>(this, JumpPlugin.class),
                     new TemplatesModule(this)
             );
@@ -94,6 +98,11 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             Text.init(this);
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
+
+            this.commandManager.collect("fr.ycraft.jump.command.test");
+            this.commandManager.setResultHandler((context, result) -> context.getSender().sendMessage(result.toString()));
+            this.commandManager.printGraph();
+            this.commandManager.registerCommands();
 
             this.storage.init();
             this.jumpManager.init();

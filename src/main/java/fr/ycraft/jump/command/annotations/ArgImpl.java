@@ -1,7 +1,6 @@
-package fr.ycraft.jump.injection;
+package fr.ycraft.jump.command.annotations;
 
 import com.google.inject.internal.Annotations;
-import fr.ycraft.jump.enums.Patterns;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,17 +11,17 @@ import java.lang.annotation.Annotation;
 
 @RequiredArgsConstructor
 @SuppressWarnings("ClassExplicitlyAnnotation")
-public class PatternedImpl implements Patterned, Serializable {
-    private static final long serialVersionUID = 7761105993376171721L;
+public class ArgImpl implements Arg, Serializable {
+    private static final long serialVersionUID = 7485335873568117446L;
 
     @NonNull
     @Getter(onMethod_={@Override})
     @Accessors(fluent = true)
-    private final Patterns value;
+    private final String value;
 
     @Override
     public Class<? extends Annotation> annotationType() {
-        return Patterned.class;
+        return Arg.class;
     }
 
     @Override
@@ -33,16 +32,16 @@ public class PatternedImpl implements Patterned, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Patterned)) {
+        if (!(o instanceof Arg)) {
             return false;
         }
 
-        Patterned other = (Patterned) o;
+        Arg other = (Arg) o;
         return value.equals(other.value());
     }
 
     @Override
     public String toString() {
-        return "@" + getClass().getName() + "(value=" + Annotations.memberValueString(value.name()) + ")";
+        return "@" + getClass().getName() + "(value=" + Annotations.memberValueString(value) + ")";
     }
 }
