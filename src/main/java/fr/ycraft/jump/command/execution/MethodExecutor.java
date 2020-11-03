@@ -3,15 +3,13 @@ package fr.ycraft.jump.command.execution;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.spi.Dependency;
 import com.google.inject.spi.InjectionPoint;
 import fr.ycraft.jump.command.Provider;
-import fr.ycraft.jump.command.annotations.ArgImpl;
-import fr.ycraft.jump.command.annotations.Command;
-import fr.ycraft.jump.command.annotations.Context;
-import fr.ycraft.jump.command.annotations.Provides;
+import fr.ycraft.jump.command.annotations.*;
 import fr.ycraft.jump.command.contexts.ExecutionContext;
 import lombok.Value;
 import net.nowtryz.mcutils.command.CommandResult;
@@ -19,8 +17,12 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,11 +33,15 @@ public class MethodExecutor implements Executor {
     private final @NotNull Method method;
     private final @NotNull ImmutableList<String> argLine;
     private final @NotNull ImmutableList<GenericArg> genericArgs;
+    private final @NotNull ImmutableList<Dependency<?>> dependencies;
+    private final @NotNull Map<Key<?>, com.google.inject.Provider<?>> cache = new HashMap<>();
+    private final @NotNull ThreadLocal<ExecutionContext> localContext = new ThreadLocal<>();
     private final @Nullable Object object;
     private final @NotNull Command command;
     private final @NotNull InjectionPoint injectionPoint;
 
     private ImmutableList<ArgProvider> providers;
+    private Injector childInjector;
     private Injector injector;
 
     public interface Factory {
@@ -59,24 +65,65 @@ public class MethodExecutor implements Executor {
         this.genericArgs = argBuilder.build();
         this.injectionPoint = InjectionPoint.forMethod(method, TypeLiteral.get(method.getDeclaringClass()));
 
-//        ImmutableList.Builder<Dependency<?>> builder = ImmutableList.builder();
-//        for (Dependency<?> dep : injectionPoint.getDependencies()) {
-//            Class<?> annotationType = dep.getKey().getAnnotationType();
-//            if (annotationType == null || !annotationType.equals(Assisted.class)) {
-//                builder.add(dep);
-//            }
-//        }
-//
-//        ImmutableList<Dependency<?>> dependencies = builder.build();
+        ImmutableList.Builder<Dependency<?>> builder = ImmutableList.builder();
+        for (Dependency<?> dep : injectionPoint.getDependencies()) {
+            if (isCacheable(dep.getKey())) {
+                builder.add(dep);
+            }
+        }
+
+        this.dependencies = builder.build();
+    }
+
+    private boolean isCacheable(Key<?> key) {
+        Class<?> rawType = key.getTypeLiteral().getRawType();
+        if (CommandSender.class.isAssignableFrom(rawType) || ExecutionContext.class.isAssignableFrom(rawType)) {
+            return false;
+        }
+
+        Class<? extends Annotation> annotationType = key.getAnnotationType();
+        return annotationType == null || (!annotationType.equals(Arg.class) && !annotationType.equals(Context.class));
+    }
+
+    private ExecutionContext getLocalContext() {
+        ExecutionContext context = this.localContext.get();
+        if (context == null) throw new IllegalStateException("There is no context in this scope");
+        return context;
     }
 
     @Inject
+    @SuppressWarnings({"rawtypes", "unchecked"})
     void init(com.google.inject.Provider<Injector> injector) {
         // We use a provider, so AssistedInject doesn't complain about the fact we use the injector
         this.injector = injector.get();
+
         this.providers = Arrays.stream(method.getAnnotationsByType(Provides.class))
                 .map(this::toArgProvider)
                 .collect(ImmutableList.toImmutableList());
+
+        this.dependencies.stream()
+                .map(Dependency::getKey)
+                .forEach(key -> this.cache.put(key, this.injector.getProvider(key)));
+
+        this.childInjector = this.injector.createChildInjector(binder -> {
+            binder.bind(CommandSender.class).toProvider(() -> this.getLocalContext().getSender());
+            binder.bind(String.class).annotatedWith(Context.class).toProvider(() -> this.getLocalContext().getCommandLabel());
+            binder.bind(String[].class).annotatedWith(Context.class).toProvider(() -> this.getLocalContext().getArgs());
+            binder.bind(ExecutionContext.class).toProvider(this::getLocalContext);
+
+            for (ArgProvider provider : MethodExecutor.this.providers) {
+                binder.bind(provider.getProvider().getProvidedClass())
+                        .annotatedWith(new ArgImpl(provider.getArg()))
+                        .toProvider((javax.inject.Provider) () -> provider
+                                .getProvider().provide(getLocalContext().getArgs()[provider.index]));
+            }
+
+            for (GenericArg genericArg : MethodExecutor.this.genericArgs) {
+                binder.bind(String.class)
+                        .annotatedWith(new ArgImpl(genericArg.getArg()))
+                        .toProvider(() -> this.getLocalContext().getArgs()[genericArg.getIndex()]);
+            }
+        });
     }
 
     public ArgProvider toArgProvider(Provides provides) {
@@ -98,47 +145,42 @@ public class MethodExecutor implements Executor {
         Provider<?> provider;
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> T getCacheInstance(Injector injector, Key<T> key) {
+        com.google.inject.Provider<T> provider = (com.google.inject.Provider<T>) this.cache.get(key);
+        return Optional.ofNullable(provider)
+                .map(com.google.inject.Provider::get)
+                .orElseGet(() -> injector.getInstance(key));
+    }
+
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public CommandResult execute(ExecutionContext context) throws Throwable {
         // TODO remove timing
         // We keep this timing until we have a reasonable execution time, 11 ms is too long
         long start = System.currentTimeMillis();
+        this.localContext.set(context);
         // TODO try some king of cache to speed up execution, 11 ms is too long
-        Injector childInjector = this.injector.createChildInjector(binder -> {
 
-
-            binder.bind(CommandSender.class).toProvider(context::getSender);
-            binder.bind(String.class).annotatedWith(Context.class).toProvider(context::getCommandLabel);
-            binder.bind(String[].class).annotatedWith(Context.class).toProvider(context::getArgs);
-            binder.bind(ExecutionContext.class).toInstance(context);
-
-            for (ArgProvider provider : MethodExecutor.this.providers) {
-                binder.bind(provider.getProvider().getProvidedClass())
-                        .annotatedWith(new ArgImpl(provider.getArg()))
-                        .toProvider((javax.inject.Provider) () -> provider
-                                .getProvider().provide(context.getArgs()[provider.index]));
-            }
-
-            for (GenericArg genericArg : MethodExecutor.this.genericArgs) {
-                binder.bind(String.class)
-                        .annotatedWith(new ArgImpl(genericArg.getArg()))
-                        .toInstance(context.getArgs()[genericArg.getIndex()]);
-            }
-        });
+        long injectorCreated = System.currentTimeMillis();
 
         Object[] args = this.injectionPoint.getDependencies()
                 .stream()
                 .map(Dependency::getKey)
-                .map(childInjector::getInstance)
+                .map(key -> this.getCacheInstance(childInjector, key))
                 .toArray(Object[]::new);
+
+        long argsCollected = System.currentTimeMillis();
 
         try {
             return (CommandResult) method.invoke(this.object, args);
         } catch (ReflectiveOperationException e) {
             throw  this.unwrapAndThrow(e);
         } finally {
-            System.out.println(System.currentTimeMillis() - start);
+            long end = System.currentTimeMillis();
+            System.out.println(String.format(
+                    "command execution %dms (injector: %dms, collection %dms, invocation %dms)",
+                    end - start, injectorCreated - start, argsCollected - injectorCreated, end - argsCollected
+            ));
         }
     }
 

@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -51,23 +52,23 @@ public class CommandAdapter extends Command {
                 .build();
 
         Bukkit.getScheduler().runTaskAsynchronously(this.node.getPlugin(), () -> {
+            ExecutionContext executionContext = context.executionBuilder().build();
             Executor executor = this.node.findExecutor(context);
 
+            if (executor == null) {
+                this.handle(executionContext, CommandResult.UNKNOWN);
+                return;
+            }
+
             if (!executor.isAsync()) {
-                Bukkit.getScheduler().runTask(this.node.getPlugin(), () -> this.execute(executor, context));
-            } else this.execute(executor, context);
+                Bukkit.getScheduler().runTask(this.node.getPlugin(), () -> this.execute(executor, executionContext));
+            } else this.execute(executor, executionContext);
         });
 
         return true;
     }
 
-    private boolean execute(Executor executor, NodeSearchContext searchContext) {
-        ExecutionContext context = searchContext.executionBuilder()
-                .isAsync(!Bukkit.isPrimaryThread())
-                .build();
-
-        if (executor == null) return this.handle(context, CommandResult.UNKNOWN);
-
+    private boolean execute(@NotNull Executor executor, ExecutionContext context) {
         try {
             CommandResult result = executor.execute(context);
             return this.handle(context, result);
