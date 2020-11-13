@@ -80,7 +80,9 @@ public interface CommandImpl {
             // execution
         else if (!this.isAsync()) return this.execute(plugin, sender, args);
         else Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                long start = System.nanoTime();
                 if (!this.execute(plugin, sender, args)) Text.USAGE.send(sender, this.getUsage());
+                System.out.println(String.format("%07dns", System.nanoTime() - start));
             });
 
         return true;

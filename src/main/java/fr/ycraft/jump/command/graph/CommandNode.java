@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -20,35 +19,24 @@ public class CommandNode {
     private static final Pattern GENERIC_MATCHER = Pattern.compile("<[^\\s]*>");
 
     @Getter(AccessLevel.NONE)
-    private final Map<String, CommandNode> children = new HashMap<>();
+    private final HashMap<String, CommandNode> children = new HashMap<>();
     private final String key;
 
-    private String permission = "";
-    private CommandNode genericNode;
+    private GenericCommandNode genericNode;
     private Executor executor;
-    private Completer completer;
 
     @NotNull
     public CommandNode children(String key) {
         return this.children.computeIfAbsent(key, CommandNode::new);
     }
 
-    private synchronized CommandNode getOrCreateGenericNode() {
-        if (this.genericNode == null) this.genericNode = new CommandNode("<argument>");
+    private synchronized GenericCommandNode getOrCreateGenericNode() {
+        if (this.genericNode == null) this.genericNode = new GenericCommandNode("<argument>");
         return this.genericNode;
     }
 
-    public Executor execute(NodeSearchContext context) {
-        if (this.executor == null) return null;
-        return this.executor;
-    }
-
-    public List<String> complete(NodeSearchContext context) {
-        return null;
-    }
-
-    public Executor findExecutor(NodeSearchContext context, Queue<String> remainingArgs) {
-        if (remainingArgs.isEmpty()) return execute(context);
+    Executor findExecutor(NodeSearchContext context, Queue<String> remainingArgs) {
+        if (remainingArgs.isEmpty()) return this.executor;
 
         String command = remainingArgs.remove();
         CommandNode child = this.children.getOrDefault(command, this.genericNode);
@@ -57,38 +45,39 @@ public class CommandNode {
         else return null;
     }
 
-    public List<String> completeCommand(NodeSearchContext context, Queue<String> remainingArgs) {
+    CommandNode findCompleter(NodeSearchContext context, Queue<String> remainingArgs) {
         if (remainingArgs.isEmpty()) return null;
 
         String command = remainingArgs.remove().toLowerCase();
 
-        if (remainingArgs.size() == 1) {
-            if (this.children.containsKey(command)) return null;
-            else return this.children.values()
-                    .stream()
-                    .filter(n -> n.getKey().startsWith(command))
-                    .filter(context::checkPermission)
-                    .map(CommandNode::getKey)
-                    .collect(Collectors.toList());
-            // TODO add result from providers of generic node
-        } else return Optional.ofNullable(this.children.get(command))
-                .map(node -> node.completeCommand(context, remainingArgs))
+        return remainingArgs.isEmpty() ?  this :  Optional
+                .ofNullable(this.children.getOrDefault(command, this.genericNode))
+                .map(node -> node.findCompleter(context, remainingArgs))
                 .orElse(null);
     }
 
-    private void setCommand(Executor executor) {
+    List<String> complete(NodeSearchContext context) {
+        ArrayList<String> list = new ArrayList<>();
+        this.children.values()
+                .stream()
+                .filter(n -> n.getKey().startsWith(context.getLastArgument()))
+                .filter(context::checkPermission)
+                .map(CommandNode::getKey)
+                .forEach(list::add);
+
+        Optional.ofNullable(this.genericNode)
+                .map(node -> node.completeArgument(context))
+                .ifPresent(list::addAll);
+
+        return list;
+    }
+
+    void setCommand(Executor executor) {
         if (this.executor != null) throw new DuplicationException(this.executor, executor);
         this.executor = executor;
-        // TODO analyse method
     }
 
-    private void setCompleter(Completer completer) {
-        if (this.completer != null) throw new DuplicationException(this.completer, completer);
-        this.completer = completer;
-        // TODO analyse method
-    }
-
-    public void registerCommand(Queue<String> commandLine, Executor executor) {
+    void registerCommand(Queue<String> commandLine, Executor executor) {
         if (commandLine.isEmpty()) {
             this.setCommand(executor);
             return;
@@ -99,9 +88,10 @@ public class CommandNode {
         children.registerCommand(commandLine, executor);
     }
 
-    public void registerCompleter(Queue<String> commandLine, Completer completer) {
-        if (commandLine.isEmpty()) {
-            this.setCompleter(completer);
+    void registerCompleter(Queue<String> commandLine, Completer completer) {
+        if (commandLine.isEmpty()) throw new IllegalStateException("Cannot register a completer for an empty command");
+        else if (commandLine.size() == 1) {
+            this.getOrCreateGenericNode().setCompleter(completer);
             return;
         }
 
@@ -114,13 +104,20 @@ public class CommandNode {
         int nextLevel = level + 1;
         String tabs = Strings.repeat("  ", level);
         StringBuilder builder = new StringBuilder().append(tabs).append(this.key).append(" {\n");
+        this.appendToStringGraph(tabs, builder);
         if (this.executor != null) builder.append(tabs).append("  executor: ").append(executor).append("\n");
-        if (this.completer != null) builder.append(tabs).append("  completer: ").append(completer).append("\n");
         if (this.genericNode != null) builder.append(this.genericNode.toStringGraph(nextLevel)).append("\n");
         if (!this.children.isEmpty()) for (CommandNode node : this.children.values()) {
             builder.append(node.toStringGraph(nextLevel)).append("\n");
         }
 
         return builder.append(tabs).append("}").toString();
+    }
+
+    protected void appendToStringGraph(String tabs, StringBuilder builder) {}
+
+    @Override
+    public String toString() {
+        return this.toStringGraph(0);
     }
 }

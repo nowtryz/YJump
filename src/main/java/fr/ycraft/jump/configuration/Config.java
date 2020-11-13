@@ -1,14 +1,12 @@
 package fr.ycraft.jump.configuration;
 
 import com.google.inject.Inject;
-import net.nowtryz.mcutils.injection.DefaultConfig;
-import lombok.Getter;
 import lombok.NonNull;
+import net.nowtryz.mcutils.injection.DefaultConfig;
 import org.bukkit.configuration.Configuration;
 
 import javax.inject.Singleton;
 
-@Getter
 @Singleton
 public class Config {
     private final Object[] configurations = new Object[Key.values().size()];

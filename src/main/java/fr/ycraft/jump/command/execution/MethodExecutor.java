@@ -9,6 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.spi.Dependency;
 import com.google.inject.spi.InjectionPoint;
 import fr.ycraft.jump.command.Provider;
+import fr.ycraft.jump.command.SenderType;
 import fr.ycraft.jump.command.annotations.*;
 import fr.ycraft.jump.command.contexts.ExecutionContext;
 import lombok.Value;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,9 +38,10 @@ public class MethodExecutor implements Executor {
     private final @NotNull ImmutableList<Dependency<?>> dependencies;
     private final @NotNull Map<Key<?>, com.google.inject.Provider<?>> cache = new HashMap<>();
     private final @NotNull ThreadLocal<ExecutionContext> localContext = new ThreadLocal<>();
-    private final @Nullable Object object;
-    private final @NotNull Command command;
     private final @NotNull InjectionPoint injectionPoint;
+    private @Nullable Object object;
+    private final @NotNull Command command;
+    private final boolean staticMethod;
 
     private ImmutableList<ArgProvider> providers;
     private Injector childInjector;
@@ -54,6 +57,7 @@ public class MethodExecutor implements Executor {
         this.object = null;
         this.command = method.getAnnotation(Command.class);
         this.argLine = ImmutableList.copyOf(PATTERN_ON_SPACE.split(this.getCommand()));
+        this.staticMethod = (method.getModifiers() & Modifier.STATIC) != 0;
 
         ImmutableList.Builder<GenericArg> argBuilder = ImmutableList.builder();
         Matcher matcher = Pattern.compile("<(\\w+)>").matcher(this.getCommand());
@@ -109,6 +113,7 @@ public class MethodExecutor implements Executor {
             binder.bind(CommandSender.class).toProvider(() -> this.getLocalContext().getSender());
             binder.bind(String.class).annotatedWith(Context.class).toProvider(() -> this.getLocalContext().getCommandLabel());
             binder.bind(String[].class).annotatedWith(Context.class).toProvider(() -> this.getLocalContext().getArgs());
+            binder.bind(fr.ycraft.jump.command.contexts.Context.class).toProvider(this::getLocalContext);
             binder.bind(ExecutionContext.class).toProvider(this::getLocalContext);
 
             for (ArgProvider provider : MethodExecutor.this.providers) {
@@ -124,6 +129,8 @@ public class MethodExecutor implements Executor {
                         .toProvider(() -> this.getLocalContext().getArgs()[genericArg.getIndex()]);
             }
         });
+
+        if (!this.staticMethod) this.object = this.injector.getInstance(this.method.getDeclaringClass());
     }
 
     public ArgProvider toArgProvider(Provides provides) {
@@ -153,15 +160,26 @@ public class MethodExecutor implements Executor {
                 .orElseGet(() -> injector.getInstance(key));
     }
 
-    @Override
-    public CommandResult execute(ExecutionContext context) throws Throwable {
-        // TODO remove timing
-        // We keep this timing until we have a reasonable execution time, 11 ms is too long
-        long start = System.currentTimeMillis();
-        this.localContext.set(context);
-        // TODO try some king of cache to speed up execution, 11 ms is too long
+    private static Throwable unwrap(ReflectiveOperationException e) {
+        Throwable cause = e.getCause();
+        if (cause != null) {
+            if (cause instanceof ReflectiveOperationException) {
+                return unwrap((ReflectiveOperationException) cause);
+            } else return cause;
+        } else return e;
+    }
 
-        long injectorCreated = System.currentTimeMillis();
+    public String methodID() {
+        return method.getDeclaringClass().getName() + "." + method.getName();
+    }
+
+    @Override
+    public @NotNull CommandResult execute(ExecutionContext context) throws Throwable {
+        // TODO remove timing
+        // We keep this timing until we are sure we have a reasonable execution time.
+        long start = System.nanoTime();
+
+        this.localContext.set(context);
 
         Object[] args = this.injectionPoint.getDependencies()
                 .stream()
@@ -169,32 +187,24 @@ public class MethodExecutor implements Executor {
                 .map(key -> this.getCacheInstance(childInjector, key))
                 .toArray(Object[]::new);
 
-        long argsCollected = System.currentTimeMillis();
+        long argsCollected = System.nanoTime();
 
         try {
             return (CommandResult) method.invoke(this.object, args);
         } catch (ReflectiveOperationException e) {
-            throw  this.unwrapAndThrow(e);
+            throw unwrap(e);
         } finally {
-            long end = System.currentTimeMillis();
+            long end = System.nanoTime();
             System.out.println(String.format(
-                    "command execution %dms (injector: %dms, collection %dms, invocation %dms)",
-                    end - start, injectorCreated - start, argsCollected - injectorCreated, end - argsCollected
+                    "command execution %07dns (collection %07dns, invocation %07dns)",
+                    end - start, argsCollected - start, end - argsCollected
             ));
         }
     }
 
-    private Throwable unwrapAndThrow(ReflectiveOperationException e) {
-        Throwable cause = e.getCause();
-        if (cause != null) {
-            if (cause instanceof ReflectiveOperationException) {
-                return this.unwrapAndThrow((ReflectiveOperationException) cause);
-            } else return cause;
-        } else return e;
-    }
-
-    public String methodID() {
-        return method.getDeclaringClass().getName() + "." + method.getName();
+    @Override
+    public @NotNull SenderType getType() {
+        return this.command.type();
     }
 
     @Override
@@ -205,5 +215,25 @@ public class MethodExecutor implements Executor {
     @Override
     public boolean isAsync() {
         return this.command.async();
+    }
+
+    @Override
+    public String getDescription() {
+        return this.command.description();
+    }
+
+    @Override
+    public String getPermission() {
+        return this.command.permission();
+    }
+
+    @Override
+    public String getUsage() {
+        return this.command.usage();
+    }
+
+    @Override
+    public String toString() {
+        return "MethodExecutor[method=" + this.methodID() + ']';
     }
 }

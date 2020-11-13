@@ -1,9 +1,11 @@
 package fr.ycraft.jump.command.graph;
 
 import fr.ycraft.jump.command.ResultHandler;
+import fr.ycraft.jump.command.SenderType;
 import fr.ycraft.jump.command.contexts.ExecutionContext;
 import fr.ycraft.jump.command.contexts.NodeSearchContext;
 import fr.ycraft.jump.command.execution.Executor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import net.nowtryz.mcutils.command.CommandResult;
@@ -16,12 +18,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class CommandAdapter extends Command {
-    private final CommandTree node;
+    @Setter @Getter
+    private CommandRoot node;
 
     @Setter
     private @NonNull ResultHandler handler = ResultHandler.FALL_BACK;
 
-    protected CommandAdapter(CommandTree node) {
+    public CommandAdapter(CommandRoot node) {
         super(node.getKey());
         this.node = node;
     }
@@ -45,35 +48,49 @@ public class CommandAdapter extends Command {
                 this.node.getPlugin().getDescription().getFullName()
         ));
 
-        NodeSearchContext context = NodeSearchContext.builder()
-                .sender(sender)
-                .commandLabel(commandLabel)
-                .args(args)
-                .build();
-
         Bukkit.getScheduler().runTaskAsynchronously(this.node.getPlugin(), () -> {
-            ExecutionContext executionContext = context.executionBuilder().build();
+            NodeSearchContext context = NodeSearchContext.builder()
+                    .sender(sender)
+                    .commandLabel(commandLabel)
+                    .args(args)
+                    .build();
+
             Executor executor = this.node.findExecutor(context);
 
             if (executor == null) {
-                this.handle(executionContext, CommandResult.UNKNOWN);
+                this.handle(context.execution().build(), CommandResult.UNKNOWN);
                 return;
             }
 
             if (!executor.isAsync()) {
-                Bukkit.getScheduler().runTask(this.node.getPlugin(), () -> this.execute(executor, executionContext));
-            } else this.execute(executor, executionContext);
+                Bukkit.getScheduler().runTask(this.node.getPlugin(), () -> this.execute(executor, context));
+            } else this.execute(executor, context);
         });
 
         return true;
     }
 
-    private boolean execute(@NotNull Executor executor, ExecutionContext context) {
+    private void execute(@NotNull Executor executor, NodeSearchContext context) {
+        ExecutionContext executionContext = context.execution().build();
+        SenderType senderType = executor.getType();
+
+        if (!context.checkPermission(executor)) {
+            this.handle(executionContext, CommandResult.MISSING_PERMISSION);
+            return;
+        }
+
+        if(!senderType.check(context)) {
+            if (senderType == SenderType.PLAYER) this.handle(executionContext, CommandResult.NOT_A_PLAYER);
+            else if (senderType == SenderType.CONSOLE) this.handle(executionContext, CommandResult.NOT_A_CONSOLE);
+            else this.handle(executionContext, CommandResult.WRONG_TARGET);
+            return;
+        }
+
         try {
-            CommandResult result = executor.execute(context);
-            return this.handle(context, result);
+            CommandResult result = executor.execute(executionContext);
+            this.handle(executionContext, result);
         } catch (Throwable throwable) {
-            this.handle(context, CommandResult.INTERNAL_ERROR);
+            this.handle(executionContext, CommandResult.INTERNAL_ERROR);
             throw new CommandException(String.format(
                     "Unhandled exception executing command '%s' in plugin %s",
                     context.getCommandLabel(),
@@ -89,12 +106,17 @@ public class CommandAdapter extends Command {
 
     @Override
     public List<String> tabComplete(@NonNull CommandSender sender, @NonNull String alias, @NonNull String[] args) {
+        NodeSearchContext context = NodeSearchContext.builder()
+                .sender(sender)
+                .commandLabel(alias)
+                .args(args)
+                .build();
+
+
         try {
-            return this.node.completeCommand(NodeSearchContext.builder()
-                    .sender(sender)
-                    .commandLabel(alias)
-                    .args(args)
-                    .build());
+            CommandNode completer = this.node.findCompleter(context);
+            if (completer == null) return null;
+            return completer.complete(context);
         } catch (Throwable throwable) {
             StringBuilder message = new StringBuilder()
                     .append("Unhandled exception during tab completion for command '/")
@@ -109,5 +131,10 @@ public class CommandAdapter extends Command {
 
             throw new CommandException(message.toString(), throwable);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + '(' + node.getKey() + ", " + node.getPlugin() + ')';
     }
 }

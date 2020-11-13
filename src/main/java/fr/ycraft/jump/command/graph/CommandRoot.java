@@ -8,24 +8,18 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class CommandTree extends CommandNode {
-    private final CommandAdapter command;
+public class CommandRoot extends CommandNode {
     private final Plugin plugin;
+    private CommandAdapter command;
     private String description = "";
     private String usage = "/";
     // usageMessage ?
     // permissionMessage ?
 
-    public interface Factory {
-        CommandTree create(String key);
-    }
-
     @Inject
-    public CommandTree(Plugin plugin, @Assisted String key) {
+    public CommandRoot(Plugin plugin, @Assisted String key) {
         super(key);
         this.plugin = plugin;
         this.command = new CommandAdapter(this);
@@ -35,7 +29,7 @@ public class CommandTree extends CommandNode {
         return this.findExecutor(context, context.getQueue());
     }
 
-    public List<String> completeCommand(NodeSearchContext context) {
-        return this.completeCommand(context, context.getQueue());
+    public CommandNode findCompleter(NodeSearchContext context) {
+        return this.findCompleter(context, context.getQueue());
     }
 }

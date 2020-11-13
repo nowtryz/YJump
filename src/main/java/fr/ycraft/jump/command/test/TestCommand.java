@@ -1,23 +1,40 @@
 package fr.ycraft.jump.command.test;
 
+import com.google.inject.Inject;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.command.SenderType;
 import fr.ycraft.jump.command.annotations.Arg;
 import fr.ycraft.jump.command.annotations.Command;
+import fr.ycraft.jump.command.annotations.Completer;
 import fr.ycraft.jump.command.annotations.Provides;
+import fr.ycraft.jump.command.contexts.CompletionContext;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.manager.JumpManager;
 import fr.ycraft.jump.storage.Storage;
+import lombok.RequiredArgsConstructor;
 import net.nowtryz.mcutils.command.CommandResult;
 import net.nowtryz.mcutils.injection.PluginLogger;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+@RequiredArgsConstructor(onConstructor_={@Inject})
 public class TestCommand {
+    private final JumpManager manager;
+
+    @Completer("test jump <jump>")
+    public List<String> completeJump(CompletionContext context) {
+        return this.manager.getJumps()
+                .keySet()
+                .stream()
+                .filter(s -> s.startsWith(context.getArgument()))
+                .collect(Collectors.toList());
+    }
+
     @Provides(target = "jump", provider = JumpProvider.class)
-    @Command(value = "test jump <jump> info", type = SenderType.CONSOLE)
+    @Command("test jump <jump> info")
     static public CommandResult info(
             @Arg("jump") Jump jump,
             @Arg("jump") String name,
@@ -32,14 +49,16 @@ public class TestCommand {
         return CommandResult.SUCCESS;
     }
 
+
+
+
     @Provides(target = "jump", provider = JumpProvider.class)
     @Command(value = "test jump <jump> set name <name>", async = true)
-    static public CommandResult test(
+    public CommandResult test(
             @Arg("name") String name,
             @Arg("jump") Jump jump,
             @PluginLogger Logger logger,
             CommandSender sender,
-            JumpManager manager,
             Storage storage,
             JumpPlugin plugin) {
 
