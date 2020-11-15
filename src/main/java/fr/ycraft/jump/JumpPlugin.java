@@ -4,8 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.mysql.jdbc.Driver;
-import fr.ycraft.jump.command.CommandManager;
-import fr.ycraft.jump.command.contexts.ExecutionContext;
+import net.nowtryz.mcutils.command.CommandManager;
+import net.nowtryz.mcutils.command.contexts.ExecutionContext;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
 import fr.ycraft.jump.commands.misc.JumpsCommand;
@@ -32,7 +32,7 @@ import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
 import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
-import net.nowtryz.mcutils.command.CommandResult;
+import net.nowtryz.mcutils.legacycommand.CommandResult;
 import net.nowtryz.mcutils.injection.BukkitModule;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -101,7 +101,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
-            this.commandManager.collect("fr.ycraft.jump.command.test");
+            this.commandManager.collect("net.nowtryz.mcutils.command.command.test");
             this.commandManager.setResultHandler(this::handleCommandResult);
 //            this.commandManager.printGraph();
             this.commandManager.registerCommands();

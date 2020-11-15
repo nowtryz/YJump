@@ -2,9 +2,9 @@ package fr.ycraft.jump.injection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import fr.ycraft.jump.command.execution.MethodCompleter;
-import fr.ycraft.jump.command.execution.MethodExecutor;
-import fr.ycraft.jump.command.graph.CommandRootFactory;
+import net.nowtryz.mcutils.command.execution.MethodCompleter;
+import net.nowtryz.mcutils.command.execution.MethodExecutor;
+import net.nowtryz.mcutils.command.graph.CommandRootFactory;
 
 public class CommandModule extends AbstractModule {
     @Override

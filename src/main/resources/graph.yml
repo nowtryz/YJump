@@ -1,0 +1,6 @@
+jump:
+  _aliases: [j]
+  rename:
+    _aliases: [setname]
+checkpoint:
+  _aliases: [cp]
