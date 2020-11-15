@@ -14,6 +14,7 @@ import net.nowtryz.mcutils.injection.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
@@ -33,6 +34,9 @@ public class CommandManager {
     private final CommandMap commandMap;
     private final Plugin plugin;
     private final Logger logger;
+
+    // TODO context providers
+    // TODO help command
 
     @Inject
     public CommandManager(
@@ -177,16 +181,28 @@ public class CommandManager {
         if ((command instanceof CommandAdapter)) {
             CommandAdapter adapter = (CommandAdapter) command;
 
+            // if the adapter references the same command node
             if (adapter.getNode() == node) return;
+            // if the adapter is mapped to the same command but on a different node
             if (node.getKey().equals(adapter.getNode().getKey())) {
                 adapter.setNode(node);
                 node.setCommand(adapter);
-            } else {
-                this.commandMap.register(this.plugin.getName(), node.getCommand());
+                return;
             }
-        } else {
-            this.commandMap.register(this.plugin.getName(), node.getCommand());
+        } else if (command instanceof PluginCommand) {
+            PluginCommand pluginCommand = (PluginCommand) command;
+
+            // if the command was present in the plugin.yml and already registered by bukkit, we override executor and
+            // tab completer to use the node implementations
+            if (pluginCommand.getPlugin() == this.plugin) {
+                CommandAdapter adapter = node.getCommand();
+                pluginCommand.setExecutor((sender, cmd, label, args) -> adapter.execute(sender, label, args));
+                pluginCommand.setTabCompleter((sender, cmd, label, args) -> adapter.tabComplete(sender, label, args));
+                return;
+            }
         }
+
+        this.commandMap.register(this.plugin.getName(), node.getCommand());
     }
 
     public void printGraph() {

@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.mysql.jdbc.Driver;
 import fr.ycraft.jump.command.CommandManager;
-import fr.ycraft.jump.command.execution.Executor;
+import fr.ycraft.jump.command.contexts.ExecutionContext;
 import fr.ycraft.jump.commands.jump.JumpCommand;
 import fr.ycraft.jump.commands.misc.CheckpointCommand;
 import fr.ycraft.jump.commands.misc.JumpsCommand;
@@ -101,11 +101,8 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
-            this.commandManager.registerCommand(Executor.create("command")
-                    .onCommand(context -> CommandResult.NOT_IMPLEMENTED)
-                    .build());
             this.commandManager.collect("fr.ycraft.jump.command.test");
-            this.commandManager.setResultHandler((context, result) -> context.getSender().sendMessage(result.toString()));
+            this.commandManager.setResultHandler(this::handleCommandResult);
 //            this.commandManager.printGraph();
             this.commandManager.registerCommands();
 
@@ -125,6 +122,10 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             this.getLogger().warning("Disabling...");
             Bukkit.getPluginManager().disablePlugin(this);
         }
+    }
+
+    private void handleCommandResult(ExecutionContext context, CommandResult result) {
+        context.getSender().sendMessage(result.toString());
     }
 
     /**

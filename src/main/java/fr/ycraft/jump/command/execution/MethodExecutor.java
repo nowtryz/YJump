@@ -30,18 +30,21 @@ import java.util.regex.Pattern;
 
 public class MethodExecutor implements Executor {
     private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
-    private static final Pattern GENERIC_ARG = Pattern.compile("<?(\\w+)>?");
+    private static final Pattern PROVIDER_ARG = Pattern.compile("<?(\\w+)>?");
+    private static final Pattern GENERIC_ARG = Pattern.compile("<(\\w+)>");
 
     private final @NotNull Method method;
+    private final @NotNull SenderType target;
     private final @NotNull ImmutableList<String> argLine;
     private final @NotNull ImmutableList<GenericArg> genericArgs;
     private final @NotNull ImmutableList<Dependency<?>> dependencies;
     private final @NotNull Map<Key<?>, com.google.inject.Provider<?>> cache = new HashMap<>();
     private final @NotNull ThreadLocal<ExecutionContext> localContext = new ThreadLocal<>();
     private final @NotNull InjectionPoint injectionPoint;
-    private @Nullable Object object;
     private final @NotNull Command command;
     private final boolean staticMethod;
+
+    private @Nullable Object object;
 
     private ImmutableList<ArgProvider> providers;
     private Injector childInjector;
@@ -56,11 +59,12 @@ public class MethodExecutor implements Executor {
         this.method = method;
         this.object = null;
         this.command = method.getAnnotation(Command.class);
+        this.target = this.command.type();
         this.argLine = ImmutableList.copyOf(PATTERN_ON_SPACE.split(this.getCommand()));
         this.staticMethod = (method.getModifiers() & Modifier.STATIC) != 0;
 
         ImmutableList.Builder<GenericArg> argBuilder = ImmutableList.builder();
-        Matcher matcher = Pattern.compile("<(\\w+)>").matcher(this.getCommand());
+        Matcher matcher = GENERIC_ARG.matcher(this.getCommand());
         while (matcher.find()) argBuilder.add(new GenericArg(
                 matcher.group(1),
                 this.argLine.indexOf('<' + matcher.group(1) + '>') - 1)
@@ -81,7 +85,7 @@ public class MethodExecutor implements Executor {
 
     private boolean isCacheable(Key<?> key) {
         Class<?> rawType = key.getTypeLiteral().getRawType();
-        if (CommandSender.class.isAssignableFrom(rawType) || ExecutionContext.class.isAssignableFrom(rawType)) {
+        if (CommandSender.class.isAssignableFrom(rawType) || rawType.isAssignableFrom(ExecutionContext.class)) {
             return false;
         }
 
@@ -96,7 +100,8 @@ public class MethodExecutor implements Executor {
     }
 
     @Inject
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    // Type Consistency is ensured by the Provider implementation due to its generic behavior
+    @SuppressWarnings({"rawtypes", "unchecked", "UnstableApiUsage"})
     void init(com.google.inject.Provider<Injector> injector) {
         // We use a provider, so AssistedInject doesn't complain about the fact we use the injector
         this.injector = injector.get();
@@ -116,25 +121,27 @@ public class MethodExecutor implements Executor {
             binder.bind(fr.ycraft.jump.command.contexts.Context.class).toProvider(this::getLocalContext);
             binder.bind(ExecutionContext.class).toProvider(this::getLocalContext);
 
-            for (ArgProvider provider : MethodExecutor.this.providers) {
-                binder.bind(provider.getProvider().getProvidedClass())
-                        .annotatedWith(new ArgImpl(provider.getArg()))
-                        .toProvider((javax.inject.Provider) () -> provider
-                                .getProvider().provide(getLocalContext().getArgs()[provider.index]));
-            }
+            for (Class<? extends CommandSender> sender : this.target.getAcceptableSenders())
+                // CommandSender is already bound, skipping it
+                if (!CommandSender.class.equals(sender)) binder.bind(sender)
+                    .toProvider((javax.inject.Provider) () -> sender.cast(this.getLocalContext().getSender()));
 
-            for (GenericArg genericArg : MethodExecutor.this.genericArgs) {
-                binder.bind(String.class)
-                        .annotatedWith(new ArgImpl(genericArg.getArg()))
-                        .toProvider(() -> this.getLocalContext().getArgs()[genericArg.getIndex()]);
-            }
+            for (ArgProvider provider : MethodExecutor.this.providers) binder
+                    .bind(provider.getProvider().getProvidedClass())
+                    .annotatedWith(new ArgImpl(provider.getArg()))
+                    .toProvider((javax.inject.Provider) () -> provider
+                            .getProvider().provide(getLocalContext().getArgs()[provider.index]));
+
+            for (GenericArg genericArg : MethodExecutor.this.genericArgs) binder.bind(String.class)
+                    .annotatedWith(new ArgImpl(genericArg.getArg()))
+                    .toProvider(() -> this.getLocalContext().getArgs()[genericArg.getIndex()]);
         });
 
         if (!this.staticMethod) this.object = this.injector.getInstance(this.method.getDeclaringClass());
     }
 
     public ArgProvider toArgProvider(Provides provides) {
-        String arg = GENERIC_ARG.matcher(provides.target()).replaceFirst("$1");
+        String arg = PROVIDER_ARG.matcher(provides.target()).replaceFirst("$1");
         int index = this.argLine.indexOf('<' + arg + '>');
 
         if (index == -1) throw new IllegalArgumentException(
@@ -192,19 +199,20 @@ public class MethodExecutor implements Executor {
         try {
             return (CommandResult) method.invoke(this.object, args);
         } catch (ReflectiveOperationException e) {
+            // unwrap to hide reflection and simply show exception thrown by the method
             throw unwrap(e);
         } finally {
             long end = System.nanoTime();
-            System.out.println(String.format(
-                    "command execution %07dns (collection %07dns, invocation %07dns)",
+            System.out.printf(
+                    "command execution %07dns (collection %07dns, invocation %07dns)\n",
                     end - start, argsCollected - start, end - argsCollected
-            ));
+            );
         }
     }
 
     @Override
     public @NotNull SenderType getType() {
-        return this.command.type();
+        return this.target;
     }
 
     @Override

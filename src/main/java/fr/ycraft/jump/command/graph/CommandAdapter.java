@@ -48,47 +48,43 @@ public class CommandAdapter extends Command {
                 this.node.getPlugin().getDescription().getFullName()
         ));
 
-        Bukkit.getScheduler().runTaskAsynchronously(this.node.getPlugin(), () -> {
-            NodeSearchContext context = NodeSearchContext.builder()
-                    .sender(sender)
-                    .commandLabel(commandLabel)
-                    .args(args)
-                    .build();
+        NodeSearchContext context = NodeSearchContext.builder()
+                .sender(sender)
+                .commandLabel(commandLabel)
+                .args(args)
+                .build();
 
-            Executor executor = this.node.findExecutor(context);
+        Executor executor = this.node.findExecutor(context);
 
-            if (executor == null) {
-                this.handle(context.execution().build(), CommandResult.UNKNOWN);
-                return;
-            }
+        if (executor == null) {
+            this.handle(context.execution().build(), CommandResult.UNKNOWN);
+            return CommandResult.UNKNOWN.isValid();
+        }
 
-            if (!executor.isAsync()) {
-                Bukkit.getScheduler().runTask(this.node.getPlugin(), () -> this.execute(executor, context));
-            } else this.execute(executor, context);
-        });
-
-        return true;
+        if (executor.isAsync()) {
+            Bukkit.getScheduler().runTaskAsynchronously(this.node.getPlugin(), () -> this.execute(executor, context));
+            // As we cannot know the effective result, we prevent the default failure behavior
+            return true;
+        } else return this.execute(executor, context);
     }
 
-    private void execute(@NotNull Executor executor, NodeSearchContext context) {
+    private boolean execute(@NotNull Executor executor, NodeSearchContext context) {
         ExecutionContext executionContext = context.execution().build();
         SenderType senderType = executor.getType();
 
         if (!context.checkPermission(executor)) {
-            this.handle(executionContext, CommandResult.MISSING_PERMISSION);
-            return;
+            return this.handle(executionContext, CommandResult.MISSING_PERMISSION);
         }
 
         if(!senderType.check(context)) {
-            if (senderType == SenderType.PLAYER) this.handle(executionContext, CommandResult.NOT_A_PLAYER);
-            else if (senderType == SenderType.CONSOLE) this.handle(executionContext, CommandResult.NOT_A_CONSOLE);
-            else this.handle(executionContext, CommandResult.WRONG_TARGET);
-            return;
+            if (senderType == SenderType.PLAYER) return this.handle(executionContext, CommandResult.NOT_A_PLAYER);
+            else if (senderType == SenderType.CONSOLE) return this.handle(executionContext, CommandResult.NOT_A_CONSOLE);
+            else return this.handle(executionContext, CommandResult.WRONG_TARGET);
         }
 
         try {
             CommandResult result = executor.execute(executionContext);
-            this.handle(executionContext, result);
+            return this.handle(executionContext, result);
         } catch (Throwable throwable) {
             this.handle(executionContext, CommandResult.INTERNAL_ERROR);
             throw new CommandException(String.format(
