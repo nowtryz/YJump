@@ -72,6 +72,17 @@ cmd:
     setworld:      "Change le monde dans lequel est enregistré le jump"
   success:
     setworld: "&6Jump Editor &e» &7&oLe jump &f%s&7&o est désormais sur le monde &f%s&7&o !"
+    info: |-
+      Nom : %s
+      Distance de chûte : %d
+      Desription : %s
+      Monde : %s
+      Icône : %s
+      Checkpoints : %d
+      Point d'apparition : x=%d, y=%d, z=%d
+      Début : x=%d, y=%d, z=%d
+      Fin : x=%d, y=%d, z=%d
+
 editor:
   header: "&e&m=  &r&e» &6&lJump Editor &r&e«&m  ="
   title: "&aVous êtes en train d'éditer &e%s&a."

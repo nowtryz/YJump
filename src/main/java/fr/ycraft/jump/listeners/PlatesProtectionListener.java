@@ -3,7 +3,7 @@ package fr.ycraft.jump.listeners;
 import fr.ycraft.jump.sessions.JumpEditor;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.enums.Text;
-import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
@@ -47,7 +47,7 @@ public class PlatesProtectionListener extends AbstractListener {
         List<Location> protectedLocations = this.jumpManager.getProtectedLocations();
 
         if (protectedLocations.contains(loc) || protectedLocations.contains(top)) {
-            if (Perm.EDIT.isHeldBy(event.getPlayer())) {
+            if (event.getPlayer().hasPermission(Perm.EDIT)) {
                 if (!this.editorsManager.isInEditor(event.getPlayer())) {
                     event.setCancelled(true);
                     Text.EDITOR_ONLY_ACTION.send(event.getPlayer());

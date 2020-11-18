@@ -2,7 +2,7 @@ package fr.ycraft.jump.sessions;
 
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.commands.CommandSpec;
+import fr.ycraft.jump.commands.enums.CommandSpec;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;

@@ -1,4 +1,4 @@
-package fr.ycraft.jump.commands;
+package fr.ycraft.jump.commands.enums;
 
 import fr.ycraft.jump.enums.Text;
 
@@ -23,16 +23,16 @@ public enum CommandSpec {
     SET_END(JUMP, "setend", Perm.EDIT, Text.DESC_SET_END),
     SET_DESCRIPTION(JUMP, "setdesc", Perm.EDIT, Text.DESC_SET_DESCRIPTION, Text.SET_DESCRIPTION_USAGE),
     RENAME(JUMP, "rename", Perm.EDIT, Text.DESC_RENAME, Text.RENAME_USAGE),
-    INFO(JUMP, "info", Perm.EDIT, Text.DESC_INFO),
+    INFO(JUMP, "info", Perm.ADMIN_LIST, Text.DESC_INFO),
     RELOAD(JUMP, "reload", Perm.RELOAD, Text.DESC_RELOAD);
 
     public final String label;
-    public final Perm permission;
+    public final String permission;
     public final Text description;
     private final Text usage;
     private final CommandSpec parent;
 
-    CommandSpec(CommandSpec parent, String label, Perm permission, Text description, Text usage) {
+    CommandSpec(CommandSpec parent, String label, String permission, Text description, Text usage) {
         this.parent = parent;
         this.label = label;
         this.permission = permission;
@@ -40,7 +40,7 @@ public enum CommandSpec {
         this.usage = usage;
     }
 
-    CommandSpec(CommandSpec parent, String label, Perm permission, Text description) {
+    CommandSpec(CommandSpec parent, String label, String permission, Text description) {
         this.parent = parent;
         this.label = label;
         this.permission = permission;
@@ -48,7 +48,7 @@ public enum CommandSpec {
         this.usage = null;
     }
 
-    CommandSpec(String label, Perm permission, Text description, Text usage) {
+    CommandSpec(String label, String permission, Text description, Text usage) {
         this.parent = null;
         this.label = label;
         this.permission = permission;
@@ -56,7 +56,7 @@ public enum CommandSpec {
         this.usage = usage;
     }
 
-    CommandSpec(String label, Perm permission, Text description) {
+    CommandSpec(String label, String permission, Text description) {
         this.parent = null;
         this.label = label;
         this.permission = permission;

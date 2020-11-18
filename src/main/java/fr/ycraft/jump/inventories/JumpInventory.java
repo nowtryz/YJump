@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
@@ -73,7 +73,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
                 .hookAction("tp", this::onTp, b -> b.setDisplayName(Text.JUMP_INVENTORY_TP))
                 .hookAction("top 10", this::onTop, b -> b.setDisplayName(Text.JUMP_INVENTORY_TOP, config.get(Key.MAX_SCORES_PER_JUMP)))
                 // if admin
-                .hookIf(Perm.EDIT.isHeldBy(player), builder ->
+                .hookIf(player.hasPermission(Perm.EDIT), builder ->
                         builder.hookAction("settings", this::onSettings, b -> b.setDisplayName(Text.JUMP_INVENTORY_SETTINGS))
                 );
     }

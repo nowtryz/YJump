@@ -4,11 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.mysql.jdbc.Driver;
-import net.nowtryz.mcutils.command.CommandManager;
-import net.nowtryz.mcutils.command.contexts.ExecutionContext;
-import fr.ycraft.jump.commands.jump.JumpCommand;
-import fr.ycraft.jump.commands.misc.CheckpointCommand;
-import fr.ycraft.jump.commands.misc.JumpsCommand;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
@@ -32,7 +27,9 @@ import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
 import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
-import net.nowtryz.mcutils.legacycommand.CommandResult;
+import net.nowtryz.mcutils.command.CommandManager;
+import net.nowtryz.mcutils.command.CommandResult;
+import net.nowtryz.mcutils.command.contexts.ExecutionContext;
 import net.nowtryz.mcutils.injection.BukkitModule;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -101,9 +98,9 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
-            this.commandManager.collect("net.nowtryz.mcutils.command.command.test");
+            this.commandManager.collect("fr.ycraft.jump");
             this.commandManager.setResultHandler(this::handleCommandResult);
-//            this.commandManager.printGraph();
+            this.commandManager.printGraph();
             this.commandManager.registerCommands();
 
             this.storage.init();
@@ -126,22 +123,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
 
     private void handleCommandResult(ExecutionContext context, CommandResult result) {
         context.getSender().sendMessage(result.toString());
-    }
-
-    /**
-     * Register all Jump plugin commands
-     * @param jumpCommand /jump
-     * @param jumpsCommand /jumps
-     * @param checkpointCommand /checkpoint
-     */
-    @Inject
-    public void registerCommands(
-            JumpCommand jumpCommand,
-            JumpsCommand jumpsCommand,
-            CheckpointCommand checkpointCommand) {
-        jumpCommand.register();
-        jumpsCommand.register();
-        checkpointCommand.register();
     }
 
     /**

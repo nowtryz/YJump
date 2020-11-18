@@ -2,7 +2,7 @@ package fr.ycraft.jump.sessions;
 
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.commands.Perm;
+import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.configuration.TitleSettings;
@@ -114,7 +114,7 @@ public class JumpGame {
         this.endLocation = end.get();
         this.start = System.currentTimeMillis();
         this.resetTime = config.get(Key.RESET_TIME);
-        this.canFly = Perm.FLY.isHeldBy(player);
+        this.canFly = player.hasPermission(Perm.FLY);
         this.fallPrevention = jump.getFallDistance() > 0;
         this.checkpoint = this.startLocation;
     }
@@ -122,11 +122,10 @@ public class JumpGame {
     /**
      * Initialize this game session and add information to the player's ATH.
      * This method must be called on the primary thread of Bukkit
-     * @throws AssertionError if this method is not call on primary thread
+     * @throws IllegalStateException if this method is not call on primary thread
      */
     public void init() {
-        assert Bukkit.isPrimaryThread() : "Async Parkour initialization";
-        assert false : "False is actually false, clever !";
+        if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Async Parkour initialization");
 
         Text.GAME_ENTER.send(player, jump.getName());
         this.startTitle.send(player,
