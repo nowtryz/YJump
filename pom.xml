@@ -108,7 +108,11 @@
 
     <repositories>
         <repository>
-            <snapshots />
+            <snapshots>
+                <enabled>true</enabled>
+                <!-- we want to check for all updates as this api change a lot -->
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
             <id>mc-utils</id>
             <name>libs-snapshot</name>
             <url>https://nowtryz.jfrog.io/artifactory/public</url>

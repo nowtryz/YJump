@@ -54,17 +54,16 @@ public class EditorCommands {
         return CommandResult.SUCCESS;
     }
 
-
-    // TODO parse and get all remaining args
     @ProvidesContext(EditorProvider.class)
-    @Command(value = "jump setdesc <description...>", type = SenderType.PLAYER, permission = Perm.EDIT)
-    public static CommandResult setDescription(JumpEditor editor, Player player, @Arg("description") String description) {
+    @Command(value = "jump setdesc <desc...>", usage = "{} {} <description>",
+             type = SenderType.PLAYER, permission = Perm.EDIT)
+    public static CommandResult setDescription(JumpEditor editor, Player player, @Arg("desc") String[] description) {
         if (editor == null) {
             Text.EDITOR_ONLY_COMMAND.send(player);
             return CommandResult.FAILED;
         }
 
-        editor.getJump().setDescription(description);
+        editor.getJump().setDescription(String.join(" ", description));
         Text.DESCRIPTION_UPDATED.send(player);
         return CommandResult.SUCCESS;
     }

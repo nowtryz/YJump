@@ -12,7 +12,7 @@ import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.exceptions.ParkourException;
-import fr.ycraft.jump.injection.CommandModule;
+import net.nowtryz.mcutils.injection.CommandModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
@@ -98,10 +98,8 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             MetricsUtils.init(this);
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
-            this.commandManager.collect("fr.ycraft.jump");
-            this.commandManager.setResultHandler(this::handleCommandResult);
+            this.commandManager.initDefaults(this::handleCommandResult);
             this.commandManager.printGraph();
-            this.commandManager.registerCommands();
 
             this.storage.init();
             this.jumpManager.init();
