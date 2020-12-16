@@ -14,7 +14,9 @@ import net.nowtryz.mcutils.LocationUtil;
 import net.nowtryz.mcutils.injection.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +50,7 @@ public class JumpManager extends AbstractManager {
     public void init() {
         try {
             this.storage.loadJumps().thenAccept(this::updateJumpList).get();
+            this.showJumpList();
         } catch (InterruptedException | ExecutionException e) {
             this.logger.log(Level.SEVERE, "Unable to load jumps", e);
             Bukkit.getPluginManager().disablePlugin(this.plugin);
@@ -93,6 +96,60 @@ public class JumpManager extends AbstractManager {
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(ImmutableList.toImmutableList());
+    }
+
+    private void showJumpList() {
+        String[] jumps = this.jumps.keySet().toArray(new String[0]);
+        if (jumps.length == 0) this.logger.warning("No jump loaded");
+        else this.logger.info(String.format(
+                "Loaded the following jumps: %s",
+                String.join(", ", jumps)
+        ));
+
+        this.jumps.values()
+                .parallelStream()
+                .filter(jump -> jump.getWorld() == null)
+                .forEach(jump -> this.getLogger().warning(String.format(
+                        "The world of `%1$s` is not set or have changed, " +
+                                "please update it with `/jump setworld %1$s <world>`",
+                        jump.getName()
+                )));
+    }
+
+    public void replacePlates() {
+        this.jumps.values().forEach(jump -> {
+            // Place blocks bellow plates
+            jump.getStart()
+                    .map(Location::getBlock)
+                    .map(block -> block.getRelative(BlockFace.DOWN))
+                    .filter(b -> !b.getType().isOccluding())
+                    .ifPresent(b -> b.setType(Material.GOLD_BLOCK));
+            jump.getEnd()
+                    .map(Location::getBlock)
+                    .map(block -> block.getRelative(BlockFace.DOWN))
+                    .filter(b -> !b.getType().isOccluding())
+                    .ifPresent(b -> b.setType(Material.GOLD_BLOCK));
+            jump.getCheckpoints()
+                    .stream()
+                    .map(Location::getBlock)
+                    .map(block -> block.getRelative(BlockFace.DOWN))
+                    .filter(b -> !b.getType().isOccluding())
+                    .forEach(b -> b.setType(Material.GOLD_BLOCK));
+            // Place plates
+            jump.getStart()
+                    .map(Location::getBlock)
+                    .filter(b -> !b.getType().equals(this.config.get(Key.START_MATERIAL)))
+                    .ifPresent(b -> b.setType(this.config.get(Key.START_MATERIAL)));
+            jump.getEnd()
+                    .map(Location::getBlock)
+                    .filter(b -> !b.getType().equals(this.config.get(Key.END_MATERIAL)))
+                    .ifPresent(b -> b.setType(this.config.get(Key.END_MATERIAL)));
+            jump.getCheckpoints()
+                    .stream()
+                    .map(Location::getBlock)
+                    .filter(b -> !b.getType().equals(this.config.get(Key.CHECKPOINT_MATERIAL)))
+                    .forEach(b -> b.setType(this.config.get(Key.CHECKPOINT_MATERIAL)));
+        });
     }
 
     public Optional<Jump> getJump(String name) {

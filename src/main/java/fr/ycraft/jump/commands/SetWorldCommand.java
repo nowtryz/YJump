@@ -48,7 +48,7 @@ public class SetWorldCommand {
             jump.setWorld(world);
             Text.SUCCESS_WORLD_SET.send(sender, jump.getName(), world.getName());
             this.manager.updateJumpList();
-            this.plugin.replacePlates();
+            this.manager.replacePlates();
             return CommandResult.SUCCESS;
         }
 

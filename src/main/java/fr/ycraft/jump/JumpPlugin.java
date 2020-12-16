@@ -12,7 +12,6 @@ import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.exceptions.ParkourException;
-import net.nowtryz.mcutils.injection.CommandModule;
 import fr.ycraft.jump.injection.JumpModule;
 import fr.ycraft.jump.injection.TemplatesModule;
 import fr.ycraft.jump.listeners.PlateListener;
@@ -31,10 +30,8 @@ import net.nowtryz.mcutils.command.CommandManager;
 import net.nowtryz.mcutils.command.CommandResult;
 import net.nowtryz.mcutils.command.contexts.ExecutionContext;
 import net.nowtryz.mcutils.injection.BukkitModule;
+import net.nowtryz.mcutils.injection.CommandModule;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
@@ -99,14 +96,16 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             Jump.setDefaultMaterial(this.configProvider.get(Key.DEFAULT_JUMP_ICON));
 
             this.commandManager.initDefaults(this::handleCommandResult);
-            this.commandManager.printGraph();
+//            this.commandManager.getCommands()
+//                    .stream()
+//                    .map(Execution::getCommand)
+//                    .forEach(this.getLogger()::info);
 
             this.storage.init();
             this.jumpManager.init();
             this.playerManager.init();
 
-            this.showJumpList();
-            this.replacePlates();
+            this.jumpManager.replacePlates();
             this.getLogger().info(String.format("%s enabled!", this.getName()));
             this.enabling = false;
 
@@ -137,65 +136,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         plateListener.register();
         playerListener.register();
         platesProtectionListener.register();
-    }
-
-    private void showJumpList() {
-        String[] jumps = this.jumpManager
-                .getJumps()
-                .keySet()
-                .toArray(new String[0]);
-        if (jumps.length == 0) this.getLogger().warning("No jump loaded");
-        else this.getLogger().info(String.format(
-                "Loaded the following jumps: %s",
-                String.join(", ", jumps)
-        ));
-
-        this.jumpManager
-                .getJumps()
-                .values()
-                .parallelStream()
-                .filter(jump -> jump.getWorld() == null)
-                .forEach(jump -> this.getLogger().warning(String.format(
-                        "The world of `%1$s` is not set or have changed, " +
-                                "please update it with `/jump setworld %1$s <world>`",
-                        jump.getName()
-                )));
-    }
-
-    public void replacePlates() {
-        this.jumpManager.getJumps().values().forEach(jump -> {
-            // Place blocks bellow plates
-            jump.getStart()
-                    .map(Location::getBlock)
-                    .map(block -> block.getRelative(BlockFace.DOWN))
-                    .filter(b -> !b.getType().isOccluding())
-                    .ifPresent(b -> b.setType(Material.GOLD_BLOCK));
-            jump.getEnd()
-                    .map(Location::getBlock)
-                    .map(block -> block.getRelative(BlockFace.DOWN))
-                    .filter(b -> !b.getType().isOccluding())
-                    .ifPresent(b -> b.setType(Material.GOLD_BLOCK));
-            jump.getCheckpoints()
-                    .stream()
-                    .map(Location::getBlock)
-                    .map(block -> block.getRelative(BlockFace.DOWN))
-                    .filter(b -> !b.getType().isOccluding())
-                    .forEach(b -> b.setType(Material.GOLD_BLOCK));
-            // Place plates
-            jump.getStart()
-                    .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.START_MATERIAL)))
-                    .ifPresent(b -> b.setType(this.configProvider.get(Key.START_MATERIAL)));
-            jump.getEnd()
-                    .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.END_MATERIAL)))
-                    .ifPresent(b -> b.setType(this.configProvider.get(Key.END_MATERIAL)));
-            jump.getCheckpoints()
-                    .stream()
-                    .map(Location::getBlock)
-                    .filter(b -> !b.getType().equals(this.configProvider.get(Key.CHECKPOINT_MATERIAL)))
-                    .forEach(b -> b.setType(this.configProvider.get(Key.CHECKPOINT_MATERIAL)));
-        });
     }
 
     @Override
