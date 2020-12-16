@@ -45,7 +45,7 @@ public class FlatFileStorage implements StorageImplementation {
     }
 
     @Override
-    public void init() throws IllegalStateException {
+    public void init() throws IllegalStateException, IOException {
         if (this.playersFolder.mkdirs()) plugin.getLogger().info("Created a fresh new score folder");
         try (
                 final InputStream defConfigStream = this.plugin.getResource("jump.defaults.yml");
@@ -57,6 +57,12 @@ public class FlatFileStorage implements StorageImplementation {
         } catch (IOException | IllegalStateException e) {
             throw new IllegalStateException("Unable to load default jump data", e);
         }
+
+        if(this.jumpsFolder.isFile()) throw new IllegalStateException("The jumps folder is a file");
+        if(this.playersFolder.isFile()) throw new IllegalStateException("The players folder is a file");
+
+        if (this.jumpsFolder.mkdirs()) this.logger.info("Created new jumps folder");
+        if (this.playersFolder.mkdirs()) this.logger.info("Created new players folder");
     }
 
     /**
