@@ -26,12 +26,12 @@ If you want to keep V1's YAML files, follw the steps bellow:
     ```
  2. Delete `YJump/players/`, player scores cannot be imported
  3. Restart your server
- 4. You should have a line like this one in the config:
+ 4. You should have a line like this one in the console:
     ```log
-    The world of `%1$s` is not set or have changed, please update it with `/jump setworld name <world>`
+    The world of `parkour name` is not set or have changed, please update it with `/jump setworld name <world>`
     ```
- 5. Fall distance is now editable for each jump and has been cahnged to `-1 (disabled)` for all of your old parkour. If
-    you want to change this, ypu forst need to enter the admin panel of the desired parkours, to do this, use one of the
+ 5. Fall distance is now editable for each jump and has been changed to `-1 (disabled)` for all of your old parkour. If
+    you want to change this, you first need to enter the admin panel of the desired parkour. To do this, use one of the
     following options:
        - Enter editor:
            1. use `/jump edit <jump name>` to enter the editor
