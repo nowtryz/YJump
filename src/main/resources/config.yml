@@ -10,11 +10,14 @@ plates:
   # Note: Enabling this feature may impact performances if a lot of break events occur in the same world of jumps
   protect: yes
   # Each checkpoint, start, endpoints need to have a pressure plate to be used by the plugin
-  # materials can be (case insensitive): gold, iron, stone, or wood
+  # materials can be (case insensitive):
+  # before 1.13: gold, iron, stone, or wood
+  # since 1.13: acacia, birch, dark oak, jungle, oak, spruce, stone, light weighted (gold), heavy weighted (iron)
+  # since 1.16: 1.13 plates + crimson, polished blackstone, warped
   materials:
-    start: gold
-    end: gold
-    checkpoint: iron
+    start: stone
+    end: stone
+    checkpoint: stone
 
 # Game settings
 game:

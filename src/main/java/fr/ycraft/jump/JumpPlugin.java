@@ -3,12 +3,9 @@ package fr.ycraft.jump;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.mysql.jdbc.Driver;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
-import fr.ycraft.jump.entity.PlayerScore;
-import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.exceptions.ParkourException;
@@ -24,6 +21,7 @@ import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
+import net.nowtryz.mcutils.MCUtils;
 import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
 import net.nowtryz.mcutils.command.CommandManager;
@@ -44,20 +42,6 @@ import java.util.Optional;
  */
 @Getter(onMethod_={@Deprecated})
 public final class JumpPlugin extends JavaPlugin implements Plugin {
-    /*
-     * Preloads classes used in reflection by YAML deserializer
-     */
-    static {
-        try {
-            JumpPlugin.class.getClassLoader().loadClass(Jump.class.getName());
-            JumpPlugin.class.getClassLoader().loadClass(PlayerScore.class.getName());
-            JumpPlugin.class.getClassLoader().loadClass(Driver.class.getName());
-            JumpPlugin.class.getClassLoader().loadClass(Position.class.getName());
-        } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().severe("[YJump] Unable to preload classes for Yaml deserialization");
-        }
-    }
-
     // managers and listeners
     private @Inject Config configProvider;
     private @Inject EditorsManager editorsManager;

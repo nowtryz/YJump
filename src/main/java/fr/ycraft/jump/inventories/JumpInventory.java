@@ -1,9 +1,5 @@
 package fr.ycraft.jump.inventories;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.utility.MinecraftReflection;
 import com.google.inject.assistedinject.Assisted;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.enums.Perm;
@@ -15,8 +11,7 @@ import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import fr.ycraft.jump.util.book.BookOpener;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
@@ -43,10 +38,12 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
     private final JumpPlayer jumpPlayer;
     private final InfoAdminInventory.Factory infoFactory;
     private final BestScoresInventory.Factory bestScoresFactory;
+    private final BookOpener bookOpener;
 
     @Inject
     JumpInventory(JumpPlugin plugin,
                   Config config,
+                  BookOpener bookOpener,
                   InfoAdminInventory.Factory infoFactory,
                   BestScoresInventory.Factory bestScoresFactory,
                   @Patterned(Patterns.INFO) Pattern pattern,
@@ -58,6 +55,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
         this.bestScoresFactory = bestScoresFactory;
         this.infoFactory = infoFactory;
         this.jumpPlayer = jumpPlayer;
+        this.bookOpener = bookOpener;
         this.jump = jump;
 
         ItemStack skull = ItemBuilder.skullForPlayer(player)
@@ -113,25 +111,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         book.setItemMeta(meta);
 
-        int slot = this.player.getInventory().getHeldItemSlot();
-        ItemStack old = this.player.getInventory().getItem(slot);
-        this.player.getInventory().setItem(slot, book);
-
-        try {
-            PacketContainer pc = ProtocolLibrary.getProtocolManager().
-                    createPacket(PacketType.Play.Server.CUSTOM_PAYLOAD);
-            pc.getModifier().writeDefaults();
-            ByteBuf bf = Unpooled.buffer(256);
-            bf.setByte(0, (byte)0); // main hand
-            bf.writerIndex(1);
-            pc.getStrings().write(0, "MC|BOpen");
-            pc.getModifier().write(1, MinecraftReflection.getPacketDataSerializer(bf));
-            ProtocolLibrary.getProtocolManager().sendServerPacket(this.player, pc);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        this.player.getInventory().setItem(slot, old);
+        this.bookOpener.openBook(player, book);
     }
 
     public interface Factory {

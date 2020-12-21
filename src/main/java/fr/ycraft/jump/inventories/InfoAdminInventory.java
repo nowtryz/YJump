@@ -9,6 +9,7 @@ import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
+import fr.ycraft.jump.util.material.MaterialResolver;
 import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.builders.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
@@ -198,7 +199,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         if (world == null) return Material.BARRIER;
         switch (world.getEnvironment()) {
             case NETHER: return Material.NETHERRACK;
-            case THE_END: return Material.ENDER_STONE;
+            case THE_END: return MaterialResolver.getResolver().getEndIcon();
             case NORMAL:
             default:
                 return Material.GRASS;

@@ -4,9 +4,11 @@ main: fr.ycraft.jump.JumpPlugin
 author: Nowtryz
 description: Le Plugin de Jump d'YCraft
 website: nowtryz.net
-prefix: YJump
+api-version: 1.13 # ${project.artifactId} supports custom mapping natively
+prefix: ${project.artifactId}
 depend: ['ProtocolLib']
-loadbefore: ['Essentials']
+loadbefore:
+  - 'Essentials' # so our `j` and `jump`commands override essentials' ones
 
 commands:
   jump:

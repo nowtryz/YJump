@@ -1,6 +1,7 @@
 package fr.ycraft.jump.entity;
 
 import com.google.common.collect.ImmutableList;
+import fr.ycraft.jump.util.material.MaterialResolver;
 import lombok.*;
 import lombok.EqualsAndHashCode.Include;
 import net.nowtryz.mcutils.ItemStackUtil;
@@ -39,10 +40,7 @@ public class Jump implements ConfigurationSerializable {
     public static final String DESCRIPTION = "description";
     public static final String WORLD = "world";
     public static final List<Material> ALLOWED_MATERIALS = Collections.unmodifiableList(Arrays.asList(
-            Material.GOLD_PLATE,
-            Material.IRON_PLATE,
-            Material.STONE_PLATE,
-            Material.WOOD_PLATE
+            MaterialResolver.getResolver().getPlates()
     ));
 
     @Include @NonNull @Default

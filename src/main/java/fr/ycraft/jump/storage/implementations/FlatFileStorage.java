@@ -4,13 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.inject.Inject;
 import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
-import fr.ycraft.jump.entity.Jump;
-import fr.ycraft.jump.entity.JumpPlayer;
-import fr.ycraft.jump.entity.TimeScore;
+import fr.ycraft.jump.entity.*;
+import fr.ycraft.jump.util.JumpCollector;
 import net.nowtryz.mcutils.exceptions.StreamException;
 import net.nowtryz.mcutils.injection.DataFolder;
 import net.nowtryz.mcutils.injection.PluginLogger;
-import fr.ycraft.jump.util.JumpCollector;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -46,6 +44,16 @@ public class FlatFileStorage implements StorageImplementation {
 
     @Override
     public void init() throws IllegalStateException, IOException {
+        try {
+            // Preloads classes used in reflection by YAML deserializer
+            JumpPlugin.class.getClassLoader().loadClass(Jump.class.getName());
+            JumpPlugin.class.getClassLoader().loadClass(PlayerScore.class.getName());
+            JumpPlugin.class.getClassLoader().loadClass(Position.class.getName());
+        } catch (ClassNotFoundException e) {
+            Bukkit.getLogger().severe("[YJump] Unable to preload classes for Yaml deserialization");
+            throw new ExceptionInInitializerError(e);
+        }
+
         if (this.playersFolder.mkdirs()) plugin.getLogger().info("Created a fresh new score folder");
         try (
                 final InputStream defConfigStream = this.plugin.getResource("jump.defaults.yml");

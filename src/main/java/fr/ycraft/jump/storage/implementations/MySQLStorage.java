@@ -81,6 +81,12 @@ public class MySQLStorage implements StorageImplementation {
 
     @Override
     public void init() throws SQLException {
+        try {
+            this.getClass().getClassLoader().loadClass(com.mysql.jdbc.Driver.class.getName());
+        } catch (ClassNotFoundException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+
         DatabaseUtil.initDatabase(this.plugin);
         this.connection = DatabaseUtil.createConnection(plugin.getConfigProvider());
 
