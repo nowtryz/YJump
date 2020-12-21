@@ -4,13 +4,21 @@ import net.nowtryz.mcutils.MCUtils;
 import org.bukkit.Material;
 
 public interface MaterialResolver {
+    MaterialResolver RESOLVER =
+            MCUtils.SIXTEEN_COMPATIBLE ? new SixteenResolver() :
+            MCUtils.THIRTEEN_COMPATIBLE ? new ThirteenToFifteenResolver() :
+            new TwelveResolver();
+
     Material[] getPlates();
     Material getDefaultPlate();
+    Material getGoldPlate();
+    Material getIronPlate();
     Material getEndIcon();
 
-    static MaterialResolver getResolver() {
-        if (MCUtils.SIXTEEN_COMPATIBLE) return new SixteenResolver();
-        else if (MCUtils.THIRTEEN_COMPATIBLE) return new ThirteenToFifteenResolver();
-        else return new TwelveResolver();
-    }
+    static Material[] plates() { return RESOLVER.getPlates(); }
+    static Material defaultPlate() { return RESOLVER.getDefaultPlate(); }
+    static Material goldPlate() { return RESOLVER.getGoldPlate(); }
+    static Material ironPlate() { return RESOLVER.getIronPlate(); }
+    static Material endStone() { return RESOLVER.getEndIcon(); }
+    static MaterialResolver getResolver() { return RESOLVER; }
 }

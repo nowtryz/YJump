@@ -24,6 +24,16 @@ public class ThirteenToFifteenResolver implements MaterialResolver {
     }
 
     @Override
+    public Material getGoldPlate() {
+        return Material.LIGHT_WEIGHTED_PRESSURE_PLATE;
+    }
+
+    @Override
+    public Material getIronPlate() {
+        return Material.HEAVY_WEIGHTED_PRESSURE_PLATE;
+    }
+
+    @Override
     public Material getEndIcon() {
         return Material.END_STONE;
     }

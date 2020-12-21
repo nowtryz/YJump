@@ -20,6 +20,16 @@ public class TwelveResolver implements MaterialResolver {
     }
 
     @Override
+    public Material getGoldPlate() {
+        return GOLD;
+    }
+
+    @Override
+    public Material getIronPlate() {
+        return IRON;
+    }
+
+    @Override
     public Material getEndIcon() {
         return END_STONE;
     }

@@ -1,5 +1,6 @@
 package fr.ycraft.jump.configuration;
 
+import fr.ycraft.jump.util.material.MaterialResolver;
 import net.nowtryz.mcutils.MCUtils;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -7,6 +8,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 public class KeyFactory {
@@ -48,9 +50,20 @@ public class KeyFactory {
 
     private static final String PLATE_APPENDER = MCUtils.THIRTEEN_COMPATIBLE ? "%s_PRESSURE_PLATE" : "%s_PLATE";
     static Key<Material> plateKey(String path, Material def) {
+
         return key(configuration -> {
             try {
-                return Material.matchMaterial(String.format(PLATE_APPENDER, configuration.getString(path)));
+                String value = configuration.getString(path);
+
+                if (value == null) return def;
+                if (MCUtils.THIRTEEN_COMPATIBLE) {
+                    switch (value.trim().toLowerCase()) {
+                        case "iron": return MaterialResolver.ironPlate();
+                        case "gold": return MaterialResolver.goldPlate();
+                    }
+                }
+
+                return Material.matchMaterial(String.format(PLATE_APPENDER, value));
             } catch (IllegalArgumentException ignored) {}
             return def;
         });
