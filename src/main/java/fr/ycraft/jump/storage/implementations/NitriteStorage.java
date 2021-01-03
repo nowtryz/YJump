@@ -57,7 +57,7 @@ public class NitriteStorage implements StorageImplementation {
 
     @Override
     public void init() {
-        this.logger.warning("The warnings related to slf4j bellow are due to NitriteDB, ignore it");
+        this.logger.warning("The warnings related to slf4j that may appear bellow are due to NitriteDB, ignore it");
         this.database = Nitrite.builder()
                 .compressed()
                 .filePath(new File(this.pluginFolder, DATABASE_FILENAME))

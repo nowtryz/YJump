@@ -1,8 +1,10 @@
 package fr.ycraft.jump.commands.utils;
 
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.EditorsManager;
 import fr.ycraft.jump.sessions.JumpEditor;
 import lombok.RequiredArgsConstructor;
+import net.nowtryz.mcutils.command.CommandResult;
 import net.nowtryz.mcutils.command.ContextProvider;
 import net.nowtryz.mcutils.command.SenderType;
 import net.nowtryz.mcutils.command.contexts.ExecutionContext;
@@ -27,5 +29,11 @@ public class EditorProvider implements ContextProvider<JumpEditor> {
     @Override
     public JumpEditor provide(ExecutionContext context) {
         return this.manager.getEditor((Player) context.getSender()).orElse(null);
+    }
+
+    @Override
+    public CommandResult onNull(ExecutionContext context) {
+        Text.EDITOR_ONLY_COMMAND.send(context.getSender());
+        return CommandResult.FAILED;
     }
 }

@@ -1,8 +1,10 @@
 package fr.ycraft.jump.commands.utils;
 
+import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.sessions.JumpGame;
 import lombok.RequiredArgsConstructor;
+import net.nowtryz.mcutils.command.CommandResult;
 import net.nowtryz.mcutils.command.ContextProvider;
 import net.nowtryz.mcutils.command.SenderType;
 import net.nowtryz.mcutils.command.contexts.ExecutionContext;
@@ -27,5 +29,11 @@ public class GameProvider implements ContextProvider<JumpGame> {
     @Override
     public JumpGame provide(ExecutionContext context) {
         return this.manager.getGame((Player) context.getSender()).orElse(null);
+    }
+
+    @Override
+    public CommandResult onNull(ExecutionContext context) {
+        Text.ONLY_GAME_COMMAND.send(context.getSender());
+        return CommandResult.FAILED;
     }
 }

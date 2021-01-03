@@ -33,13 +33,8 @@ public class PlayerCommands {
 
 
     @Command(value = "checkpoint", permission = Perm.PLAY)
-    @ProvidesContext(GameProvider.class)
+    @ProvidesContext(value = GameProvider.class, ignoreNulls = true)
     public static CommandResult checkpoint(JumpGame game, CommandSender sender) {
-        if (game == null) {
-            Text.ONLY_GAME_COMMAND.send(sender);
-            return CommandResult.FAILED;
-        }
-
         game.tpLastCheckpoint();
         return CommandResult.SUCCESS;
     }
@@ -52,14 +47,9 @@ public class PlayerCommands {
     }
 
 
-    @ProvidesContext(GameProvider.class)
+    @ProvidesContext(value = GameProvider.class, ignoreNulls = true)
     @Command(value = "jump leave", type = SenderType.PLAYER, permission = Perm.PLAY)
     public static CommandResult leave(JumpGame game, Player player) {
-        if (game == null) {
-            Text.ONLY_GAME_COMMAND.send(player);
-            return CommandResult.FAILED;
-        }
-
         game.close();
         return CommandResult.SUCCESS;
     }

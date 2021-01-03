@@ -21,7 +21,6 @@ import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
-import net.nowtryz.mcutils.MCUtils;
 import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
 import net.nowtryz.mcutils.command.CommandManager;
@@ -103,7 +102,27 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     }
 
     private void handleCommandResult(ExecutionContext context, CommandResult result) {
-        context.getSender().sendMessage(result.toString());
+        switch (result) {
+            case NOT_A_PLAYER:
+            case NOT_A_CONSOLE:
+            case WRONG_TARGET:
+                // Wring target
+                break;
+            case INTERNAL_ERROR:
+                // Internal error
+                break;
+            case INVALID_ARGUMENTS:
+                // Invalid arguments
+                break;
+            case MISSING_PERMISSION:
+                Text.NO_PERM.send(context.getSender());
+                break;
+            case NOT_IMPLEMENTED:
+                // Command not implemented
+                break;
+            default:
+                break;
+        }
     }
 
     /**

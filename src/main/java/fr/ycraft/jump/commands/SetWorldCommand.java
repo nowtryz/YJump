@@ -4,6 +4,7 @@ import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.commands.utils.JumpCompleter;
 import fr.ycraft.jump.commands.utils.JumpProvider;
+import fr.ycraft.jump.commands.utils.WorldProvider;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.JumpManager;
@@ -28,30 +29,15 @@ public class SetWorldCommand {
     private final JumpManager manager;
     private final JumpCompleter completer;
 
-    @ProvidesArg(target = "jump", provider = JumpProvider.class)
+    @ProvidesArg(target = "jump", provider = JumpProvider.class, ignoreNulls = true)
+    @ProvidesArg(target = "world", provider = WorldProvider.class, ignoreNulls = true)
     @Command(value = "jump setworld <jump> <world>", permission = Perm.EDIT)
-    public CommandResult execute(@Arg("jump") Jump jump, @Arg("world") String worldName, CommandSender sender) {
-        if (jump == null) {
-            Text.JUMP_NOT_EXISTS.send(sender);
-            return CommandResult.FAILED;
-        }
-
-        World world = Bukkit.getWorld(worldName);
-
-        if (world == null) {
-            Text.UNKNOWN_WORLD.send(sender, worldName, Bukkit.getWorlds()
-                    .parallelStream()
-                    .map(World::getName)
-                    .collect(Collectors.joining(", ")));
-            return CommandResult.FAILED;
-        } else {
-            jump.setWorld(world);
-            Text.SUCCESS_WORLD_SET.send(sender, jump.getName(), world.getName());
-            this.manager.updateJumpList();
-            this.manager.replacePlates();
-            return CommandResult.SUCCESS;
-        }
-
+    public CommandResult execute(@Arg("jump") Jump jump, @Arg("world") World world, CommandSender sender) {
+        jump.setWorld(world);
+        Text.SUCCESS_WORLD_SET.send(sender, jump.getName(), world.getName());
+        this.manager.updateJumpList();
+        this.manager.replacePlates();
+        return CommandResult.SUCCESS;
     }
 
     @Completer(value = "jump setworld <jump>")

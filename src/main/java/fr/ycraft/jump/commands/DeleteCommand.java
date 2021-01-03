@@ -39,18 +39,8 @@ public class DeleteCommand {
     private final Config config;
 
     @Command(value = "jump delete <jump>", permission = Perm.EDIT)
-    @ProvidesArg(target = "jump", provider = JumpProvider.class)
+    @ProvidesArg(target = "jump", provider = JumpProvider.class, ignoreNulls = true)
     public CommandResult execute(CommandSender sender, @Arg("jump") Jump jump) {
-        if (jump == null) {
-            Text.JUMP_NOT_EXISTS.send(sender);
-            return CommandResult.FAILED;
-        }
-
-        this.deleteJump(sender, jump);
-        return CommandResult.SUCCESS;
-    }
-
-    public void deleteJump(CommandSender sender, Jump jump) {
         this.editorsManager.getEditor(jump).ifPresent(JumpEditor::close);
         this.gameManager.getGames().stream().parallel()
                 .filter(game -> game.getJump().equals(jump))
@@ -61,6 +51,8 @@ public class DeleteCommand {
         if (this.config.get(Key.DELETE_PLATES)) {
             Bukkit.getScheduler().runTask(this.plugin, () -> this.deleteAllPlates(jump));
         }
+
+        return CommandResult.SUCCESS;
     }
 
     public void deleteAllPlates(Jump jump) {

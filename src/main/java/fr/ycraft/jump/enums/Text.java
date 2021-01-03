@@ -151,7 +151,6 @@ public enum Text implements Translation {
     RELOADED(                    "reloaded", "Plugin reloaded"),
     RENAME_USAGE(                "cmd.usage.rename", "/jump rename <new name>"),
     SAVED(                       "saved", "Modifications saved"),
-    SAVE_USAGE("/jump save"),
     SCOREBOARD_CHECKPOINT_HEADER("game.scoreboard.checkpoint.header", "Checkpoint:"),
     SCOREBOARD_CHECKPOINT_VALUE( "game.scoreboard.checkpoint.value", "  %d / %d"),
     SCOREBOARD_DISPLAY_NAME(     "game.scoreboard.displayname", "Jump %s"),
@@ -235,7 +234,8 @@ public enum Text implements Translation {
 
     private void init(FileConfiguration lang) {
         if (this.key == null) this.translatedMessage = this.defaultMessage;
-        else if (lang.isList(this.key)) this.translatedMessage = Optional.ofNullable(lang.getStringList(this.key))
+        else if (lang.isList(this.key)) this.translatedMessage = Optional.of(lang.getStringList(this.key))
+                .filter(strings -> !strings.isEmpty())
                 .map(strings -> String.join(StringUtils.LF, strings))
                 .map(s -> ChatColor.translateAlternateColorCodes('&', s))
                 .orElse(this.defaultMessage);

@@ -40,8 +40,8 @@ public class JumpsCommand {
         return CommandResult.SUCCESS;
     }
 
+    @ProvidesArg(target = "jump", provider = JumpProvider.class, ignoreNulls = true)
     @Command(value = "jumps <jump>", type = SenderType.PLAYER, permission = Perm.PLAY)
-    @ProvidesArg(target = "jump", provider = JumpProvider.class)
     public CommandResult execute(JumpInventory.Factory jumpInventoryFactory, Player player, @Arg("jump") Jump jump) {
         Optional<JumpPlayer> jumpPlayer = this.playerManager.getPlayer(player);
         // All connected users should be in cache

@@ -38,14 +38,9 @@ public class InfoCommand {
         return CommandResult.SUCCESS;
     }
 
-    @ProvidesArg(target = "jump", provider = JumpProvider.class)
+    @ProvidesArg(target = "jump", provider = JumpProvider.class, ignoreNulls = true)
     @Command(value = "jump info <jump>", permission = Perm.ADMIN_LIST)
     public CommandResult execute(@Arg("jump") Jump jump, CommandSender sender) {
-        if (jump == null) {
-            Text.JUMP_NOT_EXISTS.send(sender);
-            return CommandResult.FAILED;
-        }
-
         if (sender instanceof Player) {
             this.factory.create((Player) sender, jump, null).open();
         } else {

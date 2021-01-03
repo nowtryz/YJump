@@ -92,6 +92,10 @@
                                     <shadedPattern>${project.groupId}.jump.no2</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>org.h2</pattern>
+                                    <shadedPattern>${project.groupId}.jump.h2</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>com.mysql</pattern>
                                     <shadedPattern>${project.groupId}.jump.mysql</shadedPattern>
                                 </relocation>
