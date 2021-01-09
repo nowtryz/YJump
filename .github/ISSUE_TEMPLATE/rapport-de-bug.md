@@ -44,6 +44,7 @@ note: Bukkit vanilla n'est support par le plugin, si vous l'utilisez, veuillez e
  - Implementation de CraftBukkit : [e.g. Paper]
  - Version de Minecraft : [e.g. 1.12.2]
  - Version du plugin : [e.g. 1.3.2]
+ - Autres plugins présents pouvant interférer a le plugin : 
 
 **Information additionnels**
-<!-- Ajouter tout autre information siur le contexte de l'erreur. -->
+<!-- Ajouter tout autre information concernant le contexte de l'erreur. -->

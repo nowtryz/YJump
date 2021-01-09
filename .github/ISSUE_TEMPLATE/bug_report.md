@@ -44,6 +44,7 @@ note: vanilla bukkit is not supported, if you are using it, please consider movi
  - CraftBukkit implementation: [e.g. Paper]
  - Minecraft version: [e.g. 1.12.2]
  - Plugin version: [e.g. 1.3.2]
+ - other relevant plugins present on the server:
 
 **Additional context**
 <!-- Add any other context about the problem here. -->
