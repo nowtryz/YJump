@@ -154,6 +154,7 @@ public enum Text implements Translation {
     SCOREBOARD_CHECKPOINT_HEADER("game.scoreboard.checkpoint.header", "Checkpoint:"),
     SCOREBOARD_CHECKPOINT_VALUE( "game.scoreboard.checkpoint.value", "  %d / %d"),
     SCOREBOARD_DISPLAY_NAME(     "game.scoreboard.displayname", "Jump %s"),
+    SCOREBOARD_LINES(            "game.scoreboard.lines", "Time:\n  &9%1$02d'%2$02d''%3$02d&7\nCheckpoint:\n  %4$d / %5$d"),
     SCOREBOARD_TIMER_HEADER(     "game.scoreboard.timer.header", "Time:"),
     SCOREBOARD_TIMER_VALUE(      "game.scoreboard.timer.value", "  %02d'%02d''%02d"),
     SET_DESCRIPTION_USAGE(       "cmd.usage.setdesc", "/jump setdesc <description>"),

@@ -198,7 +198,7 @@ public class Jump implements ConfigurationSerializable {
     }
 
     @Override
-    public Map<String, Object> serialize() {
+    public @NotNull Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
 
         data.put(ID, this.id.toString());

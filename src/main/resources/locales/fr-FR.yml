@@ -243,12 +243,14 @@ game:
   # header: == Jump ==
   scoreboard:
     displayname: "&6Y&eJump &f> &a%s"
-    timer:
-      header: "Temps"
-      value: "  &9%1$02d'%2$02d''%3$02d&7"
-    checkpoint:
-      header: "Checkpoint"
-      value: "  %d / %d"
+    lines:
+      - "&7&m                "
+      - "Temps"
+      - "  &9%1$02d'%2$02d''%3$02d&7"
+      - ""
+      - "Checkpoint"
+      - "  %4$d / %5$d"
+      - "&7&m                "
   enter:
     message:
       - "&e&m=  &r&e» &6&lYJump &r&e«&m  ="

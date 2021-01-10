@@ -1,6 +1,7 @@
 package fr.ycraft.jump.sessions;
 
 import com.google.inject.assistedinject.Assisted;
+import fr.mrmicky.fastboard.FastBoard;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.configuration.Config;
@@ -15,6 +16,7 @@ import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
 import lombok.Getter;
 import net.nowtryz.mcutils.LocationUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarStyle;
@@ -28,7 +30,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
@@ -40,22 +41,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class JumpGame {
-    private static final int TIMER_HEADER_POS = 5;
-    private static final int TIMER_VALUE_POS = 4;
-    private static final int CHECKPOINT_HEADER_POS = 2;
-    private static final int CHECKPOINT_VALUE_POS = 1;
-
     private final @Getter(onMethod_={@NotNull}) Jump jump;
     private final @NotNull Location startLocation;
     private final @NotNull Location spawnLocation;
     private final @NotNull Location endLocation;
     private final List<Location> validated = new LinkedList<>();
     private final Config config;
+    private final FastBoard board;
     private final JumpPlugin plugin;
     private final JumpPlayer jumpPlayer;
     private final GameManager gameManager;
     private final Storage storage;
     private final Player player;
+    private final Scoreboard originalScoreboard;
     private final TitleSettings startTitle;
     private final TitleSettings resetTitle;
     private final TitleSettings checkpointTitle;
@@ -65,12 +63,7 @@ public class JumpGame {
     private final boolean bossBarEnabled;
     private final boolean sidebarEnabled;
     private BossBar bossBar;
-    private Scoreboard originalScoreboard;
     private BukkitTask bukkitTask;
-    private Objective objective;
-    private Scoreboard scoreboard;
-    private Score timer;
-    private Score checkpoints;
     private long resetTime;
     private boolean ended = false;
     private boolean wasCollidable = true;
@@ -117,6 +110,8 @@ public class JumpGame {
         this.canFly = player.hasPermission(Perm.FLY);
         this.fallPrevention = jump.getFallDistance() > 0;
         this.checkpoint = this.startLocation;
+        this.originalScoreboard = player.getScoreboard();
+        this.board = this.sidebarEnabled ? new FastBoard(player) : null; // It is strange but we can send player packets async
     }
 
     /**
@@ -143,62 +138,37 @@ public class JumpGame {
                 .forEach(player::removePotionEffect);
 
         // Init scoreboard
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        this.objective = scoreboard.registerNewObjective("Sidebar", "dummy");
-        this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        this.objective.setDisplayName(Text.SCOREBOARD_DISPLAY_NAME.get(this.jump.getName()));
-        this.objective.getScore(Text.SCOREBOARD_TIMER_HEADER.get()).setScore(TIMER_HEADER_POS);
-        this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_HEADER.get()).setScore(CHECKPOINT_HEADER_POS);
-        this.objective.getScore(" ").setScore(3);
+        if (this.sidebarEnabled) {
+            this.board.updateTitle(Text.SCOREBOARD_DISPLAY_NAME.get(this.jump.getName()));
+            this.updateBoard();
+            this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateBoard, 1, 1);
+        }
 
-        this.timer = this.objective.getScore(Text.SCOREBOARD_TIMER_VALUE.get(0, 0, 0));
-        this.timer.setScore(TIMER_VALUE_POS);
-        this.checkpoints = this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_VALUE.get(0, this.jump.getCheckpoints().size()));
-        this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
-
-        this.originalScoreboard = player.getScoreboard();
-
-        // Init bossbar
-        this.bossBar = Bukkit.createBossBar(
-                Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
-                plugin.getConfigProvider().get(Key.BOSS_BAR_COLOR),
-                BarStyle.SOLID
-        );
-        this.bossBar.setProgress(0);
-
-        // add ATH to player
-        if (this.sidebarEnabled) this.player.setScoreboard(scoreboard);
-        if (this.bossBarEnabled) this.bossBar.addPlayer(player);
-
-        // setup timer
-        if(this.sidebarEnabled) {
-            this.bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateTimer, 1, 1);
+        // Init boss bar
+        if (this.bossBarEnabled) {
+            this.bossBar = Bukkit.createBossBar(
+                    Text.GAME_BOSSBAR.get(jump.getName(), 0, jump.getCheckpoints().size()),
+                    plugin.getConfigProvider().get(Key.BOSS_BAR_COLOR),
+                    BarStyle.SOLID
+            );
+            this.bossBar.setProgress(0);
+            this.bossBar.addPlayer(player);
         }
     }
 
     /**
      * Method called every tick by bukkit to update the sidebar
      */
-    public void updateTimer() {
+    public void updateBoard() {
         TimeScore score = new TimeScore(System.currentTimeMillis() - this.start);
 
-        if (this.sidebarEnabled) {
-            this.scoreboard.resetScores(this.timer.getEntry());
-            this.timer = this.objective.getScore(score.getText(Text.SCOREBOARD_TIMER_VALUE));
-            this.timer.setScore(TIMER_VALUE_POS);
-        }
-    }
-
-    /**
-     * Update the validated checkpoint count on the sidebar
-     * @param count the number of checkpoints already validated
-     */
-    public void updateCheckpointsScoreboard(int count) {
-        if (!this.sidebarEnabled) return;
-
-        this.scoreboard.resetScores(this.checkpoints.getEntry());
-        this.checkpoints = this.objective.getScore(Text.SCOREBOARD_CHECKPOINT_VALUE.get(count, this.jump.getCheckpoints().size()));
-        this.checkpoints.setScore(CHECKPOINT_VALUE_POS);
+        if (this.sidebarEnabled) this.board.updateLines(Text.SCOREBOARD_LINES.get(
+                score.getMinutes(),
+                score.getSeconds(),
+                score.getMillis(),
+                this.validated.size(),
+                this.jump.getCheckpointCount()
+        ).split(StringUtils.LF));
     }
 
     /**
@@ -302,7 +272,7 @@ public class JumpGame {
      * Update the bossbar with new validated checkpoint count
      */
     private void updateBossbar() {
-        if (this.bossBarEnabled) return;
+        if (!this.bossBarEnabled) return;
 
         this.bossBar.setProgress((float) this.validated.size() / this.jump.getCheckpoints().size());
         this.bossBar.setTitle(Text.GAME_BOSSBAR.get(
@@ -321,7 +291,7 @@ public class JumpGame {
         this.validated.clear();
         this.checkpoint = this.startLocation;
         this.updateBossbar();
-        this.updateCheckpointsScoreboard(0);
+        this.updateBoard();
         Text.GAME_CHRONO_RESET.send(this.player);
         this.resetTitle.send(
                 this.player,
@@ -340,7 +310,7 @@ public class JumpGame {
         this.checkpoint = location.clone();
         this.validated.add(location);
         this.updateBossbar();
-        this.updateCheckpointsScoreboard(this.validated.size());
+        this.updateBoard();
         Text.GAME_CHECKPOINT.send(this.player);
         this.checkpointTitle.send(
                 this.player,
@@ -387,10 +357,10 @@ public class JumpGame {
 
     public void stop() {
         if (!this.ended) Text.LEFT_JUMP.send(this.player);
+        if (this.sidebarEnabled) this.board.delete();
+        if (this.bossBarEnabled) this.bossBar.removeAll();
         this.player.setCollidable(this.wasCollidable);
-        this.bossBar.removeAll();
         this.player.setScoreboard(this.originalScoreboard);
-        this.objective.unregister();
         this.bukkitTask.cancel();
 
 //        this.bossBar = null;

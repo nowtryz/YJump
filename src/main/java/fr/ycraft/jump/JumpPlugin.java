@@ -51,7 +51,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     private @Inject PlayerManager playerManager;
     private @Inject CommandManager commandManager;
 
-    private @Getter Injector injector;
     private @Getter boolean enabling = false;
     private @Getter boolean disabling = false;
     private @Getter boolean prod;
@@ -66,7 +65,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             this.exportResources();
 
             // This will create the injector and inject all required objects to the plugin
-            this.injector = Guice.createInjector(
+            Guice.createInjector(
                     isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
                     new JumpModule(),
                     new CommandModule(),

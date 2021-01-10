@@ -127,7 +127,7 @@ storage:
   # Implementation to use, either:
   #  - nitrite: A powerful NoSQL database using the H2's storage engine (fallback if not recognized)
   #  - yaml:    The ugly yaml files you all know
-  #  - mysql:   Another ugly storage but well... it's a remote one
+  #  - mysql:   Another ugly storage... it's a remote one though
   #  - ... (more coming soon)
   implementation: "no2"
   # Server properties if the implementation is a remote database
