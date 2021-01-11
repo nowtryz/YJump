@@ -3,6 +3,7 @@ package fr.ycraft.jump.commands;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.commands.utils.EditorProvider;
+import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.sessions.JumpEditor;
 import net.nowtryz.mcutils.command.CommandResult;
@@ -28,6 +29,11 @@ public class EditorCommands {
     @Command(value = "jump rename <name>", type = SenderType.PLAYER, permission = Perm.EDIT)
 
     public static CommandResult rename(JumpEditor editor, Player player, @Arg("name") String name) {
+        if (!Jump.isCorrectName(name)) {
+            Text.NAME_TOO_LONG.send(player);
+            return CommandResult.FAILED;
+        }
+
         editor.getJump().setName(name);
         Text.NAME_UPDATED.send(player, name);
         return CommandResult.SUCCESS;

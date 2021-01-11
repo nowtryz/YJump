@@ -280,4 +280,8 @@ public class Jump implements ConfigurationSerializable {
         }
 
     }
+
+    public static boolean isCorrectName(@NonNull String name) {
+        return name.length() <= 10;
+    }
 }

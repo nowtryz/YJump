@@ -26,6 +26,11 @@ public class CreateCommand {
             return CommandResult.FAILED;
         }
 
+        if (!Jump.isCorrectName(name)) {
+            Text.NAME_TOO_LONG.send(sender);
+            return CommandResult.FAILED;
+        }
+
         Jump jump = this.jumpManager.createAndSave(name);
         if (sender instanceof Player) this.editorsManager.enter(jump, (Player) sender);
         return CommandResult.SUCCESS;

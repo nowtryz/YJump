@@ -31,6 +31,7 @@ only_editor_action: "&6Jump Editor &e» &cVous devez être dans un éditeur pour
 only_editor_command: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "&cSeul un joueur peut exécuter cette commande"
 unknown_command: "&cCommande inconnue ! Faites &o/jump help &r&c pour recevoir de l'aide."
+name_too_long: "&6Jump &e» &cCe nom est trop long ! Il ne peut pas faire plus de 10 caractères"
 saved: "&6Jump Editor &e» &aModification sauvegardée"
 error: "&6Jump Editor &e» &cUne erreur est survenue !"
 unknown_world: |-

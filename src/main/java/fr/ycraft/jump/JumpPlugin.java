@@ -25,10 +25,12 @@ import net.nowtryz.mcutils.api.Plugin;
 import net.nowtryz.mcutils.api.listener.InventoryListener;
 import net.nowtryz.mcutils.command.CommandManager;
 import net.nowtryz.mcutils.command.CommandResult;
+import net.nowtryz.mcutils.command.SenderType;
 import net.nowtryz.mcutils.command.contexts.ExecutionContext;
 import net.nowtryz.mcutils.injection.BukkitModule;
 import net.nowtryz.mcutils.injection.CommandModule;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
@@ -102,22 +104,26 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
 
     private void handleCommandResult(ExecutionContext context, CommandResult result) {
         switch (result) {
-            case NOT_A_PLAYER:
-            case NOT_A_CONSOLE:
             case WRONG_TARGET:
-                // Wring target
+                if (context.getTarget() == SenderType.PLAYER) {
+                    context.reply("&cYou must a player to perform this command");
+                } else if (context.getSender() instanceof Player) {
+                    context.reply("&cThis command cannot be executed by a player");
+                } else {
+                    context.reply("&cThis command cannot be executed by the current entity");
+                }
                 break;
             case INTERNAL_ERROR:
-                // Internal error
+                context.reply("&cAn internal error occurred during the execution of the command");
                 break;
             case INVALID_ARGUMENTS:
-                // Invalid arguments
+                context.reply("&cInvalid arguments supplied to the command");
                 break;
             case MISSING_PERMISSION:
                 Text.NO_PERM.send(context.getSender());
                 break;
             case NOT_IMPLEMENTED:
-                // Command not implemented
+                context.reply("&cThis command has not been implemented yep");
                 break;
             default:
                 break;
