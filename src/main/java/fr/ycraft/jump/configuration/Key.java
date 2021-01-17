@@ -28,7 +28,6 @@ public final class Key<T> implements Comparable<Key<?>> {
     // plates settings
     public static final Key<Boolean> DELETE_PLATES = booleanKey("plates.auto delete");
     public static final Key<Boolean> PLATES_PROTECTED = booleanKey("plates.protect");
-    public static final Key<Boolean> TEST = booleanKey("test.test");
     public static final Key<Material> START_MATERIAL = plateKey("plates.materials.start", MaterialResolver.getResolver().getDefaultPlate());
     public static final Key<Material> END_MATERIAL = plateKey("plates.materials.end", MaterialResolver.getResolver().getDefaultPlate());
     public static final Key<Material> CHECKPOINT_MATERIAL = plateKey("plates.materials.checkpoint", MaterialResolver.getResolver().getDefaultPlate());

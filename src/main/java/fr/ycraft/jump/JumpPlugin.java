@@ -1,7 +1,6 @@
 package fr.ycraft.jump;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Stage;
 import fr.ycraft.jump.configuration.Config;
 import fr.ycraft.jump.configuration.Key;
@@ -106,24 +105,27 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
         switch (result) {
             case WRONG_TARGET:
                 if (context.getTarget() == SenderType.PLAYER) {
-                    context.reply("&cYou must a player to perform this command");
+                    context.reply("§cYou must a player to perform this command");
                 } else if (context.getSender() instanceof Player) {
-                    context.reply("&cThis command cannot be executed by a player");
+                    context.reply("§cThis command cannot be executed by a player");
                 } else {
-                    context.reply("&cThis command cannot be executed by the current entity");
+                    context.reply("§cThis command cannot be executed by the current entity");
                 }
                 break;
             case INTERNAL_ERROR:
-                context.reply("&cAn internal error occurred during the execution of the command");
+                context.reply(Text.COMMAND_ERROR);
                 break;
             case INVALID_ARGUMENTS:
-                context.reply("&cInvalid arguments supplied to the command");
+                context.reply("§cInvalid arguments supplied to the command");
                 break;
             case MISSING_PERMISSION:
-                Text.NO_PERM.send(context.getSender());
+                context.reply(Text.NO_PERM);
                 break;
             case NOT_IMPLEMENTED:
-                context.reply("&cThis command has not been implemented yep");
+                context.reply("§cThis command has not been implemented yep");
+                break;
+            case UNKNOWN:
+                context.reply(Text.UNKNOWN_COMMAND);
                 break;
             default:
                 break;

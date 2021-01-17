@@ -10,6 +10,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -99,8 +100,9 @@ public class Position implements Cloneable, ConfigurationSerializable, Serializa
      * @param location the location to check
      * @return true if it is the case
      */
-    public boolean isBlock(@NonNull Location location) {
-        return this.x == location.getBlockX()
+    public boolean isBlock(@Nullable Location location) {
+        return location != null
+                && this.x == location.getBlockX()
                 && this.y == location.getBlockY()
                 && this.z == location.getBlockZ();
     }
@@ -122,7 +124,7 @@ public class Position implements Cloneable, ConfigurationSerializable, Serializa
     }
 
     @Override
-    public Map<String, Object> serialize() {
+    public @NotNull Map<String, Object> serialize() {
         Map<String, Object> result = new HashMap<>();
 
         result.put(X, getX());

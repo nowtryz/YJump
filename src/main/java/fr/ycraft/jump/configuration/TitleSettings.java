@@ -12,6 +12,12 @@ public class TitleSettings {
     int fadeOut;
     int stay;
 
+    /**
+     * Send a title with this settings if it's enabled
+     * @param player the player to send the title to
+     * @param title the title to send
+     * @param subtitle the subtitle to send
+     */
     public void send(Player player, String title, String subtitle) {
         if (!this.enabled) return;
         player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);

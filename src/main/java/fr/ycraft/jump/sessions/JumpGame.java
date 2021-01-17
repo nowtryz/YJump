@@ -9,16 +9,17 @@ import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.configuration.TitleSettings;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
+import fr.ycraft.jump.entity.Position;
 import fr.ycraft.jump.entity.TimeScore;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.manager.GameManager;
 import fr.ycraft.jump.manager.PlayerManager;
 import fr.ycraft.jump.storage.Storage;
 import lombok.Getter;
-import net.nowtryz.mcutils.LocationUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -30,8 +31,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,10 +41,10 @@ import java.util.Optional;
 
 public class JumpGame {
     private final @Getter(onMethod_={@NotNull}) Jump jump;
-    private final @NotNull Location startLocation;
     private final @NotNull Location spawnLocation;
-    private final @NotNull Location endLocation;
-    private final List<Location> validated = new LinkedList<>();
+    private final @NotNull Position startLocation;
+    private final @NotNull Position endLocation;
+    private final List<Position> validated = new LinkedList<>();
     private final Config config;
     private final FastBoard board;
     private final JumpPlugin plugin;
@@ -59,16 +58,20 @@ public class JumpGame {
     private final TitleSettings checkpointTitle;
     private final TitleSettings endTitle;
     private final boolean fallPrevention;
+    private final boolean intelligentFall;
     private final boolean canFly;
     private final boolean bossBarEnabled;
     private final boolean sidebarEnabled;
+    private final World world;
     private BossBar bossBar;
     private BukkitTask bukkitTask;
+    private int fallDistance;
     private long resetTime;
     private boolean ended = false;
     private boolean wasCollidable = true;
     private long start;
-    private Location checkpoint;
+    private Position nextCheckpoint;
+    private Position checkpoint;
 
     @Inject
     JumpGame(Config config,
@@ -80,14 +83,15 @@ public class JumpGame {
              @Assisted Player player) {
 
         Optional<JumpPlayer> jumpPlayer = playerManager.getPlayer(player);
-        Optional<Location> start = jump.getStart();
+        Optional<Position> start = jump.getStartPos();
         Optional<Location> spawn = jump.getSpawn();
-        Optional<Location> end = jump.getEnd();
+        Optional<Position> end = jump.getEndPos();
         assert start.isPresent();
         assert spawn.isPresent();
         assert end.isPresent();
         assert jumpPlayer.isPresent();
 
+        this.world = jump.getWorld();
         this.jumpPlayer = jumpPlayer.get();
         this.gameManager = gameManager;
         this.storage = storage;
@@ -109,7 +113,10 @@ public class JumpGame {
         this.resetTime = config.get(Key.RESET_TIME);
         this.canFly = player.hasPermission(Perm.FLY);
         this.fallPrevention = jump.getFallDistance() > 0;
+        this.intelligentFall = config.get(Key.INTELLIGENT_FALL_DISTANCE);
+        this.fallDistance = jump.getFallDistance();
         this.checkpoint = this.startLocation;
+        this.nextCheckpoint = jump.getCheckpointCount() > 0 ? jump.getCheckpointsPositions().get(0) : this.endLocation;
         this.originalScoreboard = player.getScoreboard();
         this.board = this.sidebarEnabled ? new FastBoard(player) : null; // It is strange but we can send player packets async
     }
@@ -154,6 +161,8 @@ public class JumpGame {
             this.bossBar.setProgress(0);
             this.bossBar.addPlayer(player);
         }
+
+        this.computeFallDistance();
     }
 
     /**
@@ -216,21 +225,19 @@ public class JumpGame {
         Location loc = event.getClickedBlock().getLocation();
 
         // jump end
-        if (LocationUtil.isBlockLocationEqual(this.endLocation, loc)) {
+        if (this.endLocation.isBlock(loc)) {
             if (this.validated.size() == this.jump.getCheckpoints().size()) this.end();
             else Text.GAME_MISSING_CHECKPOINT.send(this.player);
         }
         // chrono reset
-        else if (LocationUtil.isBlockLocationEqual(this.startLocation, loc)) {
+        else if (this.startLocation.isBlock(loc)) {
             long current = System.currentTimeMillis();
             if (current - this.start < this.resetTime) return;
             this.reset(current);
         }
         // Validate checkpoint
-        else if (this.validated.stream().noneMatch(l -> LocationUtil.isBlockLocationEqual(l, loc))){
-            this.jump.getCheckpoints().stream()
-                    .filter(l -> LocationUtil.isBlockLocationEqual(l, loc))
-                    .findFirst().ifPresent(this::validateCheckpoint);
+        else if (this.nextCheckpoint.isBlock(loc)){
+            this.validateCheckpoint(this.nextCheckpoint);
         }
     }
 
@@ -240,7 +247,7 @@ public class JumpGame {
      * @see fr.ycraft.jump.listeners.GameListener
      */
     public void onMove() {
-        if (this.fallPrevention && this.player.getFallDistance() > this.jump.getFallDistance()) {
+        if (this.fallPrevention && this.player.getFallDistance() > this.fallDistance) {
             this.player.setFallDistance(0);
             this.tpLastCheckpoint();
         }
@@ -262,7 +269,7 @@ public class JumpGame {
      * @param event original event
      */
     public void onTeleport(PlayerTeleportEvent event) {
-        if (!this.checkpoint.equals(event.getTo()) && !this.spawnLocation.equals(event.getTo())) {
+        if (!this.checkpoint.isBlock(event.getTo()) && !this.spawnLocation.equals(event.getTo())) {
             this.close();
             Text.LEFT_JUMP_ERROR.send(event.getPlayer(), Text.NO_TELEPORT);
         }
@@ -271,7 +278,7 @@ public class JumpGame {
     /**
      * Update the bossbar with new validated checkpoint count
      */
-    private void updateBossbar() {
+    private void updateBossBar() {
         if (!this.bossBarEnabled) return;
 
         this.bossBar.setProgress((float) this.validated.size() / this.jump.getCheckpoints().size());
@@ -290,8 +297,10 @@ public class JumpGame {
         this.start = current;
         this.validated.clear();
         this.checkpoint = this.startLocation;
-        this.updateBossbar();
+        this.nextCheckpoint = jump.getCheckpointCount() > 0 ? jump.getCheckpointsPositions().get(0) : this.endLocation;
+        this.updateBossBar();
         this.updateBoard();
+        this.computeFallDistance();
         Text.GAME_CHRONO_RESET.send(this.player);
         this.resetTitle.send(
                 this.player,
@@ -304,13 +313,15 @@ public class JumpGame {
      * Validate a new checkpoint.
      *
      * Run checkpoint logic, notify ATH and set the given location as the last validated checkpoint
-     * @param location the location of the validated checkpoint
+     * @param pos the position of the validated checkpoint
      */
-    public void validateCheckpoint(Location location) {
-        this.checkpoint = location.clone();
-        this.validated.add(location);
-        this.updateBossbar();
+    public void validateCheckpoint(Position pos) {
+        this.checkpoint = pos.clone();
+        this.validated.add(pos);
+        this.nextCheckpoint = jump.getCheckpointCount() > this.validated.size() ? jump.getCheckpointsPositions().get(this.validated.size()) : this.endLocation;
+        this.updateBossBar();
         this.updateBoard();
+        this.computeFallDistance();
         Text.GAME_CHECKPOINT.send(this.player);
         this.checkpointTitle.send(
                 this.player,
@@ -319,11 +330,23 @@ public class JumpGame {
         );
     }
 
+    private void computeFallDistance() {
+        if (!this.fallPrevention || !this.intelligentFall) return;
+
+        int checkpointElevation = this.checkpoint.getY() - this.nextCheckpoint.getY();
+        // if the elevation is superior to the fall distance, taking the jump into account
+        if (checkpointElevation > this.jump.getFallDistance() + 1) {
+            this.fallDistance = checkpointElevation + jump.getFallDistance();
+        } else {
+            this.fallDistance = jump.getFallDistance();
+        }
+    }
+
     public void tpLastCheckpoint() {
         if (this.checkpoint.equals(this.startLocation)) {
             this.player.teleport(this.spawnLocation);
         } else {
-            this.player.teleport(this.checkpoint);
+            this.player.teleport(this.checkpoint.toLocation(this.world));
         }
 
         Text.BACK_TO_CHECKPOINT.send(this.player);

@@ -59,7 +59,10 @@ public class JumpEditor {
 
     public void updateTitles() {
         TextComponent title = new TextComponent(Text.EDITOR_TITLE.get(this.jump.getName()));
-        this.players.forEach(player -> player.spigot().sendMessage(ChatMessageType.ACTION_BAR, title));
+        this.players.forEach(player -> {
+            player.sendTitle(null, null, 0, 50, 0);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, title);
+        });
     }
 
     public void join(Player player) {
