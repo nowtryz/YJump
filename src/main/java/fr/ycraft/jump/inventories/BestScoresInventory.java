@@ -9,7 +9,7 @@ import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.builder.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
 import net.nowtryz.mcutils.templating.Pattern;

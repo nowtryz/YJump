@@ -10,7 +10,8 @@ import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.manager.JumpManager;
-import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.builder.ItemBuilder;
+import net.nowtryz.mcutils.builder.SimpleBuilder;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
 import org.apache.commons.lang.WordUtils;
@@ -54,7 +55,7 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     @Override
     protected @NotNull ItemStack createItemForObject(ItemBuilder<?> ignored, Jump jump) {
         List<TimeScore> scores = this.jumpPlayer.get(jump);
-        ItemBuilder<ItemMeta> builder = ItemBuilder.from(jump.getItem())
+        SimpleBuilder builder = ItemBuilder.from(jump.getItem())
                 .setDisplayName(Text.JUMP_LIST_HEADER, jump.getName());
 
         String description = jump.getDescription()

@@ -13,7 +13,7 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.util.book.BookOpener;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.builder.ItemBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -91,6 +91,8 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
     public void onPlayerBestScores(Event event) {
         List<TimeScore> scores = this.jumpPlayer.get(this.jump);
         BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+        assert meta != null : "Got null metadata from factory";
+
         String collect = Stream.iterate(0, i -> i + 1)
                 .limit(scores.size())
                 .map(i -> new ImmutablePair<>(i + 1, scores.get(i)))

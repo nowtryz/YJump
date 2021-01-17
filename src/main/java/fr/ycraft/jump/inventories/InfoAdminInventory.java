@@ -11,7 +11,8 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.util.material.MaterialResolver;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builders.ItemBuilder;
+import net.nowtryz.mcutils.builder.ItemBuilder;
+import net.nowtryz.mcutils.builder.SimpleBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -26,7 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static net.nowtryz.mcutils.builders.ItemBuilder.create;
+import static net.nowtryz.mcutils.builder.ItemBuilder.create;
 
 public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Position> {
     private final FallDistanceInventory.Factory factory;
@@ -58,15 +58,13 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         // Basic gui
         List<String> notSet = Arrays.asList(Text.INFO_POINT_NOT_SET_LORE.get().split(StringUtils.LF));
 
-        @SuppressWarnings("unchecked")
-        ItemBuilder<?> spawn = pattern.getHook("spawn")
+        SimpleBuilder spawn = pattern.getHook("spawn")
                 .map(PatternKey::builder)
-                .map(b -> (ItemBuilder<ItemMeta>) b)
                 .orElseGet(() -> create(Material.COMPASS))
                 .setDisplayName(Text.INFO_SPAWN_NAME);
-        ItemBuilder<?> start = create(config.get(Key.START_MATERIAL))
+        SimpleBuilder start = create(config.get(Key.START_MATERIAL))
                 .setDisplayName(Text.INFO_START_NAME);
-        ItemBuilder<?> end = create(config.get(Key.END_MATERIAL))
+        SimpleBuilder end = create(config.get(Key.END_MATERIAL))
                 .setDisplayName(Text.INFO_END_NAME);
 
         jump.getSpawnPos().ifPresent(location -> spawn.setLore(
@@ -97,7 +95,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
                 .hookItem("icon", ItemBuilder.from(jump.getItem().clone())
                         .setDisplayName(Text.INFO_ICON_NAME)
                         .setLore(Text.INFO_ICON_LORE,
-                                jump.getItem().hasItemMeta() && jump.getItem().getItemMeta().getDisplayName() != null ?
+                                jump.getItem().hasItemMeta() ?
                                         jump.getItem().getItemMeta().getDisplayName() :
                                         jump.getItem().getType().name().toLowerCase().replaceAll(" ", " "))
                         .addAllItemFlags()
