@@ -75,7 +75,7 @@ keys:
   '9':
     <<: *place
     fallback:
-      skull: {url: http://textures.minecraft.net/texture/7af3fd473a648b847ccda1d2074479bb7672771dc435223468ed9ff7}b76cb3
+      skull: {url: http://textures.minecraft.net/texture/7af3fd473a648b847ccda1d2074479bb7672771dc435223468ed9ff7b76cb3}
 
 hooks:
   place1:  '0'
