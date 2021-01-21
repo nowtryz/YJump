@@ -14,9 +14,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This enumeration represents the messages that need to be translated
@@ -174,6 +177,8 @@ public enum Text implements Translation {
     public static final Locale DEFAULT_LANG = Locale.FRANCE; // may be change in config later
     public static final Locale[] AVAILABLE_LOCALES = {Locale.FRANCE};
     public static final String LOCALES_FOLDER = "locales";
+    private static final Pattern indexed = Pattern.compile(".*\\{[^}]+}.*");
+    private static final Pattern indexable = Pattern.compile("\\{}");
 
     /**
      * The key to access to the message in the translations file
@@ -187,6 +192,10 @@ public enum Text implements Translation {
      * The translated message extracted from the translation file
      */
     private String translatedMessage = null;
+    /**
+     * The message for the translated message
+     */
+    private MessageFormat message = null;
 
     /**
      * Initialize the translator base on the default language of the plugin
@@ -244,6 +253,30 @@ public enum Text implements Translation {
         else this.translatedMessage = Optional.ofNullable(lang.getString(this.key))
                     .map(s -> ChatColor.translateAlternateColorCodes('&', s))
                     .orElse(this.defaultMessage);
+
+        try {
+            if (this.translatedMessage.contains("{}")) {
+                if (!indexed.matcher(this.translatedMessage).matches()) {
+                    Matcher matcher = indexable.matcher(this.translatedMessage);
+                    StringBuffer sb = new StringBuffer();
+                    for (int i=0; matcher.find(); i++) {
+                        matcher.appendReplacement(sb, "{" + i + "}");
+                    }
+                    matcher.appendTail(sb);
+                    this.message = new MessageFormat(sb.toString());
+                } else {
+                    throw new IllegalArgumentException(this.key + " mixes non-indexed ({}) and indexed ({n}) parameters");
+                }
+            } else {
+                this.message = new MessageFormat(this.translatedMessage);
+            }
+        } catch (IllegalArgumentException exception) {
+            if (exception.getCause() != null) {
+                throw new IllegalArgumentException("Could not parse " + this.key, exception.getCause());
+            } else {
+                throw new IllegalArgumentException("Could not parse " + this.key, exception);
+            }
+        }
     }
 
     /**
@@ -256,7 +289,7 @@ public enum Text implements Translation {
     }
 
     public String get(Object... args) {
-        return String.format(this.get(), args);
+        return this.message.format(args);
     }
 
     @Override

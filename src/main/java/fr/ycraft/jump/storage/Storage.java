@@ -1,12 +1,15 @@
 package fr.ycraft.jump.storage;
 
 import com.google.inject.Inject;
+import fr.ycraft.jump.configuration.Config;
+import fr.ycraft.jump.configuration.Key;
 import fr.ycraft.jump.entity.Jump;
 import fr.ycraft.jump.entity.JumpPlayer;
 import net.nowtryz.mcutils.injection.BukkitExecutor;
 import fr.ycraft.jump.storage.implementations.StorageImplementation;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import net.nowtryz.mcutils.injection.PluginLogger;
 import org.bukkit.OfflinePlayer;
 
 import javax.inject.Singleton;
@@ -16,21 +19,32 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 @Singleton
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Storage {
     Executor executor;
     StorageImplementation implementation;
+    StorageType storageType;
+    Logger logger;
 
     @Inject
-    Storage(StorageImplementation implementation, @BukkitExecutor Executor executor) {
+    Storage(
+            Config config,
+            StorageImplementation implementation,
+            @BukkitExecutor Executor executor,
+            @PluginLogger Logger logger
+    ) {
         this.implementation = implementation;
         this.executor = executor;
+        this.storageType = config.get(Key.STORAGE_TYPE);
+        this.logger = logger;
     }
 
     public void init() {
         try {
+            this.logger.info(String.format("Initializing storage (%s)", storageType.getName()));
             this.implementation.init();
         } catch (Exception e) {
             e.printStackTrace();

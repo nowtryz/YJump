@@ -35,6 +35,7 @@ import java.util.stream.Stream;
  */
 public class JumpInventory  extends AbstractGui<JumpPlugin> {
     private final Jump jump;
+    private final Config config;
     private final JumpPlayer jumpPlayer;
     private final InfoAdminInventory.Factory infoFactory;
     private final BestScoresInventory.Factory bestScoresFactory;
@@ -56,6 +57,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
         this.infoFactory = infoFactory;
         this.jumpPlayer = jumpPlayer;
         this.bookOpener = bookOpener;
+        this.config = config;
         this.jump = jump;
 
         ItemStack skull = ItemBuilder.skullForPlayer(player)
@@ -90,24 +92,23 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
 
     public void onPlayerBestScores(Event event) {
         List<TimeScore> scores = this.jumpPlayer.get(this.jump);
+        int scoreCount = Math.min(scores.size(), this.config.get(Key.MAX_SCORES_PER_PLAYER));
         BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
         assert meta != null : "Got null metadata from factory";
 
         String collect = Stream.iterate(0, i -> i + 1)
-                .limit(scores.size())
+                .limit(scoreCount)
                 .map(i -> new ImmutablePair<>(i + 1, scores.get(i)))
                 .map(pair -> Text.BEST_SCORES_BOOK_LINE.get(
                         pair.left,
-                        pair.right.getMinutes(),
-                        pair.right.getSeconds(),
-                        pair.right.getMillis()
+                        pair.right.getDuration()
                 ))
                 .collect(Collectors.joining("\n"));
         meta.setTitle("Best scores");
         meta.setAuthor("Nowtryz");
         meta.setPages(Text.BEST_SCORES_HEADER.get(
                 this.player.getName(),
-                this.plugin.getConfigProvider().get(Key.MAX_SCORES_PER_PLAYER)
+                scoreCount
         ) + "\n\n" + collect);
 
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);

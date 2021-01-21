@@ -43,15 +43,11 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
                     .setDisplayName(Text.TOP_SCORE_TITLE,
                             score.getPlayer().getName(),
                             i + 1,
-                            score.getScore().getMinutes(),
-                            score.getScore().getSeconds(),
-                            score.getScore().getMillis())
+                            score.getScore().getDuration())
                     .setLore(Text.TOP_SCORE_LORE,
                             score.getPlayer().getName(),
                             i + 1,
-                            score.getScore().getMinutes(),
-                            score.getScore().getSeconds(),
-                            score.getScore().getMillis())
+                            score.getScore().getDuration())
                     .build());
         } else {
             builder.fallback("place" + (i + 1), b -> b.setDisplayName(Text.EMPTY_SCORE.get()));

@@ -12,24 +12,20 @@ import java.util.logging.Logger;
 
 @FieldDefaults(makeFinal = true)
 public class StorageFactory {
-    Logger logger;
-    Config config;
+    StorageType storageType;
     Injector injector;
 
     @Inject
-    StorageFactory(@PluginLogger Logger logger, Config config, Injector injector) {
-        this.logger = logger;
-        this.config = config;
+    StorageFactory(Config config, Injector injector) {
+        this.storageType = config.get(Key.STORAGE_TYPE);
         this.injector = injector;
     }
 
     public StorageImplementation getImplementation() {
         try {
-            StorageType storageType = this.config.get(Key.STORAGE_TYPE);
-            this.logger.info(String.format("Initializing storage (%s)", storageType.getName()));
             return injector.getInstance(storageType.getImplementation());
         } catch (Exception exception) {
-            throw new IllegalStateException("Unable initialize storage", exception);
+            throw new IllegalStateException("Unable create storage", exception);
         }
     }
 }

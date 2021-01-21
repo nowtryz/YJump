@@ -169,12 +169,8 @@ public class JumpGame {
      * Method called every tick by bukkit to update the sidebar
      */
     public void updateBoard() {
-        TimeScore score = new TimeScore(System.currentTimeMillis() - this.start);
-
         if (this.sidebarEnabled) this.board.updateLines(Text.SCOREBOARD_LINES.get(
-                score.getMinutes(),
-                score.getSeconds(),
-                score.getMillis(),
+                System.currentTimeMillis() - this.start,
                 this.validated.size(),
                 this.jump.getCheckpointCount()
         ).split(StringUtils.LF));
@@ -276,7 +272,7 @@ public class JumpGame {
     }
 
     /**
-     * Update the bossbar with new validated checkpoint count
+     * Update the boss bar with new validated checkpoint count
      */
     private void updateBossBar() {
         if (!this.bossBarEnabled) return;
@@ -321,13 +317,15 @@ public class JumpGame {
         this.nextCheckpoint = jump.getCheckpointCount() > this.validated.size() ? jump.getCheckpointsPositions().get(this.validated.size()) : this.endLocation;
         this.updateBossBar();
         this.updateBoard();
-        this.computeFallDistance();
         Text.GAME_CHECKPOINT.send(this.player);
         this.checkpointTitle.send(
                 this.player,
                 Text.GAME_CHECKPOINT_TITLE.get(this.validated.size(), this.jump.getCheckpointCount()),
                 Text.GAME_CHECKPOINT_SUBTITLE.get(this.validated.size(), this.jump.getCheckpointCount())
         );
+
+        // Run fall distance update 1 tick later, so the player is not teleport if they were falling
+        Bukkit.getScheduler().runTaskLater(this.plugin, this::computeFallDistance, 1L);
     }
 
     private void computeFallDistance() {
@@ -355,13 +353,13 @@ public class JumpGame {
     private void end() {
         this.ended = true;
         TimeScore score = new TimeScore(System.currentTimeMillis() - this.start);
-        Text.GAME_END.send(this.player, this.jump.getName(), score.getMinutes(), score.getSeconds(), score.getMillis());
+        Text.GAME_END.send(this.player, this.jump.getName(), score.getDuration());
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> this.saveScore(score));
 
         this.endTitle.send(
                 this.player,
                 Text.GAME_END_TITLE.get(),
-                score.getText(Text.GAME_END_SUBTITLE)
+                Text.GAME_END_SUBTITLE.get(score.getDuration())
         );
 
         this.close();

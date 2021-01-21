@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
@@ -80,9 +79,7 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
                         Text.JUMP_LIST_DONE_LORE,
                         description,
                         distance,
-                        score.getMinutes(),
-                        score.getSeconds(),
-                        score.getMillis())
+                        score.getDuration())
                     .setGlowing();
         }
 
