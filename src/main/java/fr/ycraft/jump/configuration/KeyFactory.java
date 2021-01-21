@@ -8,7 +8,6 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Function;
 
 public class KeyFactory {

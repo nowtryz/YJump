@@ -28,7 +28,6 @@ public class FallDistanceInventory extends AbstractGui<JumpPlugin> {
     private final Logger logger;
     private final Config config;
     private final Storage storage;
-    private final int[] iconPos;
     private final int initialValue;
 
     public interface Factory {
@@ -51,9 +50,6 @@ public class FallDistanceInventory extends AbstractGui<JumpPlugin> {
         this.logger = logger;
         this.storage = storage;
         this.initialValue = jump.getFallDistance();
-        this.iconPos = pattern.getHook("value")
-                .map(PatternKey::getPositions)
-                .orElseGet(() -> new int[]{});
 
         this.builder = pattern.builder(this)
                 .name(Text.FALL_DISTANCE_INVENTORY_TITLE)
@@ -90,23 +86,23 @@ public class FallDistanceInventory extends AbstractGui<JumpPlugin> {
         return distance > 64 ? 1 : distance;
     }
 
-    private void onDecrease(Event event) {
+    private void onDecrease() {
         this.setValue(this.jump.getFallDistance() - 1);
     }
 
-    private void onIncrease(Event event) {
+    private void onIncrease() {
         this.setValue(this.jump.getFallDistance() + 1);
     }
 
-    private void onDecrease10(Event event) {
+    private void onDecrease10() {
         this.setValue(this.jump.getFallDistance() - 10);
     }
 
-    private void onIncrease10(Event event) {
+    private void onIncrease10() {
         this.setValue(this.jump.getFallDistance() + 10);
     }
 
-    private void reset(Event event) {
+    private void reset() {
         this.setValue(this.config.get(Key.MAX_FALL_DISTANCE));
     }
 

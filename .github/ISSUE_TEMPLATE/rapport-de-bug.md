@@ -28,10 +28,10 @@ Veuillez coller les logs correspondants à l'erreur ici
 
 **Pour reproduire**
 Etapes pour reproduire le comportement:
-1. Executer '/commande...'
-2. Cliquer sur '....'
-3. ...
-4. Voir erreur
+ 1. Executer '/commande...'
+ 2. Cliquer sur '....'
+ 3. ...
+ 4. Voir erreur
 
 **Screenshots**
 <!-- Si possible, ajoutez des screens pour expliquer le problème. -->
@@ -41,10 +41,10 @@ Etapes pour reproduire le comportement:
 Veuillez compléter les informations suivantes
 note: Bukkit vanilla n'est support par le plugin, si vous l'utilisez, veuillez envisager de passer sur Spigot ou PaperSpigot
 -->
- - Implementation de CraftBukkit : [e.g. Paper]
- - Version de Minecraft : [e.g. 1.12.2]
- - Version du plugin : [e.g. 1.3.2]
- - Autres plugins présents pouvant interférer a le plugin : 
+- Implementation de CraftBukkit : [e.g. Paper]
+- Version de Minecraft : [e.g. 1.12.2]
+- Version du plugin : [e.g. 1.3.2]
+- Autres plugins présents pouvant interférer a le plugin : 
 
 **Information additionnels**
 <!-- Ajouter tout autre information concernant le contexte de l'erreur. -->

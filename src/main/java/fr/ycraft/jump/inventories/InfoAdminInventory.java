@@ -133,15 +133,15 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         if (this.jump.getWorld() != null) this.player.teleport(checkpoint.toLocation(this.jump.getWorld()));
     }
 
-    public void tpToSpawn(InventoryClickEvent event) {
+    public void tpToSpawn() {
         this.jump.getSpawn().ifPresent(player::teleport);
     }
 
-    public void tpToStart(InventoryClickEvent event) {
+    public void tpToStart() {
         this.jump.getStart().ifPresent(player::teleport);
     }
 
-    public void tpToEnd(InventoryClickEvent event) {
+    public void tpToEnd() {
         this.jump.getEnd().ifPresent(player::teleport);
     }
 
@@ -181,7 +181,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         this.teleport(position);
     }
 
-    private void onFallDistance(Event event) {
+    private void onFallDistance() {
         this.factory.create(this.jump, this.player, this).open();
     }
 

@@ -8,7 +8,7 @@ import fr.ycraft.jump.enums.Patterns;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import net.nowtryz.mcutils.templating.Pattern;
-import net.nowtryz.mcutils.templating.PatternFactory;
+import net.nowtryz.mcutils.templating.PatternHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,14 +36,15 @@ public class TemplatesModule extends AbstractModule {
     private Pattern loadPattern(String patternName, JumpPlugin plugin) {
         // TODO error if file is not present or invalid
         try {
-            return PatternFactory.compile(new File(guiFolder, patternName));
+            return PatternHelper.compile(new File(guiFolder, patternName));
         } catch (Exception exception) {
             plugin.getLogger().severe("Unable to load " + patternName + " template: " + exception.getMessage());
             plugin.getLogger().severe("Falling back to default pattern");
             if (!plugin.isProd()) exception.printStackTrace();
 
             try (InputStream resource = plugin.getResource(FOLDER_NAME + "/" + patternName)) {
-                return PatternFactory.compile(loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
+                assert resource != null;
+                return PatternHelper.compile(loadConfiguration(new InputStreamReader(resource, Charsets.UTF_8)));
             } catch (IOException e) {
                 plugin.getLogger().severe("Unable to load " + patternName + " default template");
                 throw new IllegalStateException(e);
