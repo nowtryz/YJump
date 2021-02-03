@@ -9,7 +9,8 @@ description = 'Le Plugin de Jump d\'YCraft'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-boolean prod = hasProperty('prod') || System.getenv("CI") != null
+boolean isCI = System.getenv("CI") != null
+boolean prod = hasProperty('prod') || isCI
 def shadePrefix = "${group}.jump"
 
 repositories {
@@ -72,7 +73,6 @@ dependencies {
 }
 
 shadowJar {
-    println shadePrefix
     minimize()
     relocate 'org.bstats', shadePrefix
     if (prod){

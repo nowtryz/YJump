@@ -13,7 +13,7 @@ cache:
 
 install: skip
 script:
-  - ./gradlew test shadowJar --scan -s
+  - ./gradlew test shadowJar --scan -s --console=plain
 
 deploy:
   provider: releases
