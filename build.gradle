@@ -1,0 +1,105 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+group = 'fr.ycraft'
+version = '2.0.0-SNAPSHOT'
+description = 'Le Plugin de Jump d\'YCraft'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+boolean prod = hasProperty('prod') || System.getenv("CI") != null
+def shadePrefix = "${group}.jump"
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'Nowtryz repo'
+        url = uri('https://nowtryz.jfrog.io/artifactory/public')
+    }
+    maven {
+        name = 'spigotmc repo'
+        url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+    }
+//    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven {
+        name = 'sonatype'
+        url = uri('https://oss.sonatype.org/content/groups/public/')
+    }
+    maven {
+        name = 'dmulloy2 repo'
+        url = uri('https://repo.dmulloy2.net/nexus/repository/public/')
+    }
+    maven {
+        name = 'JitPack repo'
+        url = uri('https://jitpack.io')
+    }
+    maven {
+        name = 'Code MC repo'
+        url = uri('https://repo.codemc.org/repository/maven-public')
+    }
+    maven { url = uri('https://repo.maven.apache.org/maven2/') }
+    mavenLocal()
+}
+
+dependencies {
+    // Provided APIs
+    compileOnly 'org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT'
+    compileOnly 'net.md-5:bungeecord-chat:1.16-R0.3'
+    compileOnly 'io.netty:netty-all:4.1.25.Final'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.0'
+    // compileOnly 'com.google.code.gson:gson:2.8.0'
+
+    // Annotations
+    compileOnly 'org.jetbrains:annotations:19.0.0'
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+    // Dependency injection
+    implementation 'com.google.inject:guice:4.2.3'
+    implementation 'com.google.inject.extensions:guice-assistedinject:4.2.3'
+
+    // Dependencies
+    implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'mysql:mysql-connector-java:8.0.21'
+    implementation 'org.dizitart:nitrite:3.4.2' // Optimized local database
+    implementation 'org.mongodb:mongodb-driver-sync:4.0.5'
+    implementation 'com.google.mug:mug:4.5' // Bi streams
+    implementation 'fr.mrmicky:FastBoard:1.1.0' // Optimized scoreboards
+    implementation 'org.bstats:bstats-bukkit:1.7' // BStats
+    implementation 'net.nowtryz.utils:mcutils:0.2.0-SNAPSHOT'
+}
+
+shadowJar {
+    println shadePrefix
+    minimize()
+    relocate 'org.bstats', shadePrefix
+    if (prod){
+        relocate 'fr.mrmicky.fastboard', "${shadePrefix}.fastboard"
+        // relocate 'org.apache.commons', shadePrefix
+        relocate 'org.dizitart.no2', "${shadePrefix}.no2"
+        relocate 'org.h2', "${shadePrefix}.h2"
+        relocate 'com.mysql', "${shadePrefix}.mysql"
+        relocate 'com.mongodb', "${shadePrefix}.mongo"
+        relocate 'com.fasterxml.jackson', "${shadePrefix}.jackson"
+        relocate 'com.google.mu', "${shadePrefix}.mug"
+        relocate 'com.google.inject', "${shadePrefix}.guice"
+        relocate 'com.google.common', "${shadePrefix}.guava"
+    }
+}
+
+configurations.all {
+    // we want to check for all updates as mc utils changes a lot
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+processResources {
+    expand (
+        project: project,
+    )
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

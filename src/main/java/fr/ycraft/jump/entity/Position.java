@@ -38,21 +38,21 @@ public class Position implements Cloneable, ConfigurationSerializable, Serializa
      * @param x X-coordinate to set
      * @return x-coordinate
      */
-    private @NonNull int x;
+    private int x;
 
     /**
      * The y-coordinate of this position
      * @param y Y-coordinate to set
      * @return y-coordinate
      */
-    private @NonNull int y;
+    private int y;
 
     /**
      * The z-coordinate of this position
      * @param z Z-coordinate to set
      * @return z-coordinate
      */
-    private @NonNull int z;
+    private int z;
 
     /**
      * The pitch of this position, measured in degrees.

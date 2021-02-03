@@ -1,14 +1,24 @@
 language: java
 jdk:
   - openjdk8
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
-    - $HOME/.m2
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+install: skip
+script:
+  - ./gradlew test shadowJar --scan -s
+
 deploy:
   provider: releases
   file_glob: true
-  file: "target/YJump-*.jar"
-
+  file: "build/libs/YJump-*.jar"
   cleanup: false
   edge: true
   draft: true

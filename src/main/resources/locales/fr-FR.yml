@@ -15,7 +15,7 @@
 #  - {n,number,0.00} = affichage du n ème paramètre en nombre décimal avec une précision de 2
 #  - {n,number,#,##0} = affichage du n ème paramètre avec séparation de milliers (ex: 1 000)
 #  - {n,choice,0#pas de bidule|0<{0} bidule(s)} pour afficher un texte en fonction de la valeur
-# /!\ les ' sont a échapper avec un autre ' : tu n''as pas assez d'argent
+# /!\\ les ' sont a échapper avec un autre ' : tu n''as pas assez d'argent
 #
 # Si vous souhaitez retirer un message, remplacé le par "", il ne sera alors pas envoyé aux joueurs
 

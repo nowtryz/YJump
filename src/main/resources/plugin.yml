@@ -1,11 +1,11 @@
-name: Jump
+name: "${project.name}"
 version: ${project.version}
 main: fr.ycraft.jump.JumpPlugin
 author: Nowtryz
 description: Le Plugin de Jump d'YCraft
 website: nowtryz.net
-api-version: 1.13 # ${project.artifactId} supports custom mapping natively
-prefix: ${project.artifactId}
+api-version: 1.13 # ${project.name} supports custom mapping natively
+prefix: Jump
 depend: ['ProtocolLib']
 softdepend: ['Multiworld', 'Multiverse-Core'] # To be enabled after world manager plugins
 loadbefore:
