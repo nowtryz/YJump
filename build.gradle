@@ -8,6 +8,11 @@ version = '2.0.0-SNAPSHOT'
 description = 'Le Plugin de Jump d\'YCraft'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+compileJava.options.encoding = 'UTF-8'
+configurations.all{
+    // we want to check for all updates as mc utils changes a lot
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 boolean isCI = System.getenv("CI") != null
 boolean prod = hasProperty('prod') || isCI
@@ -89,17 +94,8 @@ shadowJar {
     }
 }
 
-configurations.all {
-    // we want to check for all updates as mc utils changes a lot
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
 processResources {
     expand (
         project: project,
     )
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
 }
