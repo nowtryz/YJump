@@ -62,6 +62,7 @@ public class JumpGame {
     private final boolean canFly;
     private final boolean bossBarEnabled;
     private final boolean sidebarEnabled;
+    private final int checkpointCount;
     private final World world;
     private BossBar bossBar;
     private BukkitTask bukkitTask;
@@ -105,6 +106,7 @@ public class JumpGame {
         this.endTitle = config.get(Key.END_TITLE);
         this.plugin = plugin;
         this.jump = jump;
+        this.checkpointCount = jump.getCheckpointCount();
         this.player = player;
         this.startLocation = start.get();
         this.spawnLocation = spawn.get();
@@ -277,7 +279,10 @@ public class JumpGame {
     private void updateBossBar() {
         if (!this.bossBarEnabled) return;
 
-        this.bossBar.setProgress((float) this.validated.size() / this.jump.getCheckpoints().size());
+        // prevent division by zero
+        if (this.checkpointCount == 0 ) this.bossBar.setProgress(1);
+        else this.bossBar.setProgress((float) this.validated.size() / this.jump.getCheckpoints().size());
+
         this.bossBar.setTitle(Text.GAME_BOSSBAR.get(
                 this.jump.getName(),
                 this.validated.size(),

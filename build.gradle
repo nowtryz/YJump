@@ -11,7 +11,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 compileJava.options.encoding = 'UTF-8'
 configurations.all{
     // we want to check for all updates as mc utils changes a lot
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 60, 'seconds'
 }
 
 boolean isCI = System.getenv("CI") != null
@@ -45,7 +45,6 @@ repositories {
         name = 'Code MC repo'
         url = uri('https://repo.codemc.org/repository/maven-public')
     }
-    maven { url = uri('https://repo.maven.apache.org/maven2/') }
     mavenLocal()
 }
 
@@ -78,19 +77,20 @@ dependencies {
 }
 
 shadowJar {
+    archiveClassifier.set ''
     minimize()
     relocate 'org.bstats', shadePrefix
     if (prod){
-        relocate 'fr.mrmicky.fastboard', "${shadePrefix}.fastboard"
+        relocate 'fr.mrmicky.fastboard', shadePrefix + '.fastboard'
         // relocate 'org.apache.commons', shadePrefix
-        relocate 'org.dizitart.no2', "${shadePrefix}.no2"
-        relocate 'org.h2', "${shadePrefix}.h2"
-        relocate 'com.mysql', "${shadePrefix}.mysql"
-        relocate 'com.mongodb', "${shadePrefix}.mongo"
-        relocate 'com.fasterxml.jackson', "${shadePrefix}.jackson"
-        relocate 'com.google.mu', "${shadePrefix}.mug"
-        relocate 'com.google.inject', "${shadePrefix}.guice"
-        relocate 'com.google.common', "${shadePrefix}.guava"
+        relocate 'org.dizitart.no2', shadePrefix + '.no2'
+        relocate 'org.h2', shadePrefix + '.h2'
+        relocate 'com.mysql', shadePrefix + '.mysql'
+        relocate 'com.mongodb', shadePrefix + '.mongo'
+        relocate 'com.fasterxml.jackson', shadePrefix + '.jackson'
+        relocate 'com.google.mu', shadePrefix + '.mug'
+        relocate 'com.google.inject', shadePrefix + '.guice'
+        relocate 'com.google.common', shadePrefix + '.guava'
     }
 }
 
