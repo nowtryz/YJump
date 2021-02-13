@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'fr.ycraft'
-version = '2.0.0-beta.2'
+version = '2.0.0-SNAPSHOT'
 description = 'Le Plugin de Jump d\'YCraft'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -19,6 +19,7 @@ boolean prod = hasProperty('prod') || isCI
 def shadePrefix = "${group}.jump"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name = 'Nowtryz repo'
@@ -45,7 +46,6 @@ repositories {
         name = 'Code MC repo'
         url = uri('https://repo.codemc.org/repository/maven-public')
     }
-    mavenLocal()
 }
 
 dependencies {
