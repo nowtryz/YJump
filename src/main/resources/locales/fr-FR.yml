@@ -20,16 +20,16 @@
 # Si vous souhaitez retirer un message, remplacé le par "", il ne sera alors pas envoyé aux joueurs
 
 
-noperm: "&cVous n''avez pas la permission pour exécuter cette commande"
+noperm: "&cVous n''avez pas la permission pour exécuter cette commande !"
 back: "&l» &r&cRetour"
 usage: "&cUsage : {}"
 command_error: "&6Jump &e» &cUne erreur est survenue ! Impossible d''exécuter la commande."
 deleted: "&6Jump Editor &e» &f{} &7a été supprimé."
-reloaded: "&6Jump &e» &aLes configurations du plugin ont été rechargée."
+reloaded: "&6Jump &e» &aLes configurations du plugin ont été rechargées."
 click: "&9Cliquez pour exécuter"
 already_exists: "&6Jump Editor &e» &cCe Jump existe déjà"
 not_exists: "&6Jump Editor &e» &cCe jump n''existe pas"
-only_game_command: "&6Jump &e» &cVous devez être sur un jump pour exécuter cette command."
+only_game_command: "&6Jump &e» &cVous devez être sur un jump pour exécuter cette commande."
 only_editor_action: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette action"
 only_editor_command: "&6Jump Editor &e» &cVous devez être dans un éditeur pour effectuer cette commande"
 only_player_command: "&cSeul un joueur peut exécuter cette commande"
