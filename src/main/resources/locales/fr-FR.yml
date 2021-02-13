@@ -23,6 +23,7 @@
 noperm: "&cVous n''avez pas la permission pour exécuter cette commande !"
 back: "&l» &r&cRetour"
 usage: "&cUsage : {}"
+list: "Jumps : {}"
 command_error: "&6Jump &e» &cUne erreur est survenue ! Impossible d''exécuter la commande."
 deleted: "&6Jump Editor &e» &f{} &7a été supprimé."
 reloaded: "&6Jump &e» &aLes configurations du plugin ont été rechargées."
