@@ -1,6 +1,8 @@
 package fr.ycraft.jump.inventories;
 
+import com.google.common.collect.Maps;
 import com.google.inject.assistedinject.Assisted;
+import com.google.mu.util.stream.BiStream;
 import fr.ycraft.jump.JumpPlugin;
 import fr.ycraft.jump.commands.enums.Perm;
 import fr.ycraft.jump.configuration.Config;
@@ -13,7 +15,8 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.util.book.BookOpener;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builder.ItemBuilder;
+import net.nowtryz.mcutils.api.listener.GuiListener;
+import net.nowtryz.mcutils.builder.ItemBuilders;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -27,7 +30,9 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -45,6 +50,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
     JumpInventory(JumpPlugin plugin,
                   Config config,
                   BookOpener bookOpener,
+                  GuiListener listener,
                   InfoAdminInventory.Factory infoFactory,
                   BestScoresInventory.Factory bestScoresFactory,
                   @Patterned(Patterns.INFO) Pattern pattern,
@@ -52,7 +58,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
                   @Assisted JumpPlayer jumpPlayer,
                   @Assisted Jump jump,
                   @Assisted @Nullable Gui back) {
-        super(plugin, player, back);
+        super(plugin, listener, player, back);
         this.bestScoresFactory = bestScoresFactory;
         this.infoFactory = infoFactory;
         this.jumpPlayer = jumpPlayer;
@@ -60,7 +66,7 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
         this.config = config;
         this.jump = jump;
 
-        ItemStack skull = ItemBuilder.skullForPlayer(player)
+        ItemStack skull = ItemBuilders.skullForPlayer(player)
                 .setDisplayName(Text.JUMP_INVENTORY_SELF.get())
                 .build();
 
@@ -96,12 +102,11 @@ public class JumpInventory  extends AbstractGui<JumpPlugin> {
         BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
         assert meta != null : "Got null metadata from factory";
 
-        String collect = Stream.iterate(0, i -> i + 1)
-                .limit(scoreCount)
-                .map(i -> new ImmutablePair<>(i + 1, scores.get(i)))
+        String collect = IntStream.range(0, scoreCount)
+                .mapToObj(i -> Maps.immutableEntry(i + 1, scores.get(i)))
                 .map(pair -> Text.BEST_SCORES_BOOK_LINE.get(
-                        pair.left,
-                        pair.right.getDuration()
+                        pair.getKey(),
+                        pair.getValue().getDuration()
                 ))
                 .collect(Collectors.joining("\n"));
         meta.setTitle("Best scores");

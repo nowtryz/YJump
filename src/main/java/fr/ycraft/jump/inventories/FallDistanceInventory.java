@@ -10,6 +10,7 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.storage.Storage;
 import net.nowtryz.mcutils.api.Gui;
+import net.nowtryz.mcutils.api.listener.GuiListener;
 import net.nowtryz.mcutils.injection.PluginLogger;
 import net.nowtryz.mcutils.inventory.AbstractGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -38,13 +39,14 @@ public class FallDistanceInventory extends AbstractGui<JumpPlugin> {
     public FallDistanceInventory(JumpPlugin plugin,
                                  Storage storage,
                                  Config config,
+                                 GuiListener listener,
                                  @Patterned(Patterns.FALL_DISTANCE) Pattern pattern,
                                  @PluginLogger Logger logger,
                                  @Assisted Jump jump,
                                  @Assisted Player player,
                                  @Assisted Gui previousInventory
     ) {
-        super(plugin, player, previousInventory);
+        super(plugin, listener, player, previousInventory);
         this.jump = jump;
         this.config = config;
         this.logger = logger;

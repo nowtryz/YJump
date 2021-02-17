@@ -10,8 +10,10 @@ import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.manager.JumpManager;
-import net.nowtryz.mcutils.builder.ItemBuilder;
-import net.nowtryz.mcutils.builder.SimpleBuilder;
+import net.nowtryz.mcutils.api.listener.GuiListener;
+import net.nowtryz.mcutils.builder.ItemBuilders;
+import net.nowtryz.mcutils.builder.api.ItemBuilder;
+import net.nowtryz.mcutils.builder.api.SimpleBuilder;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
 import org.apache.commons.lang.WordUtils;
@@ -32,11 +34,12 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     @Inject
     ListInventory(JumpPlugin plugin,
                   JumpManager manager,
+                  GuiListener listener,
                   JumpInventory.Factory factory,
                   @Patterned(Patterns.LIST) Pattern pattern,
                   @Assisted JumpPlayer jumpPlayer,
                   @Assisted Player player) {
-        super(plugin, player, null, pattern, Text.JUMP_LIST_INVENTORY.get());
+        super(plugin, listener, player, null, pattern, Text.JUMP_LIST_INVENTORY.get());
         this.jumpPlayer = jumpPlayer;
         this.factory = factory;
 
@@ -54,7 +57,7 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     @Override
     protected @NotNull ItemStack createItemForObject(ItemBuilder<?> ignored, Jump jump) {
         List<TimeScore> scores = this.jumpPlayer.get(jump);
-        SimpleBuilder builder = ItemBuilder.from(jump.getItem())
+        SimpleBuilder builder = ItemBuilders.from(jump.getItem())
                 .setDisplayName(Text.JUMP_LIST_HEADER, jump.getName());
 
         String description = jump.getDescription()

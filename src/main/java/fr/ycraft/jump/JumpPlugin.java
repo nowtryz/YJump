@@ -21,13 +21,14 @@ import fr.ycraft.jump.storage.Storage;
 import fr.ycraft.jump.util.MetricsUtils;
 import lombok.Getter;
 import net.nowtryz.mcutils.api.Plugin;
-import net.nowtryz.mcutils.api.listener.InventoryListener;
+import net.nowtryz.mcutils.api.listener.GuiListener;
 import net.nowtryz.mcutils.command.CommandManager;
 import net.nowtryz.mcutils.command.CommandResult;
 import net.nowtryz.mcutils.command.SenderType;
 import net.nowtryz.mcutils.command.contexts.ExecutionContext;
 import net.nowtryz.mcutils.injection.BukkitModule;
 import net.nowtryz.mcutils.injection.CommandModule;
+import net.nowtryz.mcutils.inventory.GuiModule;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +47,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
     private @Inject Config configProvider;
     private @Inject EditorsManager editorsManager;
     private @Inject GameManager gameManager;
-    private @Inject InventoryListener inventoryListener;
+    private @Inject GuiListener inventoryListener;
     private @Inject Storage storage;
     private @Inject JumpManager jumpManager;
     private @Inject PlayerManager playerManager;
@@ -70,6 +71,7 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
                     isProd() ? Stage.PRODUCTION : Stage.DEVELOPMENT,
                     new JumpModule(),
                     new CommandModule(),
+                    new GuiModule(),
                     new BukkitModule<>(this, JumpPlugin.class),
                     new TemplatesModule(this)
             );

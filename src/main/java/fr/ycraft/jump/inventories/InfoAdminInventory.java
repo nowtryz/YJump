@@ -11,8 +11,10 @@ import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import fr.ycraft.jump.util.material.MaterialResolver;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builder.ItemBuilder;
-import net.nowtryz.mcutils.builder.SimpleBuilder;
+import net.nowtryz.mcutils.api.listener.GuiListener;
+import net.nowtryz.mcutils.builder.ItemBuilders;
+import net.nowtryz.mcutils.builder.api.ItemBuilder;
+import net.nowtryz.mcutils.builder.api.SimpleBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -24,7 +26,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static net.nowtryz.mcutils.builder.ItemBuilder.create;
+import static net.nowtryz.mcutils.builder.ItemBuilders.create;
+
 
 public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Position> {
     private final FallDistanceInventory.Factory factory;
@@ -44,13 +46,14 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
     @Inject
     InfoAdminInventory(JumpPlugin plugin,
                        Config config,
+                       GuiListener listener,
                        FallDistanceInventory.Factory factory,
                        @Patterned(Patterns.ADMIN) Pattern pattern,
                        @Assisted Player player,
                        @Assisted Jump jump,
                        @Assisted @Nullable Gui back) {
 
-        super(plugin, player, back, pattern, Text.INFO_TITLE.get(jump.getName()));
+        super(plugin, listener, player, back, pattern, Text.INFO_TITLE.get(jump.getName()));
         this.factory = factory;
         this.config = config;
         this.jump = jump;
@@ -92,7 +95,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
 
         this.builder
                 .hookBack("back",  b -> b.setDisplayName(Text.BACK))
-                .hookItem("icon", ItemBuilder.from(jump.getItem().clone())
+                .hookItem("icon", ItemBuilders.from(jump.getItem().clone())
                         .setDisplayName(Text.INFO_ICON_NAME)
                         .setLore(Text.INFO_ICON_LORE,
                                 jump.getItem().hasItemMeta() ?

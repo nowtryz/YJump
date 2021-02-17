@@ -9,7 +9,8 @@ import fr.ycraft.jump.enums.Patterns;
 import fr.ycraft.jump.enums.Text;
 import fr.ycraft.jump.injection.Patterned;
 import net.nowtryz.mcutils.api.Gui;
-import net.nowtryz.mcutils.builder.ItemBuilder;
+import net.nowtryz.mcutils.api.listener.GuiListener;
+import net.nowtryz.mcutils.builder.ItemBuilders;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.AbstractGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -23,11 +24,12 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
     @Inject
     public BestScoresInventory(
             JumpPlugin plugin,
+            GuiListener listener,
             @Patterned(Patterns.LEADERBOARD) Pattern pattern,
             @Assisted Player player,
             @Assisted Jump jump,
             @Assisted Gui back) {
-        super(plugin, player, back);
+        super(plugin, listener, player, back);
 
 
 
@@ -39,7 +41,7 @@ public class BestScoresInventory extends AbstractGui<JumpPlugin> {
         LinkedList<PlayerScore> bestScores = new LinkedList<>(jump.getBestScores());
         for (int i = 0; i < 10; i++) if (i < bestScores.size()) {
             PlayerScore score = bestScores.get(i);
-            builder.hookItem("place" + (i + 1), ItemBuilder.skullForPlayer(score.getPlayer())
+            builder.hookItem("place" + (i + 1), ItemBuilders.skullForPlayer(score.getPlayer())
                     .setDisplayName(Text.TOP_SCORE_TITLE,
                             score.getPlayer().getName(),
                             i + 1,

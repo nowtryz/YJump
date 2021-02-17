@@ -1,10 +1,11 @@
 plugins {
     id 'java'
+//    id 'idea'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 group = 'fr.ycraft'
-version = '2.0.0-beta.3'
+version = '2.0.0-SNAPSHOT'
 description = 'Le Plugin de Jump d\'YCraft'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -16,7 +17,7 @@ configurations.all{
 
 boolean isCI = System.getenv("CI") != null
 boolean prod = hasProperty('prod') || isCI
-def shadePrefix = "${group}.jump"
+def shadePrefix = "${group}.jump".toString()
 
 repositories {
     mavenLocal()
@@ -52,9 +53,12 @@ dependencies {
     // Provided APIs
     compileOnly 'org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT'
     compileOnly 'net.md-5:bungeecord-chat:1.16-R0.3'
-    compileOnly 'io.netty:netty-all:4.1.25.Final'
+    compileOnly 'io.netty:netty-all:4.1.25.Final' // netty from minecraft
     compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.0'
-    // compileOnly 'com.google.code.gson:gson:2.8.0'
+    // compileOnly 'com.google.code.gson:gson:2.2.4' // Gson from minecraft
+    compileOnly 'mysql:mysql-connector-java:5.1.47' // MySQL connector from bukkit
+    compileOnly 'commons-lang:commons-lang:2.6' // commons from bukkit
+    compileOnly 'com.google.guava:guava:21.0' // bukkit's provided guava (supported by guice)
 
     // Annotations
     compileOnly 'org.jetbrains:annotations:19.0.0'
@@ -66,14 +70,12 @@ dependencies {
     implementation 'com.google.inject.extensions:guice-assistedinject:4.2.3'
 
     // Dependencies
-    implementation 'org.apache.commons:commons-lang3:3.10'
-    implementation 'mysql:mysql-connector-java:8.0.21'
     implementation 'org.dizitart:nitrite:3.4.2' // Optimized local database
-    implementation 'org.mongodb:mongodb-driver-sync:4.0.5'
+    compileOnly 'org.mongodb:mongodb-driver-sync:4.0.5'
     implementation 'com.google.mug:mug:4.5' // Bi streams
     implementation 'fr.mrmicky:FastBoard:1.1.0' // Optimized scoreboards
     implementation 'org.bstats:bstats-bukkit:1.7' // BStats
-    implementation 'net.nowtryz.utils:mcutils:0.2.0-SNAPSHOT'
+    implementation 'net.nowtryz.mcutils:mcutils:0.2.0-SNAPSHOT'
 }
 
 shadowJar {
@@ -98,4 +100,8 @@ processResources {
     expand (
         project: project,
     )
+}
+
+artifacts {
+    archives shadowJar
 }
