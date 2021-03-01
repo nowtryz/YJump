@@ -58,7 +58,7 @@ dependencies {
     // compileOnly 'com.google.code.gson:gson:2.2.4' // Gson from minecraft
     compileOnly 'mysql:mysql-connector-java:5.1.47' // MySQL connector from bukkit
     compileOnly 'commons-lang:commons-lang:2.6' // commons from bukkit
-    compileOnly 'com.google.guava:guava:21.0' // bukkit's provided guava (supported by guice)
+    compileOnly 'com.google.guava:guava:21.0' // bukkit's provided guava (supported by guice) (must be shaded for 1.8)
 
     // Annotations
     compileOnly 'org.jetbrains:annotations:19.0.0'
@@ -66,8 +66,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
     // Dependency injection
-    implementation 'com.google.inject:guice:4.2.3'
-    implementation 'com.google.inject.extensions:guice-assistedinject:4.2.3'
+    implementation('com.google.inject:guice:4.2.3') {
+        exclude module: 'guava'
+    }
+    implementation('com.google.inject.extensions:guice-assistedinject:4.2.3') {
+        exclude module: 'guava'
+    }
 
     // Dependencies
     implementation 'org.dizitart:nitrite:3.4.2' // Optimized local database
@@ -75,11 +79,19 @@ dependencies {
     implementation 'com.google.mug:mug:4.5' // Bi streams
     implementation 'fr.mrmicky:FastBoard:1.1.0' // Optimized scoreboards
     implementation 'org.bstats:bstats-bukkit:1.7' // BStats
-    implementation 'net.nowtryz.mcutils:mcutils:0.2.0-SNAPSHOT'
+    implementation('net.nowtryz.mcutils:mcutils:0.2.0-SNAPSHOT') {
+        exclude module: 'guava'
+    }
 }
 
 shadowJar {
     archiveClassifier.set ''
+
+    dependencies {
+        exclude dependency('com.google.guava:.*')
+        exclude dependency('commons-lang:commons-lang:2.6')
+    }
+
     minimize()
     relocate 'org.bstats', shadePrefix
     if (prod){
@@ -87,12 +99,12 @@ shadowJar {
         // relocate 'org.apache.commons', shadePrefix
         relocate 'org.dizitart.no2', shadePrefix + '.no2'
         relocate 'org.h2', shadePrefix + '.h2'
-        relocate 'com.mysql', shadePrefix + '.mysql'
+        // relocate 'com.mysql', shadePrefix + '.mysql'
         relocate 'com.mongodb', shadePrefix + '.mongo'
         relocate 'com.fasterxml.jackson', shadePrefix + '.jackson'
         relocate 'com.google.mu', shadePrefix + '.mug'
         relocate 'com.google.inject', shadePrefix + '.guice'
-        relocate 'com.google.common', shadePrefix + '.guava'
+        // relocate 'com.google.common', shadePrefix + '.guava'
     }
 }
 

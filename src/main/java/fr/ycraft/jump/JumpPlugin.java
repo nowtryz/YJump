@@ -92,7 +92,6 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
 
             this.jumpManager.replacePlates();
             this.getLogger().info(String.format("%s enabled!", this.getName()));
-            this.enabling = false;
 
         } catch (RuntimeException | ParkourException exception) {
             this.enabling = false;
@@ -100,6 +99,8 @@ public final class JumpPlugin extends JavaPlugin implements Plugin {
             if (!this.prod) exception.printStackTrace();
             this.getLogger().warning("Disabling...");
             Bukkit.getPluginManager().disablePlugin(this);
+        } finally {
+            this.enabling = false;
         }
     }
 
