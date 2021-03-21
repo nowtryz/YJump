@@ -177,8 +177,6 @@ public enum Text implements Translation {
     public static final Locale DEFAULT_LANG = Locale.FRANCE; // may be change in config later
     public static final Locale[] AVAILABLE_LOCALES = {Locale.FRANCE};
     public static final String LOCALES_FOLDER = "locales";
-    private static final Pattern indexed = Pattern.compile(".*\\{[^}]+}.*");
-    private static final Pattern indexable = Pattern.compile("\\{}");
 
     /**
      * The key to access to the message in the translations file
@@ -254,29 +252,7 @@ public enum Text implements Translation {
                     .map(s -> ChatColor.translateAlternateColorCodes('&', s))
                     .orElse(this.defaultMessage);
 
-        try {
-            if (this.translatedMessage.contains("{}")) {
-                if (!indexed.matcher(this.translatedMessage).matches()) {
-                    Matcher matcher = indexable.matcher(this.translatedMessage);
-                    StringBuffer sb = new StringBuffer();
-                    for (int i=0; matcher.find(); i++) {
-                        matcher.appendReplacement(sb, "{" + i + "}");
-                    }
-                    matcher.appendTail(sb);
-                    this.message = new MessageFormat(sb.toString());
-                } else {
-                    throw new IllegalArgumentException(this.key + " mixes non-indexed ({}) and indexed ({n}) parameters");
-                }
-            } else {
-                this.message = new MessageFormat(this.translatedMessage);
-            }
-        } catch (IllegalArgumentException exception) {
-            if (exception.getCause() != null) {
-                throw new IllegalArgumentException("Could not parse " + this.key, exception.getCause());
-            } else {
-                throw new IllegalArgumentException("Could not parse " + this.key, exception);
-            }
-        }
+        this.message = Translation.parseToMessageFormat(this.key == null ? this.name() : this.key, this.translatedMessage);
     }
 
     /**

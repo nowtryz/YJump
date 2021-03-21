@@ -8,9 +8,12 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class KeyFactory {
+    private static final String PLATE_APPENDER = MCUtils.THIRTEEN_COMPATIBLE ? "%s_PRESSURE_PLATE" : "%s_PLATE";
+
     static <T> Key<T> key(Function<Configuration, T> extractor) {
         return new Key<>(extractor);
     }
@@ -47,9 +50,7 @@ public class KeyFactory {
         return key(configuration -> configuration.getStringList(path));
     }
 
-    private static final String PLATE_APPENDER = MCUtils.THIRTEEN_COMPATIBLE ? "%s_PRESSURE_PLATE" : "%s_PLATE";
     static Key<Material> plateKey(String path, Material def) {
-
         return key(configuration -> {
             try {
                 String value = configuration.getString(path);
@@ -69,16 +70,18 @@ public class KeyFactory {
     }
 
     static Key<Material> materialKey(String path, Material def) {
-        return key(configuration -> {
-            Material material = Material.matchMaterial(configuration.getString(path));
-            return material != null ? material : def;
-        });
+        return key(configuration -> Optional.ofNullable(configuration.getString(path))
+                .map(Material::matchMaterial)
+                .orElse(def));
     }
 
     static Key<BarColor> barColorKey(String path, BarColor def) {
         return key(configuration -> {
             try {
-                return BarColor.valueOf(configuration.getString(path, "").toUpperCase());
+                return Optional.ofNullable(configuration.getString(path, ""))
+                        .map(String::toUpperCase)
+                        .map(BarColor::valueOf)
+                        .orElse(def);
             } catch (IllegalArgumentException ignored) {}
             return def;
         });
@@ -91,6 +94,16 @@ public class KeyFactory {
     static Key<TitleSettings> titleSettingsKey(String path, boolean enabledByDefault, int defFadeIn, int defFadeOut, int defStay) {
         return key(configuration -> {
             ConfigurationSection section = configuration.getConfigurationSection(path);
+
+            if (section == null) {
+                return TitleSettings.builder()
+                        .enabled(enabledByDefault)
+                        .fadeIn(defFadeIn)
+                        .fadeOut(defFadeOut)
+                        .stay(defStay)
+                        .build();
+            }
+
             return TitleSettings.builder()
                     .enabled(section.getBoolean("enabled", enabledByDefault))
                     .fadeIn(section.getInt("fade in", defFadeIn))
