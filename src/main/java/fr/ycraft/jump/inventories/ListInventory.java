@@ -13,7 +13,6 @@ import fr.ycraft.jump.manager.JumpManager;
 import net.nowtryz.mcutils.api.listener.GuiListener;
 import net.nowtryz.mcutils.builder.ItemBuilders;
 import net.nowtryz.mcutils.builder.api.ItemBuilder;
-import net.nowtryz.mcutils.builder.api.SimpleBuilder;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
 import org.apache.commons.lang.WordUtils;
@@ -55,9 +54,9 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     }
 
     @Override
-    protected @NotNull ItemStack createItemForObject(ItemBuilder<?> ignored, Jump jump) {
+    protected @NotNull ItemStack createItemForObject(ItemBuilder ignored, Jump jump) {
         List<TimeScore> scores = this.jumpPlayer.get(jump);
-        SimpleBuilder builder = ItemBuilders.from(jump.getItem())
+        ItemBuilder builder = ItemBuilders.from(jump.getItem())
                 .setDisplayName(Text.JUMP_LIST_HEADER, jump.getName());
 
         String description = jump.getDescription()
@@ -90,14 +89,14 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     }
 
     @Override
-    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder<?> builder) {
+    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder builder) {
         return builder
                 .setDisplayName(Text.PREVIOUS_PAGE, this.getPage(), this.getCount())
                 .build();
     }
 
     @Override
-    protected @NotNull ItemStack buildNextIcon(ItemBuilder<?> builder) {
+    protected @NotNull ItemStack buildNextIcon(ItemBuilder builder) {
         return builder
                 .setDisplayName(Text.NEXT_PAGE, this.getPage() + 2, this.getCount())
                 .build();

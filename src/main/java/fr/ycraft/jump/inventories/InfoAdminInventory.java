@@ -14,7 +14,6 @@ import net.nowtryz.mcutils.api.Gui;
 import net.nowtryz.mcutils.api.listener.GuiListener;
 import net.nowtryz.mcutils.builder.ItemBuilders;
 import net.nowtryz.mcutils.builder.api.ItemBuilder;
-import net.nowtryz.mcutils.builder.api.SimpleBuilder;
 import net.nowtryz.mcutils.injection.Nullable;
 import net.nowtryz.mcutils.inventory.TemplatedPaginatedGui;
 import net.nowtryz.mcutils.templating.Pattern;
@@ -61,13 +60,13 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
         // Basic gui
         List<String> notSet = Arrays.asList(Text.INFO_POINT_NOT_SET_LORE.get().split(StringUtils.LF));
 
-        SimpleBuilder spawn = pattern.getHook("spawn")
+        ItemBuilder spawn = pattern.getHook("spawn")
                 .map(PatternKey::builder)
                 .orElseGet(() -> create(Material.COMPASS))
                 .setDisplayName(Text.INFO_SPAWN_NAME);
-        SimpleBuilder start = create(config.get(Key.START_MATERIAL))
+        ItemBuilder start = create(config.get(Key.START_MATERIAL))
                 .setDisplayName(Text.INFO_START_NAME);
-        SimpleBuilder end = create(config.get(Key.END_MATERIAL))
+        ItemBuilder end = create(config.get(Key.END_MATERIAL))
                 .setDisplayName(Text.INFO_END_NAME);
 
         jump.getSpawnPos().ifPresent(location -> spawn.setLore(
@@ -149,21 +148,21 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
     }
 
     @Override
-    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder<?> builder) {
+    protected @NotNull ItemStack buildPreviousIcon(ItemBuilder builder) {
         return builder
                 .setDisplayName(Text.PREVIOUS_PAGE, this.getPage(), this.getCount())
                 .build();
     }
 
     @Override
-    protected @NotNull ItemStack buildNextIcon(ItemBuilder<?> builder) {
+    protected @NotNull ItemStack buildNextIcon(ItemBuilder builder) {
         return builder
                 .setDisplayName(Text.NEXT_PAGE, this.getPage() + 2, this.getCount())
                 .build();
     }
 
     @Override
-    protected @NotNull ItemStack createItemForObject(ItemBuilder<?> builder, Position position) {
+    protected @NotNull ItemStack createItemForObject(ItemBuilder builder, Position position) {
         return create(Optional.ofNullable(jump.getWorld())
                 .map(position::toLocation)
                 .map(Location::getBlock)

@@ -61,7 +61,7 @@ public class DeleteCommand {
         jump.getCheckpoints().stream().map(Location::getBlock).forEach(block -> block.setType(Material.AIR));
     }
 
-    @Completer(value = "jump delete <jump>", type = SenderType.PLAYER)
+    @Completer("jump delete <jump>")
     public List<String> tabComplete(CompletionContext context) {
         return this.completer.tabComplete(context);
     }
