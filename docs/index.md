@@ -23,6 +23,20 @@ The version 2.0 is currently under development and latest builds can be found on
   - CPU and RAM optimizations
   - titles and effects
   - much more...
-- support for multiple storage facilities (currently MongoDB, MySQL, Yaml and local nosql optimized storage)
+- support for multiple storage facilities 
+  - MongoDB
+    Coming soon
+    {: .label .label-yellow }
+  - MySQL
+    Unstable
+    {: .label .label-red }
+  - Yaml
+    Stable
+    {: .label .label-green }
+  - local nosql optimized storage
+    Stable
+    {: .label .label-green }
+    Default
+    {: .label }
 - checkpoints
 - much more to come, take a look to [the roadmap!](https://www.notion.so/nowtryz/ae979233fb1e4599ba3b148608918f96)
