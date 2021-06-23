@@ -11,6 +11,7 @@ YJump `v2.0` is shipped with many storage solutions you can choose from :
 
 If you want to keep V1's YAML files, follw the steps bellow:
  1. change implementation to `yaml`
+    
     ```diff
     *** /YJump/config.yml
     @@ -62,68 +62,68 @@
