@@ -1,11 +1,12 @@
 # Configuration file
 
 ## Storage
-Multiple storage facilities can be used to store parkours configurations and score. Here is a list of available
+Multiple storage facilities can be used to store parkours configurations and scores. Here is a list of available
 implementations:
 
 Nitrite DB
 : A powerful NoSQL database using the H2's storage engine
+
   Document oriented
   {: .label .label-green }
   Default
@@ -16,22 +17,24 @@ Yaml files
 
 MySQL
 : a relational database management system based on SQL. The most popular open source database
+
   Relational
   {: .label .label-yellow }
 
 MongoDb
 : a NoSQL replicable database
+
   Document oriented
   {: .label .label-green }
   Coming soon
   {: .label .label-yellow }
 
 > Prefer using a document oriented implementation as these are the fastest to handle YJump operations. Other solutions
-> are maintained support your needs but can slow down the plugin (not that much, but still).
+> are maintained to support your needs but can slow down the plugin (not that much, but still).
 
 ### Nitrite DB
 
-This is de default setting ans the most supported implementation by the plugin. To configure the plugin to use nitrite,
+This is de default setting and the most supported implementation by the plugin. To configure the plugin to use nitrite,
 you must set the implementation to either `nitrite`, `nitrite-database`, `nitrite-java`, `noo`or `no2`.
 
 ```yaml
@@ -39,9 +42,9 @@ storage:
   implementation: "no2"
 ```
 
-The implementation will create a `data.nitrite.db` file in the `YJump` folder. this file avec a binary structure managed
+The implementation will create a `data.nitrite.db` file in the `YJump` folder. this file has a binary structure managed
 by nitrite. As any managed database files, you should not try to edit these files. This file can be open in read-only
-mode with the [Nitrite explorer](link to nitrite explorer readme).
+mode with the [Nitrite explorer](https://github.com/nitrite/nitrite-java/releases/latest).
 
 ### YAML files
 
