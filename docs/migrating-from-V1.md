@@ -1,5 +1,5 @@
-Migrating from V1
-================
+Migrating from 1.X to 2.X
+=========================
 
 ## Keeping YAML files
 
