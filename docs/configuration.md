@@ -9,6 +9,7 @@ Nitrite DB
 
   Document oriented
   {: .label .label-green }
+
   Default
   {: .label }
 
@@ -26,6 +27,7 @@ MongoDb
 
   Document oriented
   {: .label .label-green }
+
   Coming soon
   {: .label .label-yellow }
 
