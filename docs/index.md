@@ -1,5 +1,7 @@
 ---
 description: The place to find all information to discover and configure the plugin.
+title: Home
+nav_order: -1
 ---
 
 # User documentation

@@ -13,7 +13,7 @@ import java.util.Arrays;
 @Getter
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public enum StorageType {
-    YAML(FlatFileStorage.class, "YAML flat files", "YAML", "YML", "flatfile", "flat", "file"),
+    YAML(FlatFileStorage.class, "YAML flat files", "YAML", "YML", "flat file", "flat files", "flat", "file", "files"),
     MYSQL(MySQLStorage.class, "MYSQL database", "mysql", "sql"),
     NITRITE(NitriteStorage.class, "Nitrite Database", "nitrite", "nitrite-database", "nitrite-java", "noo", "no2");
 

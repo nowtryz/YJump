@@ -162,7 +162,7 @@ public class InfoAdminInventory extends TemplatedPaginatedGui<JumpPlugin, Positi
     }
 
     @Override
-    protected @NotNull ItemStack createItemForObject(ItemBuilder builder, Position position) {
+    protected @NotNull ItemStack createItemForObject(int index, ItemBuilder builder, Position position) {
         return create(Optional.ofNullable(jump.getWorld())
                 .map(position::toLocation)
                 .map(Location::getBlock)

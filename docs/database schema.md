@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 # Database schema
 
 ![Schema](http://yuml.me/91c8cd14.svg)

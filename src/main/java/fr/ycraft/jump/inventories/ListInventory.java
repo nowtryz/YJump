@@ -54,7 +54,7 @@ public class ListInventory extends TemplatedPaginatedGui<JumpPlugin, Jump> {
     }
 
     @Override
-    protected @NotNull ItemStack createItemForObject(ItemBuilder ignored, Jump jump) {
+    protected @NotNull ItemStack createItemForObject(int index, ItemBuilder ignored, Jump jump) {
         List<TimeScore> scores = this.jumpPlayer.get(jump);
         ItemBuilder builder = ItemBuilders.from(jump.getItem())
                 .setDisplayName(Text.JUMP_LIST_HEADER, jump.getName());
