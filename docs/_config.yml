@@ -1,3 +1,24 @@
 remote_theme: pmarsceill/just-the-docs
 title: YJump plugin
 description: A fully featured parkour plugin for Bukkit (1.12.2-1.16.4)
+
+# Aux links for the upper right navigation
+aux_links_new_tab: true
+aux_links:
+  "YJump on GitHub":
+    - "https//github.com/nowtryz/yjump"
+
+# Footer content
+back_to_top: true
+back_to_top_text: "Back to top"
+footer_content: "Copyright &copy; 2020-2021 Nowtyz."
+
+# Footer last edited timestamp
+last_edit_timestamp: true
+last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/nowtryz/yjump"
+gh_edit_branch: "master"
+gh_edit_source: "docs"
+gh_edit_view_mode: "edit"
